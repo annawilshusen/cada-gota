@@ -32,3 +32,42 @@
   .footer-project { text-align: center; }
   .news-ticker { width: 100%; }
 }
+
+
+/* V4 — Portada inspirada en el TDR */
+
+.hero-inner {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 7vw, 6.8rem);
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+  font-weight: 400;
+  white-space: nowrap;
+  text-transform: uppercase;
+  margin: 24px auto;
+}
+
+.hero h1 .accent {
+  color: var(--gold);
+  background: none;
+}
+
+/* Peu de pàgina: respectar les majúscules */
+
+.footer-project {
+  text-transform: none;
+}
+
+/* Adaptació a mòbils */
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    letter-spacing: -0.045em;
+  }
+}
+
