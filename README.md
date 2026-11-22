@@ -1,26 +1,22 @@
-# CADA GOTA — Web del Treball de Recerca
+# CadaGota — Web v3
 
-## Contingut
+Lloc web estàtic en català: recerca, sostenibilitat, conscienciació ambiental i demostració del panell de reg.
+
+## Estructura
 - `index.html`: portada.
-- `pages/`: sis apartats HTML independents (inclosa la portada).
-- `css/styles.css`: tota la identitat gràfica compartida.
-- `js/main.js`: menú mòbil.
-- `assets/logos/`: logotips a partir dels arxius de referència proporcionats.
+- `pages/`: seccions del projecte i `qui-som.html`.
+- `css/styles.css`: estils compartits.
+- `js/main.js`: menú i 31 missatges del ticker.
+- `assets/logos/`: logotips.
 
-## Publicació a GitHub Pages
-Puja **el contingut** d’aquesta carpeta (no una carpeta addicional) a l’arrel de `annawilshusen/cada-gota`, branca `main`. A Settings → Pages, configura `Deploy from a branch`, `main`, `/ (root)`.
+## Editar «Qui som»
+Obre `pages/qui-som.html` i modifica només el text entre les etiquetes `<p>` i `<h2>` dins de les seccions `nosaltres`, `historia` i `motivacions`. Els textos entre claudàtors són indicacions per completar amb la vostra veu; no són biografies inventades.
 
-## Estat del panell
-El panell conté dades de demostració. No connecta amb Arduino, no permet autenticar-se ni enviar ordres. No incloguis contrasenyes, claus Wi-Fi ni tokens dins del repositori públic. Una fase futura necessitarà un servei segur de comunicació i autenticació, així com bloquejos locals de seguretat.
+## Peu de pàgina
+Els noms de les autores són un enllaç a `pages/qui-som.html`. El ticker està al centre, sense botó de pausa, amb els 31 textos a `js/main.js`.
 
-## Identitat
-Colors: blau corporatiu `#407e8c`, crema `#f6efdb`, or `#e3b43d`, blau fosc `#204c55`. El títol destaca `ciència` en blau fosc sobre una petita franja crema per mantenir el contrast a la portada blava.
+## Publicació
+Puja el **contingut** d'aquesta carpeta a l'arrel del repositori GitHub Pages (`main`), mantenint carpetes i rutes.
 
-
-## Versió 2 — portada i missatges
-- Portada sense isotip central: títol gran, «ciència» en groc i sense requadre.
-- Les pàgines de fons beix arriben fins a la vora de la finestra.
-- Menú superior fix mentre es fa scroll.
-- 31 missatges al peu de totes les pàgines. Per modificar-los, edita `tickerMessages` dins de `js/main.js`.
-- La franja es pausa en passar-hi el cursor o amb el botó «Pausa».
-- El panell continua amb dades simulades; encara no hi ha control remot real.
+## Nota
+La pantalla del panell és una demostració sense connexió a l'Arduino ni control remot.
