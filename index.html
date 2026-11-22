@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Consciència a cada gota</title>
+<style>
+:root { --sea:#407f8c; --ink:#204c55; --cream:#f6efdb; --gold:#e8b640; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--sea); color:var(--cream); font:1rem/1.6 system-ui,sans-serif }
+header,main,footer { width:min(1080px,90%); margin:auto }
+header,footer { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; padding:1.1rem 0; border-bottom:1px solid var(--gold) }
+footer { border-top:1px solid var(--gold); border-bottom:0; font-size:.85rem }
+nav,.choices { display:flex; gap:1.3rem; flex-wrap:wrap }
+a { color:inherit; text-underline-offset:.28em }
+a:focus-visible,summary:focus-visible { outline:3px solid currentColor; outline-offset:4px }
+.brand { font-family:Georgia,serif; font-size:1.4rem; text-decoration:none }
+main { padding:clamp(2rem,6vw,5rem) 0; min-height:74vh }
+.hero { text-align:center; margin:auto; max-width:850px }
+.drops { display:flex; justify-content:center; gap:15px; margin:1rem auto 2rem }
+.drops i { width:17px; height:17px; border:2px solid var(--gold); border-radius:0 68% 58% 68%; transform:rotate(45deg) }
+h1,h2,h3 { font-family:Didot,'Bodoni 72',Georgia,serif; font-weight:400; line-height:1.06 }
+h1 { font-size:clamp(3rem,8vw,7.5rem); margin:.25em 0; letter-spacing:-.045em }
+.hero h1 { text-transform:uppercase; padding:.24em 0; border-block:1px solid var(--gold) }
+em { color:var(--gold); font-style:normal }
+.motto { font:italic clamp(1.4rem,3vw,2rem) Georgia,serif }
+.choices { justify-content:center; margin:2rem 0 }
+.button { padding:.65rem 1.3rem; text-decoration:none; border:1px solid var(--cream); border-radius:3px }
+.primary { background:var(--cream); color:var(--ink) }
+.paper { background:var(--cream); color:var(--ink); padding:clamp(1.2rem,4vw,3rem); margin:2rem 0 }
+h2 { font-size:clamp(1.8rem,4vw,3.1rem); margin:0 0 .5em }
+.paper p { max-width:68ch }
+details { border-top:1px solid #97a8a0; padding:.9rem 0 }
+summary { cursor:pointer; font-weight:650 }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,195px),1fr)); gap:1rem }
+article { background:var(--cream); color:var(--ink); padding:1.3rem }
+article h3 { font-size:1.6rem; margin:0 }
+progress { width:100%; accent-color:var(--sea) }
+button { display:block; margin-top:1rem; padding:.4em .8em }
+[hidden] { display:none }
+</style>
+</head>
+<body>
+<header><a class="brand" href="#inici">Cada Gota</a><nav aria-label="Navegació principal"><a href="#projecte">El projecte</a><a href="#panell">Panell de reg</a></nav></header>
+<main>
+<section id="inici" class="hero">
+<div class="drops" aria-hidden="true"><i></i><i></i><i></i></div>
+<p>Treball de recerca de batxillerat</p>
+<h1 tabindex="-1">Consciència<br>a cada <em>gota</em></h1>
+<p class="motto">“Si vita flumen, cuida cada gota”</p>
+<p>Qui rega les plantes a l’estiu? Investiguem com regar les jardineres de l’escola i portem la pregunta sobre el consum d’aigua a les aules.</p>
+<div class="choices"><a class="button primary" href="#projecte">Descobreix el projecte</a><a class="button" href="#panell">Obre el panell de reg</a></div>
+</section>
+<section id="projecte" hidden>
+<h1 tabindex="-1">El projecte</h1>
+<div class="paper"><h2>Qui rega les plantes a l’estiu?</h2>
+<p>El nostre punt de partida són les jardineres de l’escola. Volem saber si podem ajustar el reg a la humitat del sòl i quanta aigua consumirà el sistema per mantenir les plantes durant l’estiu.</p>
+<details open><summary>El reg de les jardineres</summary><p>El disseny preveu 32 plantes distribuïdes en 11 zones. Cada zona compartirà un sensor i un punt de reg. L’Arduino UNO R4 WiFi llegirà la humitat de cada zona per decidir quan cal regar-la.</p><p>Per estudiar el consum, mesurarem el cabal i registrarem quant dura cada reg. Multiplicant els litres per minut pels minuts de funcionament podrem estimar els litres utilitzats i comparar-los amb un reg de referència.</p></details>
+<details><summary>La petjada hídrica</summary><p>Quina relació hi ha entre uns texans i l’aigua? Per fabricar-los, cal aigua per cultivar el cotó i per tractar el teixit. La petjada hídrica permet estudiar també aquesta part del nostre consum, que costa de veure en el producte acabat.</p></details>
+<details><summary>Jornades de conscienciació amb 1r d’ESO</summary><p>La proposta combina una presentació, un Kahoot, una demostració, una infografia i un qüestionari. Cada grup investiga un sector, transforma els litres en una comparació visual i proposa dues accions concretes per estalviar aigua.</p></details>
+</div><a href="#panell">Explora les 11 zones de reg →</a>
+</section>
+<section id="panell" hidden>
+<h1 tabindex="-1">Panell de reg</h1>
+<p><strong>Dades simulades · Arduino desconnectat</strong></p>
+<p id="resum"></p>
+<div id="zones" class="grid"></div>
+</section>
+<noscript>Activa JavaScript per obrir les seccions del projecte i el panell de reg.</noscript>
+</main>
+<footer><span>Anna Wilshusen i Jana Diaz</span><span>Consciència a cada gota</span></footer>
+<script>
+const humitats = [48,62,35,71,54,43,67,39,58,51,64];
+const mitjana = humitats.reduce((suma, valor) => suma + valor, 0) / humitats.length;
+document.querySelector('#resum').textContent = 'Humitat mitjana simulada: ' + mitjana.toLocaleString('ca', {maximumFractionDigits:1}) + ' % · 0 d’11 zones regant';
+humitats.forEach((valor, index) => {
+  const zona = document.createElement('article');
+  const nom = 'Zona ' + (index + 1);
+  zona.innerHTML = '<h3>' + nom + '</h3><p>Humitat del sòl · <strong>' + valor + ' %</strong></p><progress aria-label="Humitat simulada de la ' + nom + '" max="100" value="' + valor + '"></progress><button disabled>Activar el reg</button>';
+  document.querySelector('#zones').append(zona);
+});
+function mostraSeccio(enfoca) {
+  const id = location.hash.slice(1);
+  const activa = ['projecte','panell'].includes(id) ? id : 'inici';
+  document.querySelectorAll('main > section').forEach(seccio => { seccio.hidden = seccio.id !== activa; });
+  document.querySelectorAll('header a').forEach(link => {
+    if (link.hash === '#' + activa) link.setAttribute('aria-current','page');
+    else link.removeAttribute('aria-current');
+  });
+  if (enfoca) {
+    document.getElementById(activa).querySelector('h1').focus({preventScroll:true});
+    window.scrollTo(0,0);
+  }
+}
+window.addEventListener('hashchange', () => mostraSeccio(true));
+mostraSeccio(false);
+</script>
+</body></html>
