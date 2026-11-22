@@ -1,471 +1,98 @@
 <!doctype html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#093b4d">
-  <title>Consciència a cada gota</title>
-
-  <style>
-    :root {
-      --marc: #093b4d;
-      --petroli: #407f8c;
-      --paper: #ededeb;
-      --paper-clar: #fafaf7;
-      --tinta: #202426;
-      --or: #e5b43e;
-      --vora: #bac8c8;
-      --gruix-marc: clamp(6px, 1.25vw, 18px);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      background: var(--marc);
-      scrollbar-gutter: stable;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      border: var(--gruix-marc) solid var(--marc);
-      background: var(--paper);
-      color: var(--tinta);
-      font: 1rem/1.6 system-ui, -apple-system, sans-serif;
-    }
-
-    header, main, footer {
-      width: min(1080px, 89%);
-      margin-inline: auto;
-    }
-
-    header, footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding-block: 1rem;
-    }
-
-    header {
-      border-bottom: 1px solid var(--vora);
-    }
-
-    main {
-      flex: 1;
-      padding-block: clamp(2rem, 6vw, 5rem);
-    }
-
-    footer {
-      border-top: 1px solid var(--vora);
-      color: var(--marc);
-      font-size: .85rem;
-    }
-
-    a {
-      color: var(--marc);
-      text-underline-offset: .3em;
-    }
-
-    a:focus-visible, summary:focus-visible {
-      outline: 3px solid var(--petroli);
-      outline-offset: 5px;
-    }
-
-    .marca {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      font-weight: 750;
-    }
-
-    .marca img {
-      display: block;
-      width: clamp(145px, 18vw, 200px);
-      height: auto;
-    }
-
-    nav, .accessos {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: .8rem 1.4rem;
-    }
-
-    nav a {
-      text-decoration: none;
-    }
-
-    nav a:hover, nav a[aria-current="page"] {
-      text-decoration: underline;
-      text-decoration-color: var(--petroli);
-      text-decoration-thickness: 2px;
-    }
-
-    h1, h2, h3, p {
-      margin-top: 0;
-    }
-
-    h1 {
-      margin-bottom: 1rem;
-      color: var(--marc);
-      font-family: Didot, "Bodoni 72", Georgia, serif;
-      font-weight: 400;
-      font-size: clamp(2.6rem, 6vw, 5.4rem);
-      line-height: 1.02;
-      letter-spacing: -.045em;
-    }
-
-    h2 {
-      margin-bottom: .65rem;
-      font-size: clamp(1.25rem, 2.5vw, 1.9rem);
-      line-height: 1.2;
-    }
-
-    .portada {
-      max-width: 820px;
-      margin-inline: auto;
-      text-align: center;
-    }
-
-    .gotes {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: .4rem auto 1.6rem;
-    }
-
-    .gotes span {
-      width: 15px;
-      height: 15px;
-      border: 2px solid var(--or);
-      border-radius: 0 65% 58% 65%;
-      transform: rotate(45deg);
-    }
-
-    .portada h1 {
-      margin-block: .8rem;
-      padding-block: .22em;
-      border-block: 1px solid var(--or);
-      font-size: clamp(2.75rem, 8vw, 7.2rem);
-      text-transform: uppercase;
-    }
-
-    .portada h1 span {
-      color: var(--petroli);
-    }
-
-    .lema {
-      margin-block: 1.3rem;
-      font: italic clamp(1.25rem, 2.5vw, 1.8rem) Georgia, serif;
-    }
-
-    .introduccio {
-      max-width: 60ch;
-      margin: 0 auto;
-    }
-
-    .accessos {
-      justify-content: center;
-      margin-top: 1.8rem;
-    }
-
-    .boto {
-      padding: .7rem 1.2rem;
-      border: 1px solid var(--marc);
-      border-radius: 3px;
-      text-decoration: none;
-      font-weight: 650;
-    }
-
-    .boto-principal {
-      background: var(--marc);
-      color: white;
-    }
-
-    .boto:hover {
-      box-shadow: 0 2px 0 var(--or);
-    }
-
-    .full {
-      max-width: 820px;
-      margin: 2rem 0;
-      padding: clamp(1.2rem, 4vw, 2.6rem);
-      border-left: 3px solid var(--or);
-      background: var(--paper-clar);
-    }
-
-    .full p {
-      max-width: 68ch;
-    }
-
-    details {
-      padding-block: 1rem;
-      border-top: 1px solid var(--vora);
-    }
-
-    summary {
-      color: var(--marc);
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    details p {
-      margin: .8rem 0 0;
-    }
-
-    .estat {
-      padding-left: .85rem;
-      border-left: 3px solid var(--or);
-      font-weight: 650;
-    }
-
-    .zones {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
-      gap: 1rem;
-    }
-
-    .zona {
-      padding: 1.2rem;
-      border: 1px solid var(--vora);
-      border-top: 3px solid var(--petroli);
-      background: var(--paper-clar);
-    }
-
-    .zona h3 {
-      margin-bottom: .7rem;
-      color: var(--marc);
-      font-size: 1.25rem;
-    }
-
-    .zona p {
-      margin-bottom: .2rem;
-    }
-
-    progress {
-      width: 100%;
-      accent-color: var(--petroli);
-    }
-
-    button:disabled {
-      display: block;
-      margin-top: .85rem;
-      padding: .45rem .75rem;
-      border: 1px solid var(--vora);
-      border-radius: 3px;
-      background: var(--paper);
-      color: #526064;
-      font: inherit;
-      font-size: .85rem;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    @media (max-width: 540px) {
-      header, main, footer {
-        width: 90%;
-      }
-
-      nav {
-        gap: 1rem;
-        font-size: .9rem;
-      }
-
-      .accessos {
-        align-items: stretch;
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Consciència a cada gota</title>
+<style>
+:root { --sea:#407f8c; --ink:#204c55; --cream:#f6efdb; --gold:#e8b640; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--sea); color:var(--cream); font:1rem/1.6 system-ui,sans-serif }
+header,main,footer { width:min(1080px,90%); margin:auto }
+header,footer { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; padding:1.1rem 0; border-bottom:1px solid var(--gold) }
+footer { border-top:1px solid var(--gold); border-bottom:0; font-size:.85rem }
+nav,.choices { display:flex; gap:1.3rem; flex-wrap:wrap }
+a { color:inherit; text-underline-offset:.28em }
+a:focus-visible,summary:focus-visible { outline:3px solid currentColor; outline-offset:4px }
+.brand { font-family:Georgia,serif; font-size:1.4rem; text-decoration:none }
+main { padding:clamp(2rem,6vw,5rem) 0; min-height:74vh }
+.hero { text-align:center; margin:auto; max-width:850px }
+.drops { display:flex; justify-content:center; gap:15px; margin:1rem auto 2rem }
+.drops i { width:17px; height:17px; border:2px solid var(--gold); border-radius:0 68% 58% 68%; transform:rotate(45deg) }
+h1,h2,h3 { font-family:Didot,'Bodoni 72',Georgia,serif; font-weight:400; line-height:1.06 }
+h1 { font-size:clamp(3rem,8vw,7.5rem); margin:.25em 0; letter-spacing:-.045em }
+.hero h1 { text-transform:uppercase; padding:.24em 0; border-block:1px solid var(--gold) }
+em { color:var(--gold); font-style:normal }
+.motto { font:italic clamp(1.4rem,3vw,2rem) Georgia,serif }
+.choices { justify-content:center; margin:2rem 0 }
+.button { padding:.65rem 1.3rem; text-decoration:none; border:1px solid var(--cream); border-radius:3px }
+.primary { background:var(--cream); color:var(--ink) }
+.paper { background:var(--cream); color:var(--ink); padding:clamp(1.2rem,4vw,3rem); margin:2rem 0 }
+h2 { font-size:clamp(1.8rem,4vw,3.1rem); margin:0 0 .5em }
+.paper p { max-width:68ch }
+details { border-top:1px solid #97a8a0; padding:.9rem 0 }
+summary { cursor:pointer; font-weight:650 }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,195px),1fr)); gap:1rem }
+article { background:var(--cream); color:var(--ink); padding:1.3rem }
+article h3 { font-size:1.6rem; margin:0 }
+progress { width:100%; accent-color:var(--sea) }
+button { display:block; margin-top:1rem; padding:.4em .8em }
+[hidden] { display:none }
+</style>
 </head>
-
 <body>
-  <header>
-    <a class="marca" href="#inici" aria-label="Cada Gota · Inici">
-      <img id="logo" src="./logo-cada.png"
-           width="520" height="220"
-           alt="CADA · Consciència de l’Aigua i Desenvolupament Ambiental">
-      <span id="nom-marca" hidden>Cada Gota</span>
-    </a>
-
-    <nav aria-label="Menú principal">
-      <a href="#inici">Inici</a>
-      <a href="#projecte">El projecte</a>
-      <a href="#panell">Panell de reg</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="inici" class="portada">
-      <div class="gotes" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </div>
-
-      <p>Treball de recerca de batxillerat</p>
-      <h1 tabindex="-1">Consciència<br>a cada <span>gota</span></h1>
-      <p class="lema">«Si vita flumen, cuida cada gota»</p>
-
-      <p class="introduccio">
-        Qui rega les plantes a l’estiu? Investiguem com ajustar el reg
-        de les jardineres de l’escola i portem la pregunta sobre el
-        consum d’aigua a les aules.
-      </p>
-
-      <div class="accessos">
-        <a class="boto boto-principal" href="#projecte">Descobreix el projecte</a>
-        <a class="boto" href="#panell">Obre el panell de reg</a>
-      </div>
-    </section>
-
-    <section id="projecte" hidden>
-      <h1 tabindex="-1">El projecte</h1>
-
-      <div class="full">
-        <h2>Qui rega les plantes a l’estiu?</h2>
-        <p>
-          El nostre punt de partida són les jardineres de l’escola.
-          Volem saber quanta aigua necessiten i com podem adaptar el reg
-          a la humitat del sòl quan no hi som.
-        </p>
-
-        <details open>
-          <summary>El sistema de reg</summary>
-          <p>
-            El disseny preveu 32 plantes distribuïdes en 11 zones.
-            Cada zona compartirà un sensor d’humitat i un punt de reg.
-            L’Arduino UNO R4 WiFi llegirà els sensors per decidir
-            quan convé activar cada zona.
-          </p>
-          <p>
-            Per estudiar el consum, mesurarem el cabal en litres per minut
-            i registrarem la durada de cada reg. El producte d’aquestes
-            dues mesures ens permetrà estimar els litres utilitzats.
-          </p>
-        </details>
-
-        <details>
-          <summary>La petjada hídrica</summary>
-          <p>
-            Quina relació hi ha entre uns texans i l’aigua? Per fabricar-los
-            cal aigua per cultivar el cotó i per tractar el teixit.
-            La petjada hídrica ens ajuda a estudiar aquesta part del
-            consum que queda amagada en els productes quotidians.
-          </p>
-        </details>
-
-        <details>
-          <summary>Jornades de conscienciació amb 1r d’ESO</summary>
-          <p>
-            La proposta combina una presentació, un Kahoot, una demostració,
-            una infografia i un qüestionari. Cada grup investiga un sector,
-            transforma els litres en una comparació visual i proposa dues
-            accions concretes per estalviar aigua.
-          </p>
-        </details>
-      </div>
-
-      <a href="#panell">Explora les 11 zones de reg →</a>
-    </section>
-
-    <section id="panell" hidden>
-      <h1 tabindex="-1">Panell de reg</h1>
-      <p class="estat">Dades simulades · Arduino desconnectat</p>
-      <p id="resum"></p>
-      <div id="zones" class="zones"></div>
-    </section>
-
-    <noscript>
-      Activa JavaScript per consultar el projecte i el panell de reg.
-    </noscript>
-  </main>
-
-  <footer>
-    <span>Anna Wilshusen i Jana Diaz</span>
-    <span>Consciència a cada gota</span>
-  </footer>
-
-  <script>
-    // Si el logo encara no s’ha pujat, la capçalera mostra el nom.
-    const logo = document.getElementById("logo");
-    const nomMarca = document.getElementById("nom-marca");
-
-    function mostraNomMarca() {
-      logo.hidden = true;
-      nomMarca.hidden = false;
-    }
-
-    logo.addEventListener("error", mostraNomMarca);
-    if (logo.complete && logo.naturalWidth === 0) mostraNomMarca();
-
-    // Valors de demostració. Cada posició correspon a una zona.
-    const humitats = [48, 62, 35, 71, 54, 43, 67, 39, 58, 51, 64];
-    const contenidorZones = document.getElementById("zones");
-
-    const suma = humitats.reduce((total, valor) => total + valor, 0);
-    const mitjana = (suma / humitats.length).toLocaleString("ca", {
-      maximumFractionDigits: 1
-    });
-
-    document.getElementById("resum").textContent =
-      `Humitat mitjana simulada: ${mitjana} % · 0 d’11 zones regant`;
-
-    humitats.forEach((humitat, index) => {
-      const numero = index + 1;
-      const targeta = document.createElement("article");
-      targeta.className = "zona";
-
-      targeta.innerHTML = `
-        <h3>Zona ${numero}</h3>
-        <p>Humitat del sòl · <strong>${humitat} %</strong></p>
-        <progress max="100" value="${humitat}"
-          aria-label="Humitat simulada de la zona ${numero}"></progress>
-        <button type="button" disabled>Activar el reg</button>
-      `;
-
-      contenidorZones.append(targeta);
-    });
-
-    // Els enllaços permeten entrar a cada secció i tornar enrere.
-    const seccions = document.querySelectorAll("main > section");
-    const enllacosMenu = document.querySelectorAll("nav a");
-
-    function mostraSeccio(enfoca) {
-      const destinacio = location.hash.slice(1);
-      const activa = ["projecte", "panell"].includes(destinacio)
-        ? destinacio
-        : "inici";
-
-      seccions.forEach(seccio => {
-        seccio.hidden = seccio.id !== activa;
-      });
-
-      enllacosMenu.forEach(enllac => {
-        if (enllac.hash === "#" + activa) {
-          enllac.setAttribute("aria-current", "page");
-        } else {
-          enllac.removeAttribute("aria-current");
-        }
-      });
-
-      if (enfoca) {
-        document.getElementById(activa)
-          .querySelector("h1")
-          .focus({ preventScroll: true });
-        window.scrollTo(0, 0);
-      }
-    }
-
-    window.addEventListener("hashchange", () => mostraSeccio(true));
-    mostraSeccio(false);
-  </script>
-</body>
-</html>
+<header><a class="brand" href="#inici">Cada Gota</a><nav aria-label="Navegació principal"><a href="#projecte">El projecte</a><a href="#panell">Panell de reg</a></nav></header>
+<main>
+<section id="inici" class="hero">
+<div class="drops" aria-hidden="true"><i></i><i></i><i></i></div>
+<p>Treball de recerca de batxillerat</p>
+<h1 tabindex="-1">Consciència<br>a cada <em>gota</em></h1>
+<p class="motto">“Si vita flumen, cuida cada gota”</p>
+<p>Qui rega les plantes a l’estiu? Investiguem com regar les jardineres de l’escola i portem la pregunta sobre el consum d’aigua a les aules.</p>
+<div class="choices"><a class="button primary" href="#projecte">Descobreix el projecte</a><a class="button" href="#panell">Obre el panell de reg</a></div>
+</section>
+<section id="projecte" hidden>
+<h1 tabindex="-1">El projecte</h1>
+<div class="paper"><h2>Qui rega les plantes a l’estiu?</h2>
+<p>El nostre punt de partida són les jardineres de l’escola. Volem saber si podem ajustar el reg a la humitat del sòl i quanta aigua consumirà el sistema per mantenir les plantes durant l’estiu.</p>
+<details open><summary>El reg de les jardineres</summary><p>El disseny preveu 32 plantes distribuïdes en 11 zones. Cada zona compartirà un sensor i un punt de reg. L’Arduino UNO R4 WiFi llegirà la humitat de cada zona per decidir quan cal regar-la.</p><p>Per estudiar el consum, mesurarem el cabal i registrarem quant dura cada reg. Multiplicant els litres per minut pels minuts de funcionament podrem estimar els litres utilitzats i comparar-los amb un reg de referència.</p></details>
+<details><summary>La petjada hídrica</summary><p>Quina relació hi ha entre uns texans i l’aigua? Per fabricar-los, cal aigua per cultivar el cotó i per tractar el teixit. La petjada hídrica permet estudiar també aquesta part del nostre consum, que costa de veure en el producte acabat.</p></details>
+<details><summary>Jornades de conscienciació amb 1r d’ESO</summary><p>La proposta combina una presentació, un Kahoot, una demostració, una infografia i un qüestionari. Cada grup investiga un sector, transforma els litres en una comparació visual i proposa dues accions concretes per estalviar aigua.</p></details>
+</div><a href="#panell">Explora les 11 zones de reg →</a>
+</section>
+<section id="panell" hidden>
+<h1 tabindex="-1">Panell de reg</h1>
+<p><strong>Dades simulades · Arduino desconnectat</strong></p>
+<p id="resum"></p>
+<div id="zones" class="grid"></div>
+</section>
+<noscript>Activa JavaScript per obrir les seccions del projecte i el panell de reg.</noscript>
+</main>
+<footer><span>Anna Wilshusen i Jana Diaz</span><span>Consciència a cada gota</span></footer>
+<script>
+const humitats = [48,62,35,71,54,43,67,39,58,51,64];
+const mitjana = humitats.reduce((suma, valor) => suma + valor, 0) / humitats.length;
+document.querySelector('#resum').textContent = 'Humitat mitjana simulada: ' + mitjana.toLocaleString('ca', {maximumFractionDigits:1}) + ' % · 0 d’11 zones regant';
+humitats.forEach((valor, index) => {
+  const zona = document.createElement('article');
+  const nom = 'Zona ' + (index + 1);
+  zona.innerHTML = '<h3>' + nom + '</h3><p>Humitat del sòl · <strong>' + valor + ' %</strong></p><progress aria-label="Humitat simulada de la ' + nom + '" max="100" value="' + valor + '"></progress><button disabled>Activar el reg</button>';
+  document.querySelector('#zones').append(zona);
+});
+function mostraSeccio(enfoca) {
+  const id = location.hash.slice(1);
+  const activa = ['projecte','panell'].includes(id) ? id : 'inici';
+  document.querySelectorAll('main > section').forEach(seccio => { seccio.hidden = seccio.id !== activa; });
+  document.querySelectorAll('header a').forEach(link => {
+    if (link.hash === '#' + activa) link.setAttribute('aria-current','page');
+    else link.removeAttribute('aria-current');
+  });
+  if (enfoca) {
+    document.getElementById(activa).querySelector('h1').focus({preventScroll:true});
+    window.scrollTo(0,0);
+  }
+}
+window.addEventListener('hashchange', () => mostraSeccio(true));
+mostraSeccio(false);
+</script>
+</body></html>
