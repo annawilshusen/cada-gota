@@ -1,20 +1,29 @@
-// Comportament de navegació comú. El panell encara no es connecta a l'Arduino.
+
+/* CADA GOTA — Navegació i missatges */
+
+// MENÚ DE NAVEGACIÓ
+
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
+
 if (toggle && nav) {
   toggle.addEventListener('click', () => {
     const expanded = toggle.getAttribute('aria-expanded') === 'true';
     toggle.setAttribute('aria-expanded', String(!expanded));
     nav.classList.toggle('is-open', !expanded);
   });
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    nav.classList.remove('is-open');
-    toggle.setAttribute('aria-expanded', 'false');
-  }));
+
+  nav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
 }
 
 
-// Missatges de la franja inferior — edita'ls aquí sense tocar l'HTML.
+// ELS 31 MISSATGES DE CADA GOTA
+
 const tickerMessages = [
   "No et mullis!",
   "No t’ofeguis en un got d’aigua.",
@@ -48,43 +57,84 @@ const tickerMessages = [
   "Un litre són mil mil·lilitres. La densitat de l’aigua és aproximadament d’1 kg/L. Ho dic per si tens un examen un dia d’aquests.",
   "Estalviar aigua no hauria de ser una gota en un oceà d’excuses."
 ];
+
+
+// PEU DE PÀGINA
+
 const ticker = document.querySelector('.news-ticker');
-if (ticker) {
-  const text = ticker.querySelector('.ticker-message');
+const footerCredits = document.querySelector('.footer-credits');
+
+if (ticker && footerCredits) {
+
+  // Moure el ticker entre el títol i les autores.
+  const firstCredit = footerCredits.querySelector('p');
+  const lastCredit = footerCredits.querySelector('p:last-of-type');
+
+  if (firstCredit) {
+    firstCredit.textContent =
+      'CONSCIÈNCIA A CADA GOTA · TREBALL DE RECERCA';
+  }
+
+  if (lastCredit) {
+    footerCredits.insertBefore(ticker, lastCredit);
+  } else {
+    footerCredits.appendChild(ticker);
+  }
+
+  // Eliminar l'etiqueta i el botó de pausa.
+  ticker.querySelector('.ticker-label')?.remove();
+  ticker.querySelector('.ticker-pause')?.remove();
+
+  const message = ticker.querySelector('.ticker-message');
   const viewport = ticker.querySelector('.ticker-viewport');
-  const pause = ticker.querySelector('.ticker-pause');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
+
   let queue = [];
-  let stopped = false;
   let last = -1;
+
   function shuffle() {
     queue = tickerMessages.map((_, index) => index);
+
     for (let i = queue.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [queue[i], queue[j]] = [queue[j], queue[i]];
     }
+
     if (queue.length > 1 && queue[queue.length - 1] === last) {
-      [queue[0], queue[queue.length - 1]] = [queue[queue.length - 1], queue[0]];
+      [queue[0], queue[queue.length - 1]] =
+        [queue[queue.length - 1], queue[0]];
     }
   }
+
   function nextMessage() {
     if (!queue.length) shuffle();
+
     last = queue.pop();
-    text.classList.remove('is-running');
-    text.textContent = tickerMessages[last];
+
+    message.classList.remove('is-running');
+    message.textContent = tickerMessages[last];
+
     if (reducedMotion.matches) return;
-    const px = viewport.clientWidth + text.scrollWidth;
-    text.style.setProperty('--ticker-duration', `${Math.max(10, px / 95)}s`);
-    void text.offsetWidth; // reinicia l'animació
-    text.classList.add('is-running');
+
+    const distance =
+      viewport.clientWidth + message.scrollWidth;
+
+    const duration = Math.max(10, distance / 95);
+
+    message.style.setProperty(
+      '--ticker-duration',
+      `${duration}s`
+    );
+
+    void message.offsetWidth;
+
+    message.classList.add('is-running');
   }
-  text.addEventListener('animationend', () => { if (!stopped) nextMessage(); });
-  pause.addEventListener('click', () => {
-    stopped = !stopped;
-    ticker.classList.toggle('is-paused', stopped);
-    pause.setAttribute('aria-pressed', String(stopped));
-    pause.textContent = stopped ? 'Continua' : 'Pausa';
-  });
+
+  message.addEventListener('animationend', nextMessage);
   reducedMotion.addEventListener('change', nextMessage);
+
   nextMessage();
 }
