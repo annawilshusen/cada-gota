@@ -15,3 +15,12 @@ El panell conté dades de demostració. No connecta amb Arduino, no permet auten
 
 ## Identitat
 Colors: blau corporatiu `#407e8c`, crema `#f6efdb`, or `#e3b43d`, blau fosc `#204c55`. El títol destaca `ciència` en blau fosc sobre una petita franja crema per mantenir el contrast a la portada blava.
+
+
+## Versió 2 — portada i missatges
+- Portada sense isotip central: títol gran, «ciència» en groc i sense requadre.
+- Les pàgines de fons beix arriben fins a la vora de la finestra.
+- Menú superior fix mentre es fa scroll.
+- 31 missatges al peu de totes les pàgines. Per modificar-los, edita `tickerMessages` dins de `js/main.js`.
+- La franja es pausa en passar-hi el cursor o amb el botó «Pausa».
+- El panell continua amb dades simulades; encara no hi ha control remot real.
