@@ -1,1 +1,92 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cada Gota · Panell de reg</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f4f7f2;
+      color: #183d35;
+      font: 1rem/1.5 system-ui, sans-serif;
+    }
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 36px 20px 60px;
+    }
+    header {
+      padding: clamp(24px, 5vw, 56px);
+      background: #154e43;
+      color: white;
+      border-radius: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.7rem, 7vw, 5rem);
+      line-height: 1.1;
+      letter-spacing: -0.05em;
+    }
+    header p { margin: 12px 0 0; }
+    h2 { margin: 32px 0 12px; }
+    #zones {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+      gap: 14px;
+    }
+    article {
+      padding: 20px;
+      background: white;
+      border: 1px solid #d6e2da;
+      border-radius: 14px;
+    }
+    h3 { margin: 0; }
+    article p { margin: 12px 0 4px; }
+    progress { width: 100%; accent-color: #247866; }
+    button {
+      display: block;
+      margin-top: 16px;
+      padding: 7px 12px;
+      border: 1px solid #ccd8d1;
+      border-radius: 7px;
+      background: #edf2ee;
+      color: #53645b;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Cada Gota</h1>
+      <p>Panell de reg · 32 plantes distribuïdes en 11 zones</p>
+    </header>
 
+    <p><strong>Dades simulades.</strong> Arduino desconnectat.</p>
+
+    <h2>Zones de reg</h2>
+    <div id="zones"></div>
+  </main>
+
+  <script>
+    const humitatsSimulades = [48, 62, 35, 71, 54, 43, 67, 39, 58, 51, 64];
+    const zones = document.getElementById("zones");
+
+    humitatsSimulades.forEach((humitat, index) => {
+      const numero = index + 1;
+      const targeta = document.createElement("article");
+
+      targeta.innerHTML = `
+        <h3>Zona ${numero}</h3>
+        <p>Humitat del sòl · <strong>${humitat} %</strong></p>
+        <progress value="${humitat}" max="100"
+          aria-label="Humitat simulada de la zona ${numero}"></progress>
+        <button type="button" disabled>Activar el reg</button>
+      `;
+
+      zones.appendChild(targeta);
+    });
+  </script>
+</body>
+</html>
