@@ -31,3 +31,12 @@ El panell `pages/panell.html` consulta `public.lectures_humitat` amb una publish
 ## v12 — Historial d'humitat
 
 El panell incorpora gràfica SVG accessible, tria de jardinera i períodes de 24 hores, 7 dies i 30 dies, amb informació llegida directament de Supabase. Els punts daurats identifiquen lectures que declaren la bomba activa. No s'han inserit dades noves; les dades del SQL de prova conserven `origen=prova`. La taula requereix la columna `origen` creada a la fase anterior. Consulta limitada a 1.000 registres per jardinera i període, amb avís explícit si s'assoleix el límit.
+
+
+## v13 — Inici de sessió del control privat
+- Pàgina nova: `/pages/control.html`, accessible des del panell públic.
+- Autenticació de Supabase Auth amb correu i contrasenya.
+- Consulta de permisos a `public.administradores` sota RLS.
+- Sense ordres a l'Arduino, activació de bomba ni edició dels llindars.
+- Necessita que l'usuari ja existeixi a Authentication > Users i que consti a `public.administradores`.
+- No inclou contrasenyes ni claus secretes: només la publishable key.

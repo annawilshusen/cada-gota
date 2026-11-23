@@ -1,0 +1,43 @@
+---
+layout: default
+title: Control privat
+nav: panell
+---
+<section class="content chapter cada-auth" id="cada-auth">
+  <p class="intro-label">CADA GOTA · ADMINISTRACIÓ</p>
+  <h1 class="section-title">Control privat</h1>
+  <p class="lead">Accés reservat a les administradores del sistema de reg.</p>
+  <p id="auth-message" class="cada-auth-message" role="status" aria-live="polite">Comprovant si tens una sessió iniciada…</p>
+
+  <form id="auth-form" class="cada-auth-form" hidden>
+    <label for="auth-email">Correu electrònic</label>
+    <input id="auth-email" name="email" type="email" autocomplete="username" required placeholder="Correu del compte de CadaGota">
+    <label for="auth-password">Contrasenya</label>
+    <input id="auth-password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit" id="auth-submit">Iniciar sessió</button>
+  </form>
+
+  <div id="auth-no-access" class="cada-auth-denied" hidden>
+    <h2>Compte sense permisos d’administració</h2>
+    <p>La sessió és vàlida, però aquest compte no consta a la taula d’administradores de CadaGota.</p>
+    <button type="button" class="cada-auth-secondary" data-signout>Tancar sessió</button>
+  </div>
+
+  <section id="auth-private" class="cada-auth-private" hidden aria-labelledby="auth-private-title">
+    <div class="cada-auth-toolbar">
+      <p class="cada-auth-identity">Sessió iniciada com a <strong id="auth-account"></strong></p>
+      <button type="button" class="cada-auth-secondary" data-signout>Tancar sessió</button>
+    </div>
+    <h2 id="auth-private-title">Administració de CadaGota</h2>
+    <div class="cada-auth-grid">
+      <article class="panel"><p class="kicker">CONNEXIÓ</p><h3>Autenticació activa</h3><p>Supabase ha identificat el teu compte i ha confirmat que consta a la llista d’administradores.</p></article>
+      <article class="panel"><p class="kicker">PRÒXIMA FASE</p><h3>Configuració del reg</h3><p>Prepararem els llindars d’humitat i les ordres de reg amb permisos al servidor i límits de seguretat.</p></article>
+    </div>
+    <div class="callout"><strong>Sense control físic.</strong> Aquesta pantalla encara no pot encendre ni apagar la bomba ni modificar la configuració de l’Arduino.</div>
+    <a class="cada-auth-back" href="{{ '/pages/panell.html' | relative_url }}">Tornar al panell públic</a>
+  </section>
+  <noscript>Cal activar JavaScript per iniciar sessió.</noscript>
+</section>
+<link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script defer src="{{ '/js/control-privat.js' | relative_url }}"></script>

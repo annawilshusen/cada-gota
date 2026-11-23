@@ -41,7 +41,11 @@ nav: panell
     <div id="reg-history-summary" class="reg-history-summary" aria-live="polite"></div>
     <p class="muted reg-history-note">Les lectures etiquetades «prova» són fictícies. El gràfic mostra dades de Supabase, no mesures de l’Arduino fins que es connecti.</p>
   </section>
-  <section class="section reading"><h2>Control privat</h2><p>La consulta de les dades és pública. L’activació i l’aturada del reg requeriran autenticació i comprovacions de seguretat al servidor i al dispositiu.</p><div class="callout"><strong>Encara no operatiu.</strong> Aquesta pàgina no envia ordres a l’Arduino.</div></section>
+  <section class="section reading"><h2>Control privat</h2>
+<p>Les administradores del projecte poden iniciar sessió amb el seu compte de CadaGota. La consulta de la humitat continua sent pública.</p>
+<a class="reg-private-link" href="{{ '/pages/control.html' | relative_url }}">Accedir al control privat</a>
+<p class="muted reg-private-hint">L’accés privat ja es pot provar. Les ordres a les bombes encara no estan habilitades.</p>
+</section>
 </div>
 <link rel="stylesheet" href="{{ '/css/panell-live.css' | relative_url }}">
 <script src="{{ '/js/panell-live.js' | relative_url }}" defer></script>
