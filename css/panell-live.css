@@ -1,0 +1,15 @@
+/* CadaGota — connexió de només lectura amb Supabase. */
+.irrigation-dashboard .dashboard-topline{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:24px}
+.irrigation-dashboard .dashboard-topline .status{margin:0}
+.irrigation-dashboard .reg-refresh{font:inherit;color:#265f6b;border:1px solid #407e8c;background:#fffaf0;padding:9px 15px;cursor:pointer}
+.irrigation-dashboard .reg-refresh:hover,.irrigation-dashboard .reg-refresh:focus-visible{background:#407e8c;color:#fffaf0}
+.irrigation-dashboard .reg-refresh:disabled{opacity:.6;cursor:wait}
+.irrigation-dashboard .reg-source{font-size:.9rem;margin:12px 0 4px}
+.irrigation-dashboard .reg-updated{font-size:.8rem;margin:0}
+.irrigation-dashboard .reg-zones{align-items:stretch}
+.irrigation-dashboard .reg-zones .panel{min-width:0}
+.irrigation-dashboard .reg-zones .data-value{font-size:clamp(1.55rem,3vw,2.15rem);overflow-wrap:anywhere}
+.irrigation-dashboard .reg-zones .meter{margin-bottom:10px}
+.irrigation-dashboard .reg-zones .meter span{transition:width .35s ease}
+.irrigation-dashboard .reg-empty{border-left:3px solid #407e8c;background:#f2ecde;padding:13px 16px;margin-top:14px}
+@media(prefers-reduced-motion:reduce){.irrigation-dashboard .reg-zones .meter span{transition:none}}

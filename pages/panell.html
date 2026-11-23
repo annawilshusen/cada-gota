@@ -3,10 +3,23 @@ layout: default
 title: Panell de reg
 nav: panell
 ---
-<div class="content chapter"><p class="intro-label">MONITORATGE</p><h1 class="section-title">Panell de reg</h1>
-<p class="lead">Aquest apartat mostrarà les dades del sistema de reg quan s'hagi implementat la connexió Wi-Fi.</p>
-<p class="status">● DEMOSTRACIÓ · Dades simulades · Arduino desconnectat</p><hr class="gold-line">
-<div class="three-up"><article class="panel"><p class="kicker">ZONA 01</p><h3>Humitat del sòl</h3><span class="data-value">48 %</span><div class="meter" role="img" aria-label="Humitat simulada del 48 per cent"><span style="width:48%"></span></div></article>
-<article class="panel"><p class="kicker">ZONA 02</p><h3>Humitat del sòl</h3><span class="data-value">62 %</span><div class="meter" role="img" aria-label="Humitat simulada del 62 per cent"><span style="width:62%"></span></div></article>
-<article class="panel"><p class="kicker">DIPÒSIT</p><h3>Nivell d'aigua</h3><span class="data-value">—</span><p class="muted">Sense dades reals</p></article></div>
-<section class="section reading"><h2>Control privat</h2><p>La consulta de les dades serà pública. L'activació i l'aturada del reg requeriran autenticació i comprovacions de seguretat al servidor i al dispositiu.</p><div class="callout"><strong>Encara no operatiu.</strong> Aquesta pàgina no envia ordres a l'Arduino.</div></section></div>
+<div class="content chapter irrigation-dashboard" id="irrigation-dashboard">
+  <p class="intro-label">MONITORATGE</p>
+  <h1 class="section-title">Panell de reg</h1>
+  <p class="lead">Humitat del sòl, estat del dipòsit i funcionament del sistema de reg.</p>
+  <div class="dashboard-topline">
+    <p class="status" id="reg-status" role="status" aria-live="polite">Connectant amb Supabase…</p>
+    <button id="reg-refresh" class="reg-refresh" type="button">Actualitzar lectures</button>
+  </div>
+  <p class="muted reg-source" id="reg-source">Dades de prova de Supabase. L’Arduino encara no està connectat.</p>
+  <p id="reg-updated" class="muted reg-updated">—</p>
+  <hr class="gold-line">
+  <div class="three-up reg-zones" id="reg-zones" aria-live="polite">
+    <article class="panel"><p class="kicker">JARDINERA 01</p><h3>Humitat del sòl</h3><span class="data-value">—</span><p class="muted">Carregant…</p></article>
+    <article class="panel"><p class="kicker">JARDINERA 02</p><h3>Humitat del sòl</h3><span class="data-value">—</span><p class="muted">Carregant…</p></article>
+    <article class="panel"><p class="kicker">DIPÒSIT</p><h3>Nivell d’aigua</h3><span class="data-value" id="reg-tank">—</span><p class="muted" id="reg-tank-note">Esperant la darrera lectura.</p></article>
+  </div>
+  <section class="section reading"><h2>Control privat</h2><p>La consulta de les dades és pública. L’activació i l’aturada del reg requeriran autenticació i comprovacions de seguretat al servidor i al dispositiu.</p><div class="callout"><strong>Encara no operatiu.</strong> Aquesta pàgina no envia ordres a l’Arduino.</div></section>
+</div>
+<link rel="stylesheet" href="{{ '/css/panell-live.css' | relative_url }}">
+<script src="{{ '/js/panell-live.js' | relative_url }}" defer></script>

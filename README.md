@@ -22,3 +22,8 @@ Llegeix `REVISIO-PENDENT.md` per a possibles incoherències de la bibliografia i
 
 
 Consulta `CANVIS-V9.md` per a les correccions de la darrera versió.
+
+
+## v11 — Panell Supabase (prova)
+
+El panell `pages/panell.html` consulta `public.lectures_humitat` amb una publishable key (pública) i RLS per a consultes anònimes. Es refresca cada 30 segons, té un botó d’actualització manual i mostra l’última lectura de cada jardinera. **Les dades encara són de prova:** no hi ha connexió amb Arduino ni control remot de la bomba. Mai no s’han d’emmagatzemar claus `sb_secret_`, `service_role` ni contrasenyes al repositori.
