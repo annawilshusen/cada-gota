@@ -1,0 +1,148 @@
+/* CadaGota v8 — narrativa científica interactiva; components compartits */
+:root{--demo-ink:#204c55;--demo-sea:#407e8c;--demo-pale:#fffaf0;--demo-gold:#e3b43d}
+
+/* Botó del PDF: intercanvi literal de l'estat normal/hover de la v7 */
+.front-section.document-call .button-outline-document{
+ display:inline-flex;align-items:center;justify-content:center;min-height:59px;
+ background:var(--sea-deep);color:var(--paper);border:1px solid var(--sea-deep);
+ padding:12px 24px;font-size:1.04rem;font-weight:600;transition:background .2s,color .2s,border-color .2s;
+}
+.front-section.document-call .button-outline-document:hover,
+.front-section.document-call .button-outline-document:focus-visible{
+ background:transparent;color:var(--sea-deep);border-color:var(--sea-deep);opacity:1;
+}
+.document-cta-row{display:flex;align-items:center;flex-wrap:wrap;gap:clamp(30px,5vw,84px);margin-top:36px}
+.document-cta-row .inline-link{margin:0;font-weight:650;text-underline-offset:7px}
+
+/* Jerarquia diferenciada. Els números ja no són minúsculs. */
+.chapter-body h2.chapter-heading{font:400 clamp(2.1rem,3.45vw,3.25rem)/1.13 Georgia,serif;margin-top:3.4rem;padding-bottom:.55em;border-bottom:1px solid var(--line)}
+.chapter-body h3.chapter-heading{font:400 clamp(1.65rem,2.4vw,2.12rem)/1.25 Georgia,serif;margin-top:3rem;padding-bottom:.2em}
+.chapter-body h4.chapter-heading{font:600 clamp(1.15rem,1.5vw,1.39rem)/1.4 Georgia,serif;margin-top:2rem}
+.chapter-body .section-number{font:700 clamp(.98rem,1.5vw,1.19rem)/1.2 Arial,sans-serif;letter-spacing:0;vertical-align:baseline;margin-right:.52em;white-space:nowrap}
+.chapter-body h2.chapter-heading .section-number{font-size:1.15rem}
+.chapter-body h3.chapter-heading .section-number{font-size:1.08rem}
+.chapter-body h4.chapter-heading .section-number{font-size:1.02rem}
+.chapter-body .text-subheading{font-size:1.12rem;margin-top:1.7rem}
+.chapter-body .bibliografia h2{font:400 clamp(2rem,3vw,2.55rem)/1.15 Georgia,serif}
+
+/* Bibliografia contrastada, amb accés directe a les fonts */
+.bibliography-context{font-size:.92rem;color:#4e666b;max-width:72ch}
+.chapter-body .bib-list li{grid-template-columns:minmax(40px,52px) minmax(0,1fr);padding:16px 2px;gap:10px}
+.bib-entry{min-width:0;overflow-wrap:anywhere}
+.bib-actions{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:.86rem}
+.bib-source{font-weight:700;color:#14596b;text-underline-offset:4px}
+.bib-back{font-weight:700;text-decoration:none}
+.bib-unlinked{font-size:.82rem;color:#697b7b}
+.chapter-body .bib-list li:target{background:#f2e2af;outline:1px solid var(--gold)}
+
+/* Llistes originals amb semàntica real, no paràgrafs simulant punts. */
+.chapter-body .droplet-list{list-style:none;margin:1rem 0 2rem;padding:0;display:grid;gap:11px}
+.chapter-body .droplet-list li{position:relative;padding:6px 10px 6px 27px;line-height:1.65}
+.chapter-body .droplet-list li::before{content:"";position:absolute;top:17px;left:3px;width:10px;height:13px;border-radius:65% 65% 65% 5%;transform:rotate(-35deg);background:var(--sea)}
+
+/* Figures i activitats, integrades a la lectura */
+.chapter-body .science-feature{border:1px solid rgba(32,76,85,.2);background:#fffaf0;padding:clamp(19px,3.5vw,36px);margin:2.8rem 0 3.2rem;overflow:hidden;box-shadow:0 10px 35px rgba(31,76,85,.055);border-top:3px solid var(--sea)}
+.chapter-body .science-feature h2{font:400 clamp(1.72rem,2.65vw,2.5rem)/1.18 Georgia,serif;margin:.6rem 0 1rem;color:var(--ink)}
+.science-feature>p{max-width:76ch}
+.feature-eyebrow{font:700 .74rem/1.3 Arial,sans-serif;letter-spacing:.15em;color:var(--sea);text-transform:uppercase}
+.science-feature button{font-family:inherit;cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.science-feature button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.science-feature button[aria-pressed="true"]{background:var(--sea-deep);color:var(--paper);border-color:var(--sea-deep)}
+.science-feature .figure-caption{font-size:.78rem;color:#657c7c;line-height:1.5;margin:18px 0 0}
+.step-tabs,.segmented-demo{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.step-tabs button,.segmented-demo button{border:1px solid #93a9ab;color:var(--ink);background:#fff;padding:9px 14px;font:600 .86rem Arial,sans-serif}
+.step-tabs button:hover,.segmented-demo button:hover{border-color:var(--sea-deep);transform:translateY(-1px)}
+.step-display{display:grid;grid-template-columns:95px minmax(0,1fr);gap:17px;align-items:center;border-top:1px solid var(--line);padding-top:18px;margin-top:20px}
+.step-count{font:400 2rem Georgia,serif;color:var(--sea)}
+.step-output,.demo-result,.climate-readout,.component-details,.reuse-output,.education-output{line-height:1.6;background:#edf1e8;border-left:3px solid var(--sea);padding:14px 16px;margin:14px 0 0}
+
+/* Repartiment de l'aigua, amb escala ajustada a cada subconjunt */
+.distribution-track{height:46px;display:flex;overflow:hidden;border:1px solid #8fa6a6;margin:25px 0 15px;background:#fff}
+.distribution-track span{display:block;height:100%;transition:width .5s ease}
+.distribution-major{width:97%;background:#407e8c}
+.distribution-minor{width:3%;background:#e3b43d}
+.distribution-remainder{width:0%;background:#93bcab}
+.distribution-keys{display:flex;flex-wrap:wrap;gap:14px 24px;font-size:.86rem}
+.distribution-keys span{white-space:nowrap}
+.distribution-keys i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:middle}
+.key-salt{background:#407e8c}.key-fresh{background:#e3b43d}.key-ground{background:#83b5a7}
+.science-map{margin:2.5rem 0;padding:12px;background:#fffaf0;border:1px solid var(--line)}
+.science-map img{display:block;width:100%;height:auto;object-fit:contain}
+.science-map figcaption{padding:13px 8px 5px;color:#465e62;line-height:1.55;font-size:.88rem}
+
+/* Canvi climàtic: control qualitatiu, sense fer passar per dades reals */
+.demo-slider-label{display:block;font-size:.93rem;margin:20px 0 10px}
+.demo-slider-label strong{color:#15677a}
+.climate-lab input[type=range]{width:100%;accent-color:var(--sea);cursor:pointer}
+.climate-scene{position:relative;overflow:hidden;height:230px;background:linear-gradient(#deebdf 0%,#eef0df 67%,#d7e3ca 67%,#d7e3ca 100%);border:1px solid #cedad3;margin:16px 0}
+.climate-water{position:absolute;bottom:0;left:0;width:57%;height:70px;background:#5bafc0;border-radius:48% 48% 0 0;transition:height .3s}
+.climate-sun{position:absolute;top:18px;right:50px;width:74px;height:74px;border-radius:50%;background:#eecb65;box-shadow:0 0 0 12px rgba(238,203,101,.24);transition:transform .4s}
+.climate-cloud{position:absolute;left:39%;top:50px;width:160px;height:48px;background:#fff;border-radius:60px;box-shadow:-30px 18px 0 3px #fff,28px 16px 0 #fff;opacity:.8;transition:transform .4s}
+.climate-vapour{position:absolute;left:22%;top:95px;display:flex;gap:24px;color:#276b82;font-size:2.2rem;transition:opacity .3s,transform .3s}
+.climate-plant{position:absolute;right:19%;bottom:38px;font-size:6.5rem;color:#5a906b;line-height:1}
+
+/* Riu amb punts que són controls accessibles */
+.river-scene{position:relative;max-width:100%;border:1px solid #c4d6d1;overflow:hidden;margin-top:20px}
+.river-scene svg{width:100%;height:auto;display:block}
+.river-hotspot{position:absolute;transform:translate(-50%,-50%);width:37px;height:37px;border:2px solid #fff;color:#fff;background:#235c68;border-radius:50%;font:700 .95rem Arial,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.river-hotspot:hover{transform:translate(-50%,-50%) scale(1.17);background:#a36c14}
+.river-hotspot[aria-pressed="true"]{background:var(--gold);color:#204c55;border-color:#204c55}
+.river-info{margin:0;background:#edf1e8;padding:18px 19px;border-left:3px solid var(--sea);line-height:1.55;min-height:126px}
+.river-info .info-index{display:block;font-size:.77rem;color:#53717a;letter-spacing:.1em;margin-bottom:6px}
+.river-info strong{font:400 1.4rem Georgia,serif}
+.river-info p{margin:.5rem 0 0}
+
+/* Reg amb una planta esquemàtica; punts d'aportació canviants */
+.irrigation-options{gap:6px}
+.irrigation-options button{flex:1 1 110px}
+.irrigation-scene{position:relative;overflow:hidden;margin:15px 0 0;background:#e6ecda}
+.irrigation-scene svg{display:block;width:100%;height:auto}
+.irrigation-drops{position:absolute;inset:0;pointer-events:none}
+.irrigation-drops i{position:absolute;display:block;width:9px;height:14px;border-radius:65% 65% 65% 4%;background:#3a9fc4;transform:rotate(-35deg);transition:left .5s,top .5s,opacity .3s}
+.irrigation-drops i:nth-child(1){left:38%;top:62%}.irrigation-drops i:nth-child(2){left:43%;top:64%}.irrigation-drops i:nth-child(3){left:49%;top:63%}.irrigation-drops i:nth-child(4){left:54%;top:65%}
+.irrigation-drops i:nth-child(n+5){opacity:0}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(n){opacity:1}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(1){left:20%;top:21%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(2){left:30%;top:36%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(3){left:40%;top:22%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(4){left:50%;top:35%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(5){left:60%;top:28%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(6){left:70%;top:33%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(7){left:79%;top:22%}
+.irrigation-scene[data-mode="aspersio"] .irrigation-drops i:nth-child(8){left:85%;top:42%}
+.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(n){opacity:1;top:85%}
+.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(1){left:16%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(2){left:24%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(3){left:32%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(4){left:42%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(5){left:52%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(6){left:62%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(7){left:72%}.irrigation-scene[data-mode="superficie"] .irrigation-drops i:nth-child(8){left:83%}
+.irrigation-scene[data-mode="manual"] .irrigation-drops i:nth-child(n){opacity:1;top:36%;left:28%}
+.irrigation-scene[data-mode="manual"] .irrigation-drops i:nth-child(2){left:32%;top:43%}.irrigation-scene[data-mode="manual"] .irrigation-drops i:nth-child(3){left:35%;top:51%}.irrigation-scene[data-mode="manual"] .irrigation-drops i:nth-child(4){left:39%;top:60%}
+.irrigation-scene[data-mode="manual"] .irrigation-drops i:nth-child(n+5){opacity:0}
+
+/* Automatització: components connectats */
+.circuit-diagram{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:24px 0}
+.circuit-diagram button{display:flex;flex:1 1 104px;flex-direction:column;gap:5px;align-items:flex-start;min-width:92px;background:#f1f4ec;border:1px solid #9caba6;padding:15px 11px;text-align:left}
+.circuit-diagram button strong{font-size:.97rem}.circuit-diagram button small{font-size:.74rem}
+.circuit-index{font-size:.72rem;color:var(--sea);font-weight:700}
+.circuit-diagram button[aria-pressed="true"] .circuit-index{color:#f0cf79}
+.circuit-wire{align-self:center;color:var(--sea);font:700 1.4rem Georgia,serif}
+
+/* Reutilització, educació */
+.reuse-steps,.education-cards{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap;margin:20px 0}
+.reuse-steps>span{align-self:center;color:var(--sea)}
+.reuse-steps button{flex:1 1 124px;border:1px solid #9daea9;background:#f7f8f3;color:var(--ink);padding:13px 12px;text-align:left;font-weight:700}
+.reuse-steps button span{display:block;font-size:.75rem;color:var(--sea);margin-bottom:5px}
+.reuse-steps button[aria-pressed="true"] span{color:#f0cb72}
+.education-cards button{flex:1 1 145px;background:#f7f8f3;border:1px solid #9daea9;text-align:left;padding:15px}
+.education-cards strong{display:block;margin-bottom:7px}
+.education-cards span{font-size:.79rem;line-height:1.4}
+.education-cards button[aria-pressed="true"] span{color:var(--paper)}
+
+/* Mai no es perd informació en mòbil ni en navegació amb teclat */
+@media(max-width:720px){.document-cta-row{gap:22px}.step-display{grid-template-columns:1fr;gap:4px}.river-hotspot{width:33px;height:33px}.river-info strong{font-size:1.2rem}.circuit-wire{display:none}.circuit-diagram{display:grid;grid-template-columns:1fr 1fr}.irrigation-options button{flex:1 1 40%}}
+@media(max-width:470px){.document-cta-row .button-outline-document{width:100%}.climate-scene{height:185px}.climate-plant{right:11%;font-size:5rem}.river-hotspot{width:29px;height:29px;font-size:.76rem}.science-feature{padding:15px!important}}
+@media(prefers-reduced-motion:reduce){.science-feature button,.distribution-track span,.climate-sun,.climate-cloud,.climate-vapour,.irrigation-drops i{transition:none!important}.irrigation-drops i{animation:none!important}}
+/* Blocs secundaris desplegables, conservant els paràgrafs complets */
+.definition-fold{margin:12px 0;border:1px solid var(--line);background:#fff9eb}
+.definition-fold>summary{cursor:pointer;display:list-item;font:600 1.06rem Arial,sans-serif;padding:16px 17px 16px 20px;list-style-position:inside;color:var(--ink)}
+.definition-fold>summary:hover{background:#f1ead6}
+.definition-fold[open]>summary{background:#edf1e8;border-bottom:1px solid var(--line)}
+.definition-fold>p{padding:4px 19px 17px;margin:8px 0 0;font-size:1rem}
+.definition-fold>summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}

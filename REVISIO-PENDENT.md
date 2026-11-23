@@ -16,3 +16,10 @@ He mantingut les dades i afirmacions del text original, excepte correccions orto
 12. **Text de les autores:** l'apartat 2.5.3.6 indica textualment que es traslladarà al treball de camp. Es manté a l'apartat actual fins que decidiu moure'l.
 
 El text principal dels capítols s'ha creat a partir de `Texto pegado.txt`; no s'han fet transcripcions de les fotografies del PDF.
+
+## V8 — bibliografia i visualitzacions
+
+13. **Desajust entre citació i bibliografia:** al text de canvi climàtic, `[17]` acompanya ICM-CSIC, però al nou fitxer bibliogràfic `[17]` és Ecología Cotidiana i ICM-CSIC figura com `[18]`. També hi ha desplaçaments similars en altres capítols. **No s’han renumerat les citacions sense autorització.**
+14. **Referències sense URL original:** [37], [38], [40]. Encara no hi ha una URL pública específica facilitada per a aquestes obres o apunts.
+15. **Mapes i autoria:** només s’incorpora el mapa mundial de recursos renovables per càpita adjuntat. Cal confirmar els drets de reutilització fora del PDF abans de publicar-lo.
+16. **Esquemes nous:** els controls de clima, contaminació, reg, fases i automatització són explicacions qualitatives; cap simulador afirma mesurar el prototip real.
