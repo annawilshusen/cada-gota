@@ -13,3 +13,28 @@
 .irrigation-dashboard .reg-zones .meter span{transition:width .35s ease}
 .irrigation-dashboard .reg-empty{border-left:3px solid #407e8c;background:#f2ecde;padding:13px 16px;margin-top:14px}
 @media(prefers-reduced-motion:reduce){.irrigation-dashboard .reg-zones .meter span{transition:none}}
+
+/* v12 — Historial interactiu: només aquesta pàgina. */
+.irrigation-dashboard .reg-history{margin-top:64px;border-top:1px solid var(--gold);padding-top:28px}
+.irrigation-dashboard .reg-history>h2{font:normal clamp(2rem,4vw,3.3rem)/1.18 Georgia,serif;margin:5px 0 22px}
+.irrigation-dashboard .reg-history-controls{display:flex;flex-wrap:wrap;align-items:end;gap:22px;margin:0 0 18px}
+.irrigation-dashboard .reg-history-controls label{display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:700;color:var(--ink)}
+.irrigation-dashboard .reg-history-controls select{font:inherit;font-weight:400;background:#fffaf0;color:var(--ink);border:1px solid var(--sea);padding:9px 35px 9px 12px;min-width:170px}
+.irrigation-dashboard .reg-history-period{padding:0;margin:0;border:0}
+.irrigation-dashboard .reg-history-period legend{font-size:.85rem;font-weight:700;margin-bottom:6px}
+.irrigation-dashboard .reg-history-period-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.irrigation-dashboard .reg-history-period button{font:inherit;font-size:.88rem;color:var(--ink);background:#fffaf0;border:1px solid #96aeb0;padding:9px 14px;cursor:pointer}
+.irrigation-dashboard .reg-history-period button[aria-pressed=true]{color:var(--paper);background:var(--sea-deep);border-color:var(--sea-deep)}
+.irrigation-dashboard .reg-history-period button:hover:not([aria-pressed=true]){border-color:var(--sea);background:#e2eae5}
+.irrigation-dashboard .reg-history-message{font-size:.87rem;color:#506a6f;margin:14px 0}
+.irrigation-dashboard .reg-history-chart{border:1px solid var(--line);background:#fffaf0;padding:12px 10px;min-height:260px;overflow:hidden}
+.irrigation-dashboard .reg-history-chart svg{display:block;width:100%;height:auto;min-height:220px;overflow:visible}
+.irrigation-dashboard .reg-history-chart .axis-label{font:13px Arial,sans-serif;fill:#506a6f}
+.irrigation-dashboard .reg-history-legend{display:flex;flex-wrap:wrap;gap:22px;font-size:.82rem;color:#506a6f;margin-top:12px}
+.irrigation-dashboard .reg-history-line-key:before{content:'';display:inline-block;width:18px;height:3px;background:var(--sea);vertical-align:middle;margin-right:8px}
+.irrigation-dashboard .reg-history-pump-key:before{content:'';display:inline-block;width:9px;height:9px;border:2px solid #b47b21;background:#e3b43d;border-radius:50%;vertical-align:middle;margin-right:8px}
+.irrigation-dashboard .reg-history-summary{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.irrigation-dashboard .reg-history-stat{background:#eee8d7;padding:10px 14px;min-width:140px;flex:1;font-size:.87rem}
+.irrigation-dashboard .reg-history-stat strong{display:block;font:normal 1.45rem Georgia,serif;margin-top:2px}
+.irrigation-dashboard .reg-history-note{font-size:.82rem;margin-top:14px}
+@media(max-width:580px){.irrigation-dashboard .reg-history-controls{display:block}.irrigation-dashboard .reg-history-period{margin-top:16px}.irrigation-dashboard .reg-history-chart{padding:8px 3px}.irrigation-dashboard .reg-history-period button{padding:8px 10px}}
