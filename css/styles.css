@@ -122,3 +122,51 @@
 .chapter-citation-shortcuts{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:.83rem;margin:12px 0 26px;color:#506a6f}
 .chapter-citation-shortcuts a{color:var(--ink);border-bottom:1px dotted var(--gold);text-decoration:none;padding:2px 3px}
 .chapter-citation-shortcuts a:hover{background:#eee8d7}
+
+/* V6 — lectura editorial i bibliografia HTML */
+.chapter-body {max-width: 900px;}
+.chapter-body > p, .chapter-body > ul {max-width: 76ch;}
+.chapter-body > p:not(.lead) {font-size:1.03rem; line-height:1.82;}
+.chapter-heading {font-family:Georgia,'Times New Roman',serif;color:var(--ink);font-size:clamp(1.35rem,2.3vw,2rem);font-weight:400;line-height:1.22;margin:2.3rem 0 .8rem;scroll-margin-top:105px;}
+.chapter-heading + p{margin-top:0;}
+.ref-inline {color:#1e6173;font-size:.85em;font-weight:700;text-decoration:none;border-bottom:1px solid var(--gold);white-space:nowrap;}
+.ref-inline:hover,.ref-inline:focus-visible{background:#f1e0a8;}
+.refs-section {margin-top:5rem;padding-top:2rem;border-top:2px solid var(--gold);scroll-margin-top:90px;}
+.refs-section h2{font-family:Georgia,serif;font-size:2.5rem;font-weight:400;margin:.3rem 0 1.5rem;}
+.bibliography-list {list-style:none;padding:0;display:grid;gap:0;}
+.bibliography-list li{display:flex;gap:1rem;align-items:baseline;padding:1rem 0;border-bottom:1px solid var(--line);font-size:.92rem;line-height:1.6;scroll-margin-top:100px;}
+.bibliography-list li:target{background:#fff4d4;padding-inline:10px;}
+.bib-number{color:var(--sea);font-weight:700;flex:0 0 3rem;}
+.reference-hint{font-size:.83rem;color:var(--muted,#506a6f);}
+.edition-context{padding:12px 16px;border-left:3px solid var(--sea);background:#eee9da;font-size:.89rem !important;}
+.interactive-panel{padding:26px;border:1px solid var(--line);background:#fffaf0;margin:3rem 0;border-top:3px solid var(--sea);}
+.interactive-panel h2{font:normal 2rem Georgia,serif;margin:.35rem 0;}
+.interactive-panel label{display:block;font-weight:700;margin:1.1rem 0 .4rem;}
+.water-select{padding:12px;width:100%;max-width:430px;border:1px solid #8da7a8;background:white;color:var(--ink);font:inherit;}
+.comparison-result{font-size:1.1rem;font-weight:600;}
+.comparison-bars{display:grid;gap:8px;}
+.comparison-bars .comp-row{display:grid;grid-template-columns:170px 1fr 75px;gap:9px;align-items:center;font-size:.84rem;}
+.comparison-bars .comp-track{height:12px;background:#e6e5da;}
+.comparison-bars .comp-fill{height:100%;background:var(--sea);}
+.sim-state{font-weight:700;}
+#soil-humidity{width:100%;max-width:520px;accent-color:var(--sea);}
+.source-caption{color:#506a6f;font-size:.82rem !important;}
+.button-outline-document{display:inline-block;padding:11px 22px;background:transparent;border:1px solid var(--sea-deep);color:var(--sea-deep);text-decoration:none;font-size:.87rem;letter-spacing:.02em;}
+.button-outline-document:hover{background:var(--sea-deep);color:var(--paper);opacity:1;}
+.document-panel > div:first-child {padding-right:28px;}
+.document-panel .draft-note,.document-panel .kicker{margin-right:12px;}
+@media(max-width:650px){.comparison-bars .comp-row{grid-template-columns:105px 1fr 65px;font-size:.72rem;}.interactive-panel{padding:18px;}.chapter-heading{font-size:1.45rem;}}
+
+/* V6 — taules accessibles, introducció documental */
+.data-table-wrap{max-width:100%;overflow-x:auto;margin:1.8rem 0;}
+.data-table{width:100%;border-collapse:collapse;font-size:.93rem;}
+.data-table caption{font-weight:700;text-align:left;padding:10px 0;color:var(--ink);}
+.data-table th,.data-table td{border-bottom:1px solid var(--line);padding:9px 12px;text-align:left;}
+.data-table th{background:#e1e9e2;color:#17444c;}
+.data-table tbody tr:nth-child(even){background:#fffaf0;}
+.document-panel{gap:28px;}
+.document-panel > div:first-child{padding-right:36px;}
+
+.chapter-body p{overflow-wrap:break-word;}
+.chapter-body h2[id],.chapter-body h3[id]{scroll-margin-top:105px;}
+.chapter-body .source-note{margin-bottom:2rem;}

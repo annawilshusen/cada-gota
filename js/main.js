@@ -96,3 +96,16 @@ document.querySelectorAll('[data-nav-dropdown]').forEach(group => {
   document.addEventListener('click',e=>{if(!group.contains(e.target))close();});
   group.querySelectorAll('.dropdown-menu a').forEach(a=>a.addEventListener('click',close));
 });
+
+// V6 — comparativa de petjada hídrica (exemples documentats al TDR).
+const waterSelect=document.getElementById('water-select');
+if(waterSelect){
+ const entries=[['Vedella (1 kg)',15000],['Samarreta de cotó',2700],['Hamburguesa',2400],['Texans (1 parell)',10000]];
+ const container=document.getElementById('water-bars');
+ const result=document.getElementById('water-result');
+ const render=()=>{let selected=Number(waterSelect.value);result.textContent=`${selected.toLocaleString('ca-ES')} litres d’aigua estimats.`;container.innerHTML='';entries.forEach(([label,value])=>{let row=document.createElement('div');row.className='comp-row';const t=document.createElement('span');t.textContent=label;const bar=document.createElement('div');bar.className='comp-track';let fill=document.createElement('div');fill.className='comp-fill';fill.style.width=`${value/15000*100}%`;bar.appendChild(fill);let num=document.createElement('span');num.textContent=value.toLocaleString('ca-ES')+' L';if(value===selected){row.style.fontWeight='bold';fill.style.background='#bb8f23';}row.append(t,bar,num);container.appendChild(row);});};
+ waterSelect.addEventListener('change',render);render();
+}
+// Exemple de control per histèresi (sense connexió al reg real).
+const humidity=document.getElementById('soil-humidity');
+if(humidity){let on=false;const output=document.getElementById('soil-state');const value=document.getElementById('soil-value');const render=()=>{const h=Number(humidity.value);value.textContent=`${h}%`;if(h<30)on=true;else if(h>55)on=false;output.textContent='Estat del reg simulat: '+(on?'ACTIVAT':'desactivat');output.style.color=on?'#a65d12':'#204c55';};humidity.addEventListener('input',render);render();}

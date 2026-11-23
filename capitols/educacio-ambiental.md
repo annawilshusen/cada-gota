@@ -13,41 +13,25 @@ sections:
 - id: stem
   title: 2.8.3 Dones en l’àmbit STEM i sostenibilitat
 ---
+<p class="edition-context">Contingut del marc teòric adaptat a lectura web a partir del PDF provisional. Hi pot haver errors menors de reconeixement de text, pendents de revisió amb el document original.</p>
+<h2 id="importancia" class="chapter-heading">2.8 · Conscienciació i educació ambiental</h2>
+<p>La conscienciació ambiental és una part essencial del nostre projecte. Més enllà de la part tècnica del reg automàtic i de la gestió de l&#x27;aigua, hem volgut treballar la dimensió social: entendre com els nostres hàbits, decisions i maneres de consumir afecten directament el medi ambient. Per això hem organitzat activitats amb l&#x27;alumnat del centre, amb l&#x27;objectiu de fer-los partícips del projecte i d&#x27;apropar-los a una visió més responsable dels recursos.</p>
+<h3 id="section-2-8-1" class="chapter-heading">2.8.1 · Importància de la conscienciació</h3>
+<p>La conscienciació és el primer pas perquè qualsevol canvi sigui real. Quan un públic enten què implica malgastar l&#x27;aigua i com es pot gestionar millor, és molt més fàcil que adopti comportaments sostenibles. L&#x27;escola és un espai especialment adequat per treballar-ho, no només perquè l&#x27;aigua és present en molts àmbits quotidians, com el menjador, l&#x27;hort, el jardí o els laboratoris, sinó sobretot perquè és un espai de formació on es poden transmetre aquests coneixements als estudiants i fomentar nous hàbits.</p>
+<p>Per això, una part del projecte es dedica a explicar i reflexionar sobre el consum d&#x27;aigua al</p>
+<p>mateix centre i sobre accions senzilles per reduir-lo, així contribuim a que més gent aporti el seu granet de sorra.</p>
+<h3 id="section-2-8-2" class="chapter-heading">2.8.2 · Projectes socials: Nazaret Cuida</h3>
+<p>Nazaret Cuida és el programa de sostenibilitat dels col-legis Nazaret, que promou projectes per millorar l&#x27;entorn, cuidar els recursos i educar els alumnes en responsabilitat ambiental. Aquest model entén la sostenibilitat com una forma de cura col-lectiva: no només del medi ambient, sinó també de les persones i dels espais que compartim. La nostra jornada de conscienciació s&#x27;hi emmarca plenament, ja que hem volgut transmetre als alumnes que cuidar l&#x27;aigua i els recursos del centre també significa tenir cura del futur de la nostra escola i del nostre barri. Nazaret Cuida treballa valors com la responsabilitat, la cura i el compromís amb l&#x27;entorn, i converteix la comunitat educativa en protagonista del canvi <a class="ref-inline" href="#ref-64" aria-label="Anar a la referència 64">[64]</a>.</p>
+<h3 id="stem" class="chapter-heading">2.8.3 · Dones en l’àmbit STEM i sostenibilitat</h3>
+<p>Durant el projecte també hem volgut visibilitzar el paper de les dones en els àmbits científics i tecnològics. Moltes de les innovacions en gestió de l&#x27;aigua, energies renovables i sostenibilitat han estat impulsades per investigadores, enginyeres i científiques que sovint no reben el reconeixement que mereixen. Incorporar aquesta perspectiva ajuda els alumnes, especialment les noies, a veure que tenen un lloc en aquests camps i que poden formar part de les solucions del futur. La sostenibilitat necessita diversitat, i l&#x27;educació és el primer pas per garantir-la.</p>
+<span id="nazaret" class="section-target" aria-hidden="true"></span>
 
-<p class="edition-context">Pàgines del fitxer PDF: 42–43. Les xifres indiquen la posició real al visor, no la paginació impresa al peu del document.</p>
-<div class="chapter-citation-shortcuts" aria-label="Referències del capítol"><span>Referències:</span> <a href="#ref-64" title="Anar a la bibliografia, referència 64">[64]</a></div>
-<section class="chapter-contents" aria-label="Subapartats del treball">
-<h2>Apartats del capítol</h2>
-<div class="subsection-links">
-<a href="#apartat-importancia">2.8.1 Importància de la conscienciació</a>
-<a href="#apartat-nazaret">2.8.2 Projectes socials: Nazaret Cuida</a>
-<a href="#apartat-stem">2.8.3 Dones en l’àmbit STEM i sostenibilitat</a>
-</div>
-</section>
-<section class="original-sheets" aria-label="Pàgines originals del treball">
-<h2>Text i figures originals</h2>
-<span class="section-target" id="apartat-importancia" aria-hidden="true"></span>
-<figure class="pdf-sheet" id="pagina-42">
-<a href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=42" target="_blank" rel="noopener" aria-label="Obrir la pàgina 42 del PDF en una pestanya nova">
-<img src="{{ "/assets/tdr-pages/p42.webp" | relative_url }}" loading="lazy" alt="Pàgina 42 original del TDR: text, figures i taules" width="1012" height="1432"></a>
-<figcaption>Pàgina 42 del PDF · <a href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=42" target="_blank" rel="noopener">Ampliar en una pestanya nova ↗</a></figcaption>
-</figure>
-<span class="section-target" id="apartat-nazaret" aria-hidden="true"></span><span class="section-target" id="apartat-stem" aria-hidden="true"></span>
-<figure class="pdf-sheet" id="pagina-43">
-<a href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=43" target="_blank" rel="noopener" aria-label="Obrir la pàgina 43 del PDF en una pestanya nova">
-<img src="{{ "/assets/tdr-pages/p43.webp" | relative_url }}" loading="lazy" alt="Pàgina 43 original del TDR: text, figures i taules" width="1012" height="1432"></a>
-<figcaption>Pàgina 43 del PDF · <a href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=43" target="_blank" rel="noopener">Ampliar en una pestanya nova ↗</a></figcaption>
-</figure>
-</section>
+
 <section class="refs-section" id="bibliografia">
-<p class="intro-label">FONTS DEL TDR</p>
+<p class="intro-label">REFERÈNCIES DEL TREBALL</p>
 <h2>Bibliografia</h2>
-<p>Les referències mantenen la numeració original. Cada número obre la pàgina exacta del PDF on figura l’entrada bibliogràfica. Les dades de cada font es mostren reproduïdes a sota, sense reinterpretacions.</p>
-<div class="reference-grid">
-<a id="ref-64" href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=60" target="_blank" rel="noopener" title="Bibliografia original, referència 64">[64]</a>
-</div>
-<p class="reference-hint">Font original: pàgines 54–60 del PDF. Les referències numerades de la reproducció escanejada encara no són enllaços interactius dins del paràgraf.</p>
-<figure class="pdf-sheet bibliography-sheet"><a href="{{ "/assets/documents/tdr-provisional.pdf" | relative_url }}#page=60" target="_blank" rel="noopener">
-<img src="{{ "/assets/tdr-pages/p60.webp" | relative_url }}" loading="lazy" alt="Bibliografia original, pàgina PDF 60" width="1012" height="1432"></a>
-<figcaption>Bibliografia original · pàgina 60 del PDF</figcaption></figure>
+<ol class="bibliography-list">
+<li id="ref-64" value="64"><span class="bib-number">[64]</span><span>Misioneras Hijas de la Sagrada Familia de Nazaret. (2026). Nazaret Cuida: Projecte de sostenibilitat i compromís ambiental. Nazaret Global Education.</span></li>
+</ol>
+<p class="reference-hint">Referències numerades segons el TDR. Algunes entrades i adreces poden necessitar una revisió final amb els documents originals.</p>
 </section>

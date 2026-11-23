@@ -1,20 +1,13 @@
-# CadaGota — Versió 5 (fonts originals verificables)
+# CadaGota — versió 6
 
-## Contingut inclòs
+Web Jekyll per a GitHub Pages. Menú: Inici, El projecte (desplegable amb vuit capítols), Panell de reg.
 
-- Menú principal de tres apartats, amb desplegable al passar el ratolí sobre **El projecte**. Accessible també per teclat, clic i mòbil.
-- Vuit capítols amb la introducció i el marc teòric del TDR, pàgines PDF 7–43, reproduïdes directament com a imatges d'alta definició (sense alterar les frases, gràfics ni taules).
-- A cada capítol, apartat final de bibliografia amb numeració [x], enllaços a les pàgines del PDF on consten les fonts i reproduccions originals de les pàgines bibliogràfiques.
-- PDF provisional visible en una nova pestanya des de la portada i l'índex del projecte. Només la pàgina **Treball complet** ofereix un botó específic de descàrrega.
-- Dades simulades al panell de reg. El control Wi-Fi i l'autenticació encara no són operatius.
-- Pàgina Qui som i ticker dels 31 missatges conservats.
+Els capítols ara es mostren com a **text HTML real**, procedent d'una lectura del PDF original. El document adjunt està escanejat: el text s'ha recuperat amb reconeixement i necessita una revisió editorial final abans de considerar-lo transcripció definitiva. La bibliografia apareix com a llista HTML al final de cada capítol amb referències [n] enllaçades; algunes entrades i URL s'han de revisar amb les fonts originals.
 
-## Limitació important
+El PDF es manté disponible a `assets/documents/tdr-provisional.pdf`; la portada l'obre en una altra pestanya i l'apartat del document permet descarregar-lo.
 
-L'original és un PDF d'imatges sense capa de text. **Aquesta v5 mostra TOT el contingut teòric sense alterar-lo en reproduccions originals, però no l'ha transcrit encara a paràgrafs HTML editables.** Les referències de les reproduccions encara no són clicables dins de la imatge. Els índexs numerats de bibliografia sí que són clicables i obren la font original. Abans de publicar una transcripció literal editable, cal recuperar text font no escanejat o verificar manualment l'OCR.
+El treball de camp encara no es publica als capítols.
 
-Les etiquetes de les pàgines fan referència a la numeració física del PDF, no al número imprès de la pàgina (diferència d'una pàgina). A les pàgines on acaba un capítol i comença un altre es preserva el facsímil complet per no tallar cap fragment.
+Per desplegar: copiar els fitxers de l'arxiu ZIP a l'arrel del repositori `cada-gota`, fer Commit i Push. GitHub Pages ha d'estar configurat per publicar des de la branca `main` i l'arrel.
 
-## Publicar
-
-Copia tot el contingut del ZIP al repositori local `cada-gota` amb GitHub Desktop, sobreescrivint els fitxers; fes `Commit` i `Push`. Continua sent una web Jekyll de GitHub Pages.
+**Revisió necessària:** Aquesta edició fa servir OCR d’un PDF que no permet seleccionar el text. La correcció ortotipogràfica i bibliogràfica de tots els fragments està pendent; és una base web editable, no una publicació final revisada.
