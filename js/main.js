@@ -109,3 +109,29 @@ if(waterSelect){
 // Exemple de control per histèresi (sense connexió al reg real).
 const humidity=document.getElementById('soil-humidity');
 if(humidity){let on=false;const output=document.getElementById('soil-state');const value=document.getElementById('soil-value');const render=()=>{const h=Number(humidity.value);value.textContent=`${h}%`;if(h<30)on=true;else if(h>55)on=false;output.textContent='Estat del reg simulat: '+(on?'ACTIVAT':'desactivat');output.style.color=on?'#a65d12':'#204c55';};humidity.addEventListener('input',render);render();}
+
+
+// V7 — Objectius de Desenvolupament Sostenible: es gira amb hover al ratolí;
+// en pantalles tàctils i amb teclat, també amb clic/Enter/Espai.
+document.querySelectorAll('.ods-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const isFlipped=card.classList.toggle('is-flipped');
+    card.setAttribute('aria-pressed',String(isFlipped));
+  });
+});
+
+// Comparativa didàctica de les estimacions del TDR, mai lectures reals.
+const productA=document.querySelector('#footprint-a');
+const productB=document.querySelector('#footprint-b');
+if(productA && productB){
+  productA.selectedIndex=0;productB.selectedIndex=6;
+  const result=document.querySelector('#footprint-result');
+  function renderFootprint(){
+    const a=Number(productA.value),b=Number(productB.value),max=Math.max(a,b,1);
+    const fa=(a/max*100).toFixed(1),fb=(b/max*100).toFixed(1);
+    const nf=new Intl.NumberFormat('ca-ES');
+    result.innerHTML=`<p><strong>${nf.format(a)} L</strong> i <strong>${nf.format(b)} L</strong></p><div class="compare-meter"><span style="width:${fa}%"></span></div><div class="compare-meter"><span style="width:${fb}%;background:#e3b43d"></span></div>`;
+  }
+  productA.addEventListener('change',renderFootprint);
+  productB.addEventListener('change',renderFootprint);renderFootprint();
+}

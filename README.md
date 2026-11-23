@@ -1,13 +1,17 @@
-# CadaGota — versió 6
+# CadaGota — versió 7
 
-Web Jekyll per a GitHub Pages. Menú: Inici, El projecte (desplegable amb vuit capítols), Panell de reg.
+Web per a GitHub Pages amb Jekyll. Menú: Inici · El projecte (desplegable) · Panell de reg.
 
-Els capítols ara es mostren com a **text HTML real**, procedent d'una lectura del PDF original. El document adjunt està escanejat: el text s'ha recuperat amb reconeixement i necessita una revisió editorial final abans de considerar-lo transcripció definitiva. La bibliografia apareix com a llista HTML al final de cada capítol amb referències [n] enllaçades; algunes entrades i URL s'han de revisar amb les fonts originals.
+## Contingut
+Els vuit fitxers `capitols/*.md` inclouen la introducció i el marc teòric a partir del text editable facilitat per les autores (`Texto pegado.txt`), revisat exclusivament en ortografia, puntuació i format. No s'han incorporat imatges de pàgines del PDF als capítols. Les fonts `[x]` són enllaços interns a les bibliografies HTML al final de cada pàgina.
 
-El PDF es manté disponible a `assets/documents/tdr-provisional.pdf`; la portada l'obre en una altra pestanya i l'apartat del document permet descarregar-lo.
+## ODS
+A `capitols/sostenibilitat.md`, sis targetes (6, 7, 9, 11, 12 i 13) mostren les imatges facilitades per les autores. Amb ratolí es giren en passar-hi; en mòbils o teclat també s'activen amb clic. La cara posterior resumeix **l'aplicació a CadaGota**, i tot el contingut del TDR es troba a sota.
 
-El treball de camp encara no es publica als capítols.
+## Publicació
+Descomprimir i copiar el contingut del ZIP a l'arrel del repositori `cada-gota`. Fer Commit i Push des de GitHub Desktop. GitHub Pages: desplegament des de `main` i `/ (root)`.
 
-Per desplegar: copiar els fitxers de l'arxiu ZIP a l'arrel del repositori `cada-gota`, fer Commit i Push. GitHub Pages ha d'estar configurat per publicar des de la branca `main` i l'arrel.
+## Revisió pendent
+Consulta `REVISIO-PENDENT.md`: hi ha dades i referències per contrastar abans de publicar el contingut com a definitivament revisat.
 
-**Revisió necessària:** Aquesta edició fa servir OCR d’un PDF que no permet seleccionar el text. La correcció ortotipogràfica i bibliogràfica de tots els fragments està pendent; és una base web editable, no una publicació final revisada.
+El PDF original provisional és a `assets/documents/tdr-provisional.pdf`.
