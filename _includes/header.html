@@ -1,0 +1,9 @@
+<header class="site-header"><div class="header-inner">
+  <a class="identity" href="{{ '/' | relative_url }}" aria-label="CadaGota — Inici"><img src="{{ '/assets/logos/cada-isotip.png' | relative_url }}" alt=""><span>CADA GOTA</span></a>
+  <button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false">Menú</button>
+  <nav id="main-nav" class="main-nav" aria-label="Navegació principal">
+    <a href="{{ '/' | relative_url }}" {% if page.nav == 'inici' %}aria-current="page"{% endif %}>Inici</a>
+    <a href="{{ '/pages/projecte.html' | relative_url }}" {% if page.nav == 'projecte' %}aria-current="page"{% endif %}>El projecte</a>
+    <a href="{{ '/pages/panell.html' | relative_url }}" {% if page.nav == 'panell' %}aria-current="page"{% endif %}>Panell de reg</a>
+  </nav>
+</div></header>

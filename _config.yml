@@ -1,0 +1,8 @@
+title: CadaGota
+description: Consciència a cada gota · Treball de recerca
+url: "https://annawilshusen.github.io"
+baseurl: "/cada-gota"
+markdown: kramdown
+exclude:
+  - README.md
+  - .DS_Store

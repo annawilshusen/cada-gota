@@ -1,22 +1,31 @@
-<!doctype html>
-<html lang="ca">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Consciència a cada gota: recerca, conscienciació i un sistema de reg automàtic.">
-  <title>Inici · CadaGota</title><link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" href="assets/logos/cada-isotip.png" type="image/png">
-</head>
-<body><div class="shell">
-<header class="site-header"><div class="header-inner"><a class="identity" href="index.html" aria-label="CadaGota — Inici"><img src="assets/logos/cada-isotip.png" alt=""><span>CADA GOTA</span></a><button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false">Menú</button><nav id="main-nav" class="main-nav" aria-label="Navegació principal"><a href="index.html" aria-current="page">Inici</a><a href="pages/projecte.html">El projecte</a><a href="pages/aigua.html">L’aigua</a><a href="pages/sistema.html">Sistema de reg</a><a href="pages/conscienciacio.html">Conscienciació</a><a href="pages/panell.html">Panell de reg</a><a href="pages/qui-som.html">Qui som</a></nav></div></header>
-<main id="contingut"><section class="hero"><div class="hero-inner"><p class="eyebrow">Treball de recerca de batxillerat</p><div class="hero-rule"></div><h1>CONS<span class="accent">CIÈNCIA</span><br>A CADA GOTA</h1><div class="hero-rule"></div><div class="drops" aria-hidden="true"><i></i><i></i><i></i></div><p class="motto">“Si vita flumen, cuida cada gota”</p><p class="hero-intro">Investiguem com cuidar l’aigua amb ciència, tecnologia i educació ambiental, a partir del reg de les jardineres de l’escola.</p><div class="actions"><a class="button button-light" href="pages/projecte.html">Descobreix el projecte</a><a class="button button-outline" href="pages/panell.html">Consulta el panell de reg</a></div></div></section>
-<section class="content"><p class="intro-label">01 / Dos àmbits, una mateixa idea</p><h2 class="section-title">De la recerca a l’acció.</h2><div class="two-up"><article class="panel"><p class="kicker">DIVULGACIÓ I RECERCA</p><h2>Entendre l’aigua</h2><p>Una mirada a la disponibilitat, el consum i la petjada hídrica, acompanyada d’activitats de conscienciació.</p><p><a href="pages/aigua.html">Explora el marc teòric →</a></p></article><article class="panel"><p class="kicker">TECNOLOGIA APLICADA</p><h2>Regar amb criteri</h2><p>Dissenyem un sistema de reg automàtic que respon a la humitat del sòl i busca evitar el consum innecessari.</p><p><a href="pages/sistema.html">Coneix el sistema →</a></p></article></div></section></main>
-<footer class="site-footer">
-  <div class="footer-credits">
-    <a class="footer-authors" href="pages/qui-som.html" title="Coneix les autores">Anna Wilshusen · Jana Diaz</a>
-    <div class="news-ticker" aria-label="Missatges de CadaGota">
-      <div class="ticker-viewport"><span class="ticker-message" aria-live="off"></span></div>
-    </div>
-    <p class="footer-project">consciència a cada gota · treball de recerca</p>
-  </div>
-</footer>
-</div><script src="js/main.js" defer></script></body></html>
+---
+layout: default
+title: Inici
+nav: inici
+description: "CadaGota: investigació sobre l'aigua, sostenibilitat, reg automàtic i educació ambiental."
+---
+<section class="hero"><div class="hero-inner">
+  <p class="eyebrow">Treball de recerca de batxillerat</p>
+  <div class="hero-rule"></div>
+  <h1>CONS<span class="accent">CIÈNCIA</span><br>A CADA GOTA</h1>
+  <div class="hero-rule"></div>
+  <div class="drops" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p class="motto">“Si vita flumen, cuida cada gota”</p>
+  <p class="hero-intro">Un treball de recerca sobre la gestió responsable de l'aigua, el reg automàtic i la conscienciació ambiental a l'escola.</p>
+  <div class="actions"><a class="button button-light" href="{{ '/pages/projecte.html' | relative_url }}">El projecte</a><a class="button button-outline" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" download>Descarregar el TDR (provisional)</a></div>
+</div></section>
+<section class="front-section cream"><div class="content"><p class="intro-label">01 / EL PROBLEMA</p><h2 class="section-title">La gestió de l'aigua</h2>
+  <p class="lead">La disponibilitat d'aigua no depèn únicament de la quantitat existent, sinó també de la manera com es gestiona.</p>
+  <p>El marc teòric del treball tracta la distribució dels recursos hídrics, el consum per sectors, la petjada hídrica, el canvi climàtic i la contaminació. També considera les mesures de sostenibilitat i la importància de l'educació ambiental.</p>
+  <a class="inline-link" href="{{ '/capitols/aigua.html' | relative_url }}">L'aigua i el seu consum →</a></div></section>
+<section class="front-section tinted"><div class="content"><p class="intro-label">02 / LA RESPOSTA TECNOLÒGICA</p><h2 class="section-title">El sistema de reg</h2>
+  <p class="lead">El projecte planteja un sistema de reg que utilitza sensors d'humitat per determinar quan cal aportar aigua a les plantes.</p>
+  <p>La proposta tècnica es complementa amb l'estudi de l'electrònica, l'automatització i els diferents sistemes de reg. El desenvolupament i els resultats del prototip continuen en elaboració.</p>
+  <a class="inline-link" href="{{ '/capitols/reg.html' | relative_url }}">Tecnologia aplicada al reg →</a></div></section>
+<section class="front-section cream"><div class="content"><p class="intro-label">03 / EDUCACIÓ AMBIENTAL</p><h2 class="section-title">Conscienciació</h2>
+  <p class="lead">CadaGota també incorpora una dimensió educativa: compartir la problemàtica de l'aigua i fomentar hàbits de consum responsables.</p>
+  <p>La investigació i les activitats de conscienciació formen part d'un mateix treball, amb una dimensió ambiental i una dimensió tecnològica.</p>
+  <a class="inline-link" href="{{ '/capitols/educacio-ambiental.html' | relative_url }}">Conscienciació i educació ambiental →</a></div></section>
+<section class="front-section document-call"><div class="content"><p class="intro-label">04 / DOCUMENT ORIGINAL</p><h2 class="section-title">Treball de recerca</h2><p>Aquesta és la versió actual del document. Alguns apartats, especialment el treball de camp, estan encara en desenvolupament.</p>
+  <a class="button button-paper" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" download>Descarregar el PDF · Versió en desenvolupament</a>
+  <a class="inline-link" href="{{ '/pages/document.html' | relative_url }}">Informació del document →</a></div></section>

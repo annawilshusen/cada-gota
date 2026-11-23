@@ -80,12 +80,3 @@ if (ticker) {
   reducedMotion.addEventListener('change', nextMessage);
   nextMessage();
 }
-
-
-/* V4 — Text del peu de pàgina */
-
-document.querySelectorAll('.footer-project').forEach(element => {
-  element.textContent =
-    'Consciència a cada gota · Treball de recerca';
-});
-
