@@ -21,3 +21,26 @@
 .cada-auth-back{display:inline-block;margin-top:23px;color:var(--sea-deep);font-weight:700}
 .cada-auth-denied{padding:20px 0}
 @media(max-width:650px){.cada-auth-form{padding:22px}.cada-auth-grid{grid-template-columns:1fr}}
+
+/* v14: configuració privada del reg */
+.cada-settings-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:22px 0}
+.cada-settings-header label{font-weight:700;color:var(--sea-deep)}
+.cada-settings-header select,.cada-settings-fields input,.cada-request-form input{font:inherit;padding:10px 12px;border:1px solid #869b9b;background:#fff;color:var(--ink);min-height:45px}
+.cada-settings-form{background:#fffaf0;border:1px solid var(--line);padding:22px}
+.cada-settings-form[hidden]{display:none!important}
+.cada-settings-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.cada-settings-fields label{display:flex;flex-direction:column;gap:8px;font-weight:650;font-size:.95rem}
+.cada-settings-fields input{width:100%}
+.cada-settings-checkbox{flex-direction:row!important;align-items:center;margin-top:20px}
+.cada-settings-checkbox input{width:20px;min-height:20px;accent-color:var(--sea-deep)}
+.cada-settings-form button,.cada-request-form button{font:inherit;border:1px solid var(--sea-deep);padding:12px 18px;color:var(--paper);background:var(--sea-deep);font-weight:700;cursor:pointer}
+.cada-settings-form button:disabled,.cada-request-form button:disabled{opacity:.55;cursor:wait}
+.cada-settings-simulator,.cada-settings-history{margin-top:30px;border-top:1px solid var(--line);padding-top:22px}
+.cada-settings-simulator h3,.cada-settings-history h3{font:normal 1.5rem Georgia,serif;margin:6px 0}
+.cada-request-form{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:15px}
+.cada-request-form label{font-weight:700}
+.cada-request-form input{max-width:100px}
+.cada-activity-item{border-bottom:1px solid var(--line);padding:13px 0;display:grid;gap:4px}
+.cada-activity-item time{font-size:.8rem;color:var(--sea)}
+.cada-activity-item p{margin:0;font-size:.9rem}
+@media(max-width:620px){.cada-settings-fields{grid-template-columns:1fr}.cada-request-form{align-items:start;flex-direction:column}}

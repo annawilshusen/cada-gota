@@ -28,12 +28,35 @@ nav: panell
       <p class="cada-auth-identity">Sessió iniciada com a <strong id="auth-account"></strong></p>
       <button type="button" class="cada-auth-secondary" data-signout>Tancar sessió</button>
     </div>
-    <h2 id="auth-private-title">Administració de CadaGota</h2>
-    <div class="cada-auth-grid">
-      <article class="panel"><p class="kicker">CONNEXIÓ</p><h3>Autenticació activa</h3><p>Supabase ha identificat el teu compte i ha confirmat que consta a la llista d’administradores.</p></article>
-      <article class="panel"><p class="kicker">PRÒXIMA FASE</p><h3>Configuració del reg</h3><p>Prepararem els llindars d’humitat i les ordres de reg amb permisos al servidor i límits de seguretat.</p></article>
-    </div>
-    <div class="callout"><strong>Sense control físic.</strong> Aquesta pantalla encara no pot encendre ni apagar la bomba ni modificar la configuració de l’Arduino.</div>
+    <h2 id="auth-private-title">Configuració del reg</h2>
+    <p class="muted">Els canvis es guarden a Supabase. Encara no s'envien a l'Arduino ni activen la bomba.</p>
+    <div class="cada-settings-header"><label for="cada-zone">Jardinera</label><select id="cada-zone"><option value="1">Jardinera 01</option><option value="2">Jardinera 02</option></select><button type="button" class="cada-auth-secondary" id="cada-reload">Actualitzar</button></div>
+    <form id="cada-settings-form" class="cada-settings-form" hidden>
+      <div class="cada-settings-fields">
+        <label>Humitat mínima (%)<input type="number" name="min" id="cada-min" min="5" max="80" step="1" required></label>
+        <label>Humitat màxima (%)<input type="number" name="max" id="cada-max" min="10" max="95" step="1" required></label>
+        <label>Temps màxim de reg (segons)<input type="number" name="duration" id="cada-duration" min="5" max="120" step="1" required></label>
+        <label class="cada-settings-checkbox"><input type="checkbox" id="cada-auto"> Mode automàtic</label>
+      </div>
+      <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Aquests valors són configuració de prova fins a la integració física.</p>
+      <button type="submit" id="cada-save">Desar configuració</button>
+    </form>
+    <p class="cada-auth-message" id="cada-config-message" role="status" aria-live="polite">Carregant configuració…</p>
+    <section class="cada-settings-simulator" aria-labelledby="cada-manual-title">
+      <p class="kicker">SIMULACIÓ</p><h3 id="cada-manual-title">Sol·licitud de reg de prova</h3>
+      <p class="muted">Registra una ordre fictícia a Supabase. No existeix cap mecanisme que l'executi sobre una bomba.</p>
+      <form id="cada-request-form" class="cada-request-form">
+        <label for="cada-request-seconds">Durada fictícia (segons)</label>
+        <input id="cada-request-seconds" type="number" value="10" min="1" max="30" step="1" required>
+        <button type="submit" id="cada-request-submit">Registrar sol·licitud de prova</button>
+      </form>
+    </section>
+    <section class="cada-settings-history" aria-labelledby="cada-history-title">
+      <h3 id="cada-history-title">Activitat recent</h3>
+      <p class="muted">Canvis de configuració i sol·licituds de prova de la jardinera seleccionada.</p>
+      <div id="cada-activity" aria-live="polite"><p class="muted">Carregant l'historial…</p></div>
+    </section>
+    <div class="callout"><strong>Sense control físic.</strong> Cap operació d'aquesta pàgina encén o apaga la bomba. El sistema de reg continuarà independent de la web fins a completar les proves de seguretat.</div>
     <a class="cada-auth-back" href="{{ '/pages/panell.html' | relative_url }}">Tornar al panell públic</a>
   </section>
   <noscript>Cal activar JavaScript per iniciar sessió.</noscript>

@@ -40,3 +40,12 @@ El panell incorpora gràfica SVG accessible, tria de jardinera i períodes de 24
 - Sense ordres a l'Arduino, activació de bomba ni edició dels llindars.
 - Necessita que l'usuari ja existeixi a Authentication > Users i que consti a `public.administradores`.
 - No inclou contrasenyes ni claus secretes: només la publishable key.
+
+## v14 — Configuració persistent privada
+
+1. Executa `supabase/configuracio-reg-v14.sql` a Supabase SQL Editor amb el projecte correcte. És necessari **abans** de fer servir els controls nous.
+2. Publica el ZIP a GitHub Pages i entra a `/pages/control.html` amb el compte administrador existent.
+3. Canvia un llindar, desa'l i recarrega la pàgina; el valor ha de persistir.
+4. Les sol·licituds de reg són **simulacions registrades**; no hi ha cap endpoint de comandament físic. El registre d'auditoria es genera al servidor mitjançant un trigger.
+
+**Seguretat:** Les taules noves tenen RLS i privilegis limitats. No es concedeix escriptura a `anon`. No hi ha claus secretes al frontend. Sense RLS correcte no s'ha de publicar control físic.
