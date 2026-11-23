@@ -7,7 +7,7 @@ description: Índex del treball de recerca CadaGota.
 <div class="content project-overview">
  <p class="intro-label">TREBALL DE RECERCA</p><h1 class="section-title">El projecte</h1>
  <p class="lead">El contingut està organitzat a partir dels capítols de la introducció i el marc teòric. Cada tema té una pàgina independent i un índex dels seus apartats.</p>
- <p class="draft-note"><strong>Versió en desenvolupament.</strong> La transcripció dels capítols a la web està pendent. De moment, el PDF permet consultar el text original, les figures i les referències.</p>
+ <p class="draft-note"><strong>Versió en desenvolupament.</strong> Els capítols mostren les pàgines originals del marc teòric i la introducció, sense alterar textos ni figures.</p>
  <div class="chapter-cards">
  {% for chapter in site.data.chapters %}
    <a class="chapter-card" href="{{ '/capitols/' | append: chapter.slug | append: '.html' | relative_url }}">
@@ -18,6 +18,6 @@ description: Índex del treball de recerca CadaGota.
  </div>
  <section class="document-section"><p class="intro-label">DOCUMENTACIÓ</p><h2>Treball complet</h2>
  <p>El PDF inclou el material del TDR disponible fins ara. El treball de camp encara no és definitiu.</p>
- <a class="button button-paper" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" download>Descarregar el TDR provisional</a>
+ <a class="button button-paper" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" target="_blank" rel="noopener">Obrir el TDR provisional ↗</a>
  <a class="inline-link" href="{{ '/pages/document.html' | relative_url }}">Informació i bibliografia →</a></section>
 </div>

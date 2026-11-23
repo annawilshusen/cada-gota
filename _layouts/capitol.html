@@ -2,21 +2,22 @@
 layout: default
 ---
 <div class="chapter-wrap">
-  <aside class="chapter-sidebar" aria-label="Índex del capítol">
-    <a href="{{ '/pages/projecte.html' | relative_url }}" class="back-link">← El projecte</a>
-    <p class="side-label">EN AQUEST CAPÍTOL</p>
-    <nav aria-label="Apartats del capítol">
-      {% for item in page.sections %}<a href="#{{ item.id }}">{{ item.title }}</a>{% endfor %}
-    </nav>
-    <a class="sidebar-pdf" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}#page={{ page.pdf_start }}" target="_blank" rel="noopener">Consultar el PDF (p. {{ page.pdf_start }})</a>
-  </aside>
-  <article class="chapter-body">
-    <p class="intro-label">{{ page.section }} / MARC DEL TREBALL</p>
-    <h1 class="section-title">{{ page.title }}</h1>
-    <p class="lead">{{ page.description }}</p>
-    <div class="draft-note"><strong>Transcripció pendent.</strong> El contingut íntegre d'aquest capítol es pot llegir al PDF provisional. Encara no l'hem traslladat a la web per assegurar que el text i les figures coincideixin amb el document original.</div>
-    <hr class="gold-line">
-    {{ content }}
-    <div class="chapter-end"><a href="{{ '/pages/projecte.html' | relative_url }}">← Tornar a l'índex</a><a href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" download>Descarregar el TDR provisional ↓</a></div>
-  </article>
-</div>
+<aside class="chapter-sidebar" aria-label="Índex del capítol">
+<a href="{{ '/pages/projecte.html' | relative_url }}" class="back-link">← El projecte</a>
+<p class="side-label">EN AQUEST CAPÍTOL</p>
+<nav aria-label="Apartats del capítol">
+{% for item in page.sections %}<a href="#{{ item.id }}">{{ item.title }}</a>{% endfor %}
+<a href="#bibliografia">Bibliografia</a>
+</nav>
+<a class="sidebar-pdf" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}#page={{ page.pdf_start }}" target="_blank" rel="noopener">Obrir el PDF · pàgina {{ page.pdf_start }} ↗</a>
+</aside>
+<article class="chapter-body">
+<p class="intro-label">{{ page.section }} / TREBALL DE RECERCA</p>
+<h1 class="section-title">{{ page.title }}</h1>
+<p class="lead">{{ page.description }}</p>
+<div class="source-note"><strong>Edició visual de la font original.</strong> Les pàgines següents reprodueixen el text, les taules i les figures exactament com consten al PDF. Així s'eviten errades de transcripció. La conversió a text editable i les citacions en línia encara requereixen revisió.</div>
+<hr class="gold-line">
+{{ content }}
+<div class="chapter-end"><a href="{{ '/pages/projecte.html' | relative_url }}">← Tornar a l'índex</a>
+<a href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" target="_blank" rel="noopener">Obrir el TDR ↗</a></div>
+</article></div>

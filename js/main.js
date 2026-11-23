@@ -80,3 +80,19 @@ if (ticker) {
   reducedMotion.addEventListener('change', nextMessage);
   nextMessage();
 }
+
+
+// V5 · Submenú del projecte: ratolí, teclat i pantalla tàctil.
+document.querySelectorAll('[data-nav-dropdown]').forEach(group => {
+  const btn = group.querySelector('.dropdown-trigger');
+  if (!btn) return;
+  const close = () => { group.classList.remove('is-expanded'); btn.setAttribute('aria-expanded','false'); };
+  btn.addEventListener('click', () => {
+    const next = !group.classList.contains('is-expanded');
+    group.classList.toggle('is-expanded',next);
+    btn.setAttribute('aria-expanded',String(next));
+  });
+  group.addEventListener('keydown',e=>{if(e.key==='Escape'){close();btn.focus();}});
+  document.addEventListener('click',e=>{if(!group.contains(e.target))close();});
+  group.querySelectorAll('.dropdown-menu a').forEach(a=>a.addEventListener('click',close));
+});
