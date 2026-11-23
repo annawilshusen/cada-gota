@@ -42,6 +42,31 @@ nav: panell
       <button type="submit" id="cada-save">Desar configuració</button>
     </form>
     <p class="cada-auth-message" id="cada-config-message" role="status" aria-live="polite">Carregant configuració…</p>
+    <section class="cada-consumption" aria-labelledby="cada-consumption-title">
+      <div class="cada-consumption-heading">
+        <div><p class="kicker">ANÀLISI DEL REG</p><h3 id="cada-consumption-title">Consum d’aigua</h3></div>
+        <button type="button" id="cada-consumption-refresh" class="cada-auth-secondary">Actualitzar dades</button>
+      </div>
+      <p class="muted">Volum estimat a partir del cabal registrat i la durada de cada reg. Les dades de prova no són consums reals.</p>
+      <div class="cada-consumption-filters">
+        <label for="cada-consumption-source">Tipus de dades<select id="cada-consumption-source"><option value="prova">Dades de prova</option><option value="arduino">Dades de l’Arduino</option></select></label>
+        <label for="cada-consumption-period">Període<select id="cada-consumption-period"><option value="24">Últimes 24 hores</option><option value="7" selected>Últims 7 dies</option><option value="30">Últims 30 dies</option></select></label>
+        <label for="cada-consumption-zone">Jardinera<select id="cada-consumption-zone"><option value="all">Totes dues</option><option value="1">Jardinera 01</option><option value="2">Jardinera 02</option></select></label>
+      </div>
+      <p id="cada-consumption-message" class="cada-consumption-message" role="status" aria-live="polite">Carregant el consum…</p>
+      <div class="cada-consumption-results" id="cada-consumption-results" hidden>
+        <div class="cada-consumption-stats">
+          <div><small>Consum estimat</small><strong id="cada-litres">—</strong><span>litres</span></div>
+          <div><small>Regs registrats</small><strong id="cada-events">—</strong><span>esdeveniments</span></div>
+          <div><small>Temps de reg</small><strong id="cada-runtime">—</strong><span>segons</span></div>
+        </div>
+        <h4>Consum al llarg del temps</h4>
+        <div id="cada-consumption-chart" class="cada-consumption-chart" aria-label="Gràfic de consum d’aigua"></div>
+        <h4>Comparació entre jardineres</h4>
+        <div id="cada-consumption-comparison" class="cada-consumption-comparison"></div>
+        <p id="cada-consumption-note" class="muted"></p>
+      </div>
+    </section>
     <section class="cada-settings-simulator" aria-labelledby="cada-manual-title">
       <p class="kicker">SIMULACIÓ</p><h3 id="cada-manual-title">Sol·licitud de reg de prova</h3>
       <p class="muted">Registra una ordre fictícia a Supabase. No existeix cap mecanisme que l'executi sobre una bomba.</p>

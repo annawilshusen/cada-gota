@@ -44,3 +44,35 @@
 .cada-activity-item time{font-size:.8rem;color:var(--sea)}
 .cada-activity-item p{margin:0;font-size:.9rem}
 @media(max-width:620px){.cada-settings-fields{grid-template-columns:1fr}.cada-request-form{align-items:start;flex-direction:column}}
+
+/* v15: anàlisi de consum estimat en el control privat */
+.cada-consumption{border-top:1px solid var(--line);padding-top:28px;margin-top:36px}
+.cada-consumption-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.cada-consumption-heading h3{font:normal clamp(1.45rem,2.7vw,2rem) Georgia,serif;margin:5px 0}
+.cada-consumption-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.cada-consumption-filters label{display:grid;gap:8px;color:var(--sea-deep);font-size:.86rem;font-weight:700}
+.cada-consumption-filters select{font:inherit;font-weight:400;background:#fff;min-height:44px;padding:9px;border:1px solid #869b9b;color:var(--ink);width:100%;min-width:0}
+.cada-consumption-message{font-size:.85rem;color:var(--sea-deep);padding:9px 0}
+.cada-consumption-message.is-error{color:#842c20}
+.cada-consumption-results[hidden]{display:none!important}
+.cada-consumption-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0 22px}
+.cada-consumption-stats>div{background:#fffaf0;border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:5px}
+.cada-consumption-stats small{font-size:.8rem;color:var(--sea-deep)}
+.cada-consumption-stats strong{font:normal clamp(1.65rem,3.5vw,2.45rem) Georgia,serif;color:var(--sea-deep);overflow-wrap:anywhere}
+.cada-consumption-stats span{font-size:.78rem;color:#53676b}
+.cada-consumption h4{font:normal 1.2rem Georgia,serif;margin:20px 0 12px}
+.cada-consumption-chart{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding:12px 3px 4px;background:#fffaf0;border:1px solid var(--line);min-height:210px}
+.cada-consumption-column{flex:1;min-width:25px;height:175px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.cada-consumption-column .cada-consumption-bar{position:relative;flex:1;width:65%;min-height:75px;background:#e8e2d5;display:flex;align-items:end}
+.cada-consumption-column .cada-consumption-bar-fill{display:block;background:#407e8c;width:100%;height:var(--fill);min-height:0;transition:height .2s}
+.cada-consumption-bar-label,.cada-consumption-bar-value{font-size:.66rem;color:#375c65;text-align:center;white-space:nowrap}
+.cada-consumption-column .cada-consumption-bar-value{font-size:.58rem}
+.cada-consumption-chart.is-month .cada-consumption-column{min-width:20px}
+.cada-consumption-chart.is-month .cada-consumption-bar-value{writing-mode:vertical-rl;max-height:40px;overflow:hidden}
+.cada-consumption-comparison{display:grid;gap:12px}
+.cada-consumption-compare-row{display:grid;grid-template-columns:110px 1fr 80px;gap:10px;align-items:center}
+.cada-consumption-compare-row .cada-consumption-bar{height:16px;background:#e8e2d5}
+.cada-consumption-compare-row .cada-consumption-bar-fill{display:block;background:#407e8c;height:100%;width:var(--fill)}
+.cada-consumption-compare-row .cada-consumption-bar-value{text-align:right;font-size:.82rem}
+.cada-consumption-results>.muted{margin-top:18px;font-size:.83rem}
+@media(max-width:650px){.cada-consumption-filters{grid-template-columns:1fr}.cada-consumption-stats{grid-template-columns:1fr 1fr}.cada-consumption-compare-row{grid-template-columns:85px 1fr 70px;gap:6px}.cada-consumption-bar-label{font-size:.62rem}}

@@ -90,6 +90,124 @@
       show(configForm,true);settingsInfo('Configuració carregada de Supabase.');
       await loadActivity();
     }
+    // v15 — Anàlisi privada dels esdeveniments de reg (només lectura, protegida per RLS).
+    // El registre de sol·licituds de prova no és el mateix que un reg executat.
+    const consumption = {
+      root: document.getElementById('cada-consumption-results'),
+      message: document.getElementById('cada-consumption-message'),
+      source: document.getElementById('cada-consumption-source'),
+      period: document.getElementById('cada-consumption-period'),
+      zone: document.getElementById('cada-consumption-zone'),
+      chart: document.getElementById('cada-consumption-chart'),
+      comparison: document.getElementById('cada-consumption-comparison'),
+      note: document.getElementById('cada-consumption-note'),
+      refresh: document.getElementById('cada-consumption-refresh')
+    };
+    let consumptionRequest = 0;
+    const formatLitres = value => value.toLocaleString('ca-ES', {minimumFractionDigits: 2, maximumFractionDigits: 3});
+    const formatNumber = value => value.toLocaleString('ca-ES');
+    const dayKey = date => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const hourKey = date => `${dayKey(date)}-${String(date.getHours()).padStart(2,'0')}`;
+    const makeNode = (tag, className, text) => {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
+    };
+    function makeBar(parent,label,litres,max,kind) {
+      const item=makeNode('div',kind==='chart'?'cada-consumption-column':'cada-consumption-compare-row');
+      const bar=makeNode('div','cada-consumption-bar');
+      const fill=makeNode('span','cada-consumption-bar-fill');
+      fill.style.setProperty('--fill',`${max>0 ? Math.max(0,Math.min(100,litres/max*100)) : 0}%`);
+      bar.append(fill);
+      const amount=makeNode('span','cada-consumption-bar-value',`${formatLitres(litres)} L`);
+      const name=makeNode('span','cada-consumption-bar-label',label);
+      if(kind==='chart')item.append(amount,bar,name);
+      else item.append(name,bar,amount);
+      parent.append(item);
+    }
+    async function loadConsumption() {
+      const ticket=++consumptionRequest;
+      consumption.root.hidden=true;
+      consumption.message.textContent='Consultant els esdeveniments de reg…';
+      consumption.message.classList.remove('is-error');
+      consumption.refresh.disabled=true;
+      const period=consumption.period.value;
+      const now=new Date();
+      const start=new Date(now);
+      if(period==='24')start.setHours(start.getHours()-24);
+      else start.setDate(start.getDate()-Number(period));
+      try {
+        let query=client.from('esdeveniments_reg')
+          .select('jardinera,inici,durada_segons,cabal_l_min,origen')
+          .eq('origen',consumption.source.value)
+          .gte('inici',start.toISOString())
+          .lte('inici',now.toISOString())
+          .order('inici',{ascending:false})
+          .limit(1000);
+        if(consumption.zone.value!=='all')query=query.eq('jardinera',Number(consumption.zone.value));
+        const {data,error}=await query;
+        if(ticket!==consumptionRequest)return;
+        if(error)throw error;
+        const rows=data||[];
+        let total=0, valid=0, seconds=0;
+        const zones=new Map([[1,0],[2,0]]);
+        const daily=new Map();
+        const buckets=[];
+        if(period==='24') {
+          for(let n=23;n>=0;n--){const d=new Date(now);d.setHours(d.getHours()-n,0,0,0);buckets.push({key:hourKey(d),label: n%3===0 || n===0 ? `${String(d.getHours()).padStart(2,'0')} h` : '·'});}
+        } else {
+          for(let n=Number(period)-1;n>=0;n--){const d=new Date(now);d.setHours(12,0,0,0);d.setDate(d.getDate()-n);buckets.push({key:dayKey(d),label:period==='30'?`${d.getDate()}`:`${d.getDate()}/${d.getMonth()+1}`});}
+        }
+        for(const r of rows){
+          const secs=Number(r.durada_segons);
+          const flow=r.cabal_l_min===null?NaN:Number(r.cabal_l_min);
+          seconds+=secs;
+          if(!Number.isFinite(flow)||flow<=0)continue;
+          const litres=flow*secs/60;
+          if(!Number.isFinite(litres))continue;
+          valid++;total+=litres;
+          const zone=Number(r.jardinera);
+          zones.set(zone,(zones.get(zone)||0)+litres);
+          const time=new Date(r.inici);
+          const key=period==='24'?hourKey(time):dayKey(time);
+          daily.set(key,(daily.get(key)||0)+litres);
+        }
+        document.getElementById('cada-litres').textContent=formatLitres(total);
+        document.getElementById('cada-events').textContent=formatNumber(rows.length);
+        document.getElementById('cada-runtime').textContent=formatNumber(seconds);
+        consumption.chart.replaceChildren();
+        const max=Math.max(...buckets.map(b=>daily.get(b.key)||0),0);
+        for(const b of buckets)makeBar(consumption.chart,b.label,daily.get(b.key)||0,max,'chart');
+        consumption.chart.classList.toggle('is-month',period==='30');
+        consumption.chart.setAttribute('aria-label',`Consum estimat de ${formatLitres(total)} litres durant el període seleccionat`);
+        consumption.comparison.replaceChildren();
+        const selection=consumption.zone.value;
+        const selected=selection==='all'?[1,2]:[Number(selection)];
+        const maxZone=Math.max(...selected.map(z=>zones.get(z)||0),0);
+        for(const z of selected)makeBar(consumption.comparison,`Jardinera ${String(z).padStart(2,'0')}`,zones.get(z)||0,maxZone,'compare');
+        const missing=rows.length-valid;
+        consumption.note.textContent=(consumption.source.value==='prova'
+          ? 'Dades simulades: els litres no representen consum físic. '
+          : 'Registres etiquetats com a Arduino: comprova’n l’origen i el cabal calibrat. ')
+          +(missing?`${missing} esdeveniment(s) sense cabal vàlid no s’han inclòs al volum. `:'')
+          +(rows.length===1000?'S’han recuperat com a màxim 1.000 registres; els totals poden ser incomplets. ':'')
+          +'El volum és estimat: cabal × durada / 60.';
+        consumption.message.textContent=rows.length
+          ? 'Dades carregades correctament.'
+          : 'No hi ha esdeveniments en aquesta selecció; el consum es mostra com a zero.';
+        consumption.root.hidden=false;
+      } catch(err) {
+        if(ticket!==consumptionRequest)return;
+        console.error('CadaGota: error consultant esdeveniments_reg',err);
+        consumption.message.textContent='No es pot consultar el consum. Comprova la connexió i les polítiques RLS de la taula esdeveniments_reg.';
+        consumption.message.classList.add('is-error');
+      } finally {
+        if(ticket===consumptionRequest)consumption.refresh.disabled=false;
+      }
+    }
+    consumption.refresh.addEventListener('click',loadConsumption);
+    [consumption.source,consumption.period,consumption.zone].forEach(sel=>sel.addEventListener('change',loadConsumption));
     configForm.addEventListener('submit',async ev=>{
       ev.preventDefault();if(!currentConfig)return;
       const min=Number(minInput.value),max=Number(maxInput.value),secs=Number(durationInput.value);
@@ -143,7 +261,7 @@
         account.textContent = user.email || 'Compte autoritzat';
         inform('Accés verificat correctament.');
         show(privateArea, true);
-        await loadSettings();
+        await Promise.all([loadSettings(),loadConsumption()]);
       } catch (e) {
         inform('Error de connexió amb Supabase. Torna-ho a provar més tard.', true);
       }
