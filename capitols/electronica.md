@@ -85,12 +85,14 @@ sections:
 </ul>
 <p class="definition"><strong>Processament:</strong></p>
 <p>La informació obtinguda s’interpreta d’acord amb els criteris establerts en el programa i així es decideix si regar o no. El programa pot incorporar:</p>
-<p class="compact-line">Paràmetres específics per a cada tipus de planta: llindars personalitzats d’humitat del sòl</p>
-<p>Durada del reg: temps durant el qual s’ha de mantenir activat el sistema.</p>
-<p>Prioritat entre criteris: determinar quina condició preval quan se’n compleixen diverses alhora.</p>
-<p>Límits de seguretat: per exemple, establir un temps màxim de funcionament continu.</p>
-<p>Historial de funcionament: tenir en compte mesures o regs anteriors en la presa de decisions.</p>
-<p>Retards i intervals de control: establir cada quant temps es realitzen noves comprovacions o quant s’ha d’esperar abans de tornar a regar.</p>
+<ul class="clean-list">
+<li>Paràmetres específics per a cada tipus de planta: llindars personalitzats d’humitat del sòl</li>
+<li>Durada del reg: temps durant el qual s’ha de mantenir activat el sistema.</li>
+<li>Prioritat entre criteris: determinar quina condició preval quan se’n compleixen diverses alhora.</li>
+<li>Límits de seguretat: per exemple, establir un temps màxim de funcionament continu.</li>
+<li>Historial de funcionament: tenir en compte mesures o regs anteriors en la presa de decisions.</li>
+<li>Retards i intervals de control: establir cada quant temps es realitzen noves comprovacions o quant s’ha d’esperar abans de tornar a regar.</li>
+</ul>
 <p class="definition"><strong>Sortida:</strong></p>
 <p>La decisió presa es tradueix en una actuació sobre el sistema. En el cas del reg, pot consistir a activar una bomba d’aigua o obrir una electrovàlvula per permetre el pas de l’aigua.</p>
 

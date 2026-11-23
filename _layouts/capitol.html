@@ -7,7 +7,7 @@ layout: default
 <p class="side-label">EN AQUEST CAPÍTOL</p>
 <nav aria-label="Apartats del capítol">
 {% for item in page.sections %}<a href="#{{ item.id }}">{{ item.title }}</a>{% endfor %}
-<a href="#bibliografia">Bibliografia</a>
+{% unless page.section == '1' %}<a href="#bibliografia">Bibliografia</a>{% endunless %}
 </nav>
 <a class="sidebar-pdf" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}#page={{ page.pdf_start }}" target="_blank" rel="noopener">Obrir el PDF · pàgina {{ page.pdf_start }} ↗</a>
 </aside>
