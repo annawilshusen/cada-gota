@@ -1,4 +1,4 @@
-# CadaGota — web v8
+# CadaGota — web v9
 
 Projecte de recerca «Consciència a cada gota». Web Jekyll compatible amb GitHub Pages.
 
@@ -19,3 +19,6 @@ Descomprimeix el ZIP, copia **tot el contingut** a l’arrel del repositori `ann
 ## Important
 
 Llegeix `REVISIO-PENDENT.md` per a possibles incoherències de la bibliografia i dades a contrastar abans de publicar el contingut com a definitiu. Les fonts sense URL al fitxer bibliogràfic no s’han inventat.
+
+
+Consulta `CANVIS-V9.md` per a les correccions de la darrera versió.

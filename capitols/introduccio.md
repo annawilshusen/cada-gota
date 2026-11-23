@@ -27,10 +27,7 @@ sections:
 - id: sec-1-7
   title: Motivació personal
 ---
-<section class="science-feature" aria-labelledby="project-steps-title">
-<p class="feature-eyebrow">COM S'ARTICULA EL TREBALL</p><h2 id="project-steps-title">Tres fases, un mateix objectiu</h2>
-<div class="step-tabs" data-demo="project-steps" role="group" aria-label="Fases del projecte"><button type="button" data-step="0" aria-pressed="true">01 · Teoria</button><button type="button" data-step="1" aria-pressed="false">02 · Tècnica</button><button type="button" data-step="2" aria-pressed="false">03 · Educació</button></div>
-<div class="step-display"><span class="step-count" data-step-count>01 / 03</span><p class="step-output" aria-live="polite" data-step-output>Estudiar l’aigua, els sistemes de reg i els fonaments tecnològics abans de construir el prototip.</p></div><p class="figure-caption">Esquema de les tres fases descrites a l'apartat 1.6.</p></section>
+
 <h2 id="sec-1-1" class="chapter-heading"><span class="section-number">1.1</span> Context general del treball</h2>
 <p>La disponibilitat d’aigua no depèn únicament de la quantitat existent, sinó també de la manera com es gestiona. Davant d’un recurs limitat i de gran importància, reduir-ne el malbaratament implica revisar activitats quotidianes en què es consumeix aigua sense conèixer amb precisió si és necessària.</p>
 <p>El reg n’és un exemple. En molts entorns, l’aportació d’aigua a les plantes sovint depèn de l’observació humana o de sistemes temporitzats que actuen segons una programació fixa. Aquests mètodes no necessàriament tenen en compte l’estat real del sòl en el moment de regar, però la tecnologia permet fer un ús eficient de l’aigua mitjançant un sistema intel·ligent per així controlar cada gota, idea de la qual neix el nom del nostre equip: “CADA”.</p>
@@ -72,6 +69,6 @@ sections:
 <h2 id="sec-1-7" class="chapter-heading"><span class="section-number">1.7</span> Motivació personal</h2>
 <p>Quan cursàvem 4t d’ESO, el nostre professor de tecnologia ens va comentar que volia instal·lar un sistema de reg automàtic a l’escola i que necessitava voluntaris per tirar-lo endavant. Les dues ens vam oferir i ens va dir que el projecte començaria el curs següent.</p>
 <p>En començar primer de batxillerat, ens vam reunir amb els tres professors del claustre que formen part de Nazaret Cuida, inclòs el professor de tecnologia, i ens van proposar desenvolupar el sistema de reg automàtic com a treball de recerca de batxillerat. A partir d’aquí, vam decidir ampliar el projecte incorporant-hi també una dimensió social i educativa, per tal que no fos només una proposta tècnica, sinó una iniciativa amb impacte real dins la comunitat escolar.</p>
-<section id="bibliografia" class="bibliografia chapter-bib"><p class="intro-label">FONTS DEL CAPÍTOL</p><h2>Bibliografia</h2><p class="bibliography-context">Referències utilitzades al capítol. La numeració segueix el treball original; els enllaços s’han recuperat del fitxer bibliogràfic facilitat per les autores.</p><ol class="bib-list">
+<section id="bibliografia" class="bibliografia chapter-bib"><p class="intro-label">FONTS DEL CAPÍTOL</p><h2>Bibliografia</h2><ol class="bib-list">
 
 </ol></section>

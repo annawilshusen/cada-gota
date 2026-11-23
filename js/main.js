@@ -111,12 +111,20 @@ const humidity=document.getElementById('soil-humidity');
 if(humidity){let on=false;const output=document.getElementById('soil-state');const value=document.getElementById('soil-value');const render=()=>{const h=Number(humidity.value);value.textContent=`${h}%`;if(h<30)on=true;else if(h>55)on=false;output.textContent='Estat del reg simulat: '+(on?'ACTIVAT':'desactivat');output.style.color=on?'#a65d12':'#204c55';};humidity.addEventListener('input',render);render();}
 
 
-// V7 — Objectius de Desenvolupament Sostenible: es gira amb hover al ratolí;
-// en pantalles tàctils i amb teclat, també amb clic/Enter/Espai.
+// ODS: gir amb hover al ratolí; toc o teclat per girar i tornar.
+// Els clics de ratolí no deixen una targeta girada permanentment.
 document.querySelectorAll('.ods-card').forEach(card => {
-  card.addEventListener('click', () => {
-    const isFlipped=card.classList.toggle('is-flipped');
-    card.setAttribute('aria-pressed',String(isFlipped));
+  card.addEventListener('click', event => {
+    const coarse = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    if (!coarse && event.detail !== 0) return;
+    const isFlipped = card.classList.toggle('is-flipped');
+    card.setAttribute('aria-pressed', String(isFlipped));
+  });
+  card.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      card.classList.remove('is-flipped');
+      card.setAttribute('aria-pressed', 'false');
+    }
   });
 });
 

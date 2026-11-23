@@ -146,3 +146,43 @@
 .definition-fold[open]>summary{background:#edf1e8;border-bottom:1px solid var(--line)}
 .definition-fold>p{padding:4px 19px 17px;margin:8px 0 0;font-size:1rem}
 .definition-fold>summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+
+/* V9 · Vinyetes netes, sense gotes deformades */
+.chapter-body .droplet-list,
+.chapter-body .clean-list {list-style:none;padding:0;margin:1.1rem 0 2.1rem;display:grid;gap:5px}
+.chapter-body .droplet-list li,
+.chapter-body .clean-list li {position:relative;padding:7px 8px 7px 32px;line-height:1.75}
+.chapter-body .droplet-list li::before,
+.chapter-body .clean-list li::before {content:"";position:absolute;left:6px;top:1.17em;width:8px;height:8px;border-radius:50%;background:#407e8c;transform:none}
+.chapter-body .clean-list li:first-letter{color:inherit}
+
+/* Seccions i subseccions del TDR: jerarquia inequívoca */
+.chapter-body h2.chapter-heading {font-size:clamp(2.0rem,3.0vw,2.85rem);font-weight:400;line-height:1.16;margin:3.5rem 0 1.35rem;}
+.chapter-body h3.chapter-heading {font-size:clamp(1.42rem,2.05vw,1.85rem);font-weight:500;line-height:1.28;margin:2.7rem 0 1.05rem;border:0;padding-bottom:0}
+.chapter-body h4.chapter-heading {font-size:clamp(1.08rem,1.5vw,1.28rem);font-weight:600;line-height:1.35;margin:1.85rem 0 .75rem}
+.chapter-body h2.chapter-heading .section-number{font-size:clamp(1.05rem,1.55vw,1.25rem)}
+.chapter-body h3.chapter-heading .section-number{font-size:clamp(.98rem,1.35vw,1.1rem)}
+.chapter-body h4.chapter-heading .section-number{font-size:1rem}
+.chapter-body .ods-gallery{margin-top:1.5rem}
+.chapter-body .ods-card-back{border-color:var(--sea);gap:8px}
+.chapter-body .ods-card-back strong{font-size:clamp(.98rem,1.3vw,1.18rem)}
+.chapter-body .ods-card-back span:not(.ods-card-tag){font-size:clamp(.75rem,1.08vw,.88rem);line-height:1.4}
+.chapter-body .ods-card-back small{display:none}
+@media(max-width:680px){.chapter-body .ods-card-back strong{font-size:.9rem}.chapter-body .ods-card-back span:not(.ods-card-tag){font-size:.7rem}}
+
+/* Regadora del reg manual: només visible quan s'activa aquesta opció */
+.irrigation-scene .watering-can-visual {display:none;position:absolute;left:10%;top:8%;width:clamp(92px,26%,175px);height:auto;z-index:2;filter:drop-shadow(0 3px 3px rgba(0,0,0,.1))}
+.irrigation-scene[data-mode="manual"] .watering-can-visual{display:block}
+.figure-three{max-width:100%;margin:1.7rem 0 2.5rem}
+.figure-three img{width:100%;height:auto}
+.figure-three figcaption{font-size:.85rem}
+/* Fonts completes amb text i enllaç llegibles */
+.chapter-body .bib-list .bib-url{display:block;margin-top:3px;color:#597376;font:400 .8rem/1.5 Arial,sans-serif;overflow-wrap:anywhere}
+
+/* Enllaç directe de cada font, llegible i copiable */
+.chapter-body .bib-source{display:inline-block;max-width:100%;line-height:1.5}
+.chapter-body .bib-url{display:block;margin-top:3px;max-width:100%;font:400 .78rem/1.45 Arial,sans-serif;color:#536f73;text-decoration:underline;overflow-wrap:anywhere;word-break:break-word}
+.chapter-body .bib-actions{align-items:flex-start}
+
+@media(hover:hover) and (pointer:fine){.ods-card:focus-visible .ods-card-inner{transform:rotateY(180deg)}}
