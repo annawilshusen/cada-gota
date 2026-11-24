@@ -26,7 +26,7 @@
   async function loadCalibration() {
     try {
       const params=new URLSearchParams({select:'nom_planta,raw_sec,raw_humit',jardinera:'eq.1',limit:'1'});
-      const rows=await readRows(`configuracio_reg?${params}`);
+      const rows=await readRows(params, 'configuracio_reg');
       const c=rows[0];
       if (!c) return;
       const name=(c.nom_planta || '').trim();
@@ -44,19 +44,29 @@
     }
   }
 
-  async function readRows(query) {
+  async function readRows(query, table = 'telemetria_arduino') {
+    // Convertim SEMPRE URLSearchParams a una cadena abans de construir la URL.
+    const qs = query instanceof URLSearchParams ? query.toString() : String(query);
+    const endpoint = `${url}/rest/v1/${table}?${qs}`;
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 12000);
     try {
-      const result = await fetch(`${url}/rest/v1/${String(query).startsWith("configuracio_reg?") ? String(query) : "telemetria_arduino?"+String(query)}`, {
-        headers:{apikey:key,Accept:'application/json'},
-        cache:'no-store', signal:abort.signal
+      const result = await fetch(endpoint, {
+        headers: { apikey: key, Accept: 'application/json' },
+        cache: 'no-store', signal: abort.signal
       });
-      if (!result.ok) throw new Error(`HTTP ${result.status}`);
+      if (!result.ok) {
+        let extra = '';
+        try {
+          const problem = await result.json();
+          extra = problem.message || problem.code || problem.error || '';
+        } catch (_) { /* resposta no JSON */ }
+        throw new Error(`HTTP ${result.status}${extra ? ': '+extra : ''} (${table})`);
+      }
       const data = await result.json();
-      if (!Array.isArray(data)) throw new Error('Resposta inesperada');
+      if (!Array.isArray(data)) throw new Error(`Resposta inesperada de ${table}`);
       return data;
-    } finally {clearTimeout(timer);}
+    } finally { clearTimeout(timer); }
   }
 
   function renderLatest(row) {
@@ -175,10 +185,11 @@
       renderChart(history,hours);
       historyStatus.textContent=history.length ? `${history.length} lectures reals · ${calibration ? 'percentatge relatiu calibrat' : 'RAW'} del sensor A0${history.length>=1000?' · Mostres limitades a les 1.000 més recents del període':''}` : 'Sense dades per al període seleccionat.';
     } catch(e) {
-      status.textContent=`No s’ha pogut consultar la telemetria (${e.message}).`;
-      status.dataset.state='error';
-      historyStatus.textContent='No es pot carregar la gràfica. Comprova la connexió i els permisos de lectura de Supabase.';
+      // No amaguem l'error amb el missatge 'Sense lectures rebudes'.
       if(!lastRecord) renderLatest(null);
+      status.textContent=`No s’ha pogut consultar la telemetria: ${e.message || String(e)}`;
+      status.dataset.state='error';
+      historyStatus.textContent=`No es pot carregar la gràfica: ${e.message || String(e)}`;
     } finally { loading=false;refresh.disabled=false; }
   }
   refresh.addEventListener('click',load);

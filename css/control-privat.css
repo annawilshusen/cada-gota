@@ -83,3 +83,22 @@
 .cada-plant-fields .cada-plant-notes {grid-column:1/-1;}
 .cada-plant-fields textarea {width:100%;min-height:100px;font:inherit;resize:vertical;box-sizing:border-box;}
 .cada-settings-form h3 {margin-top:1.4rem;}
+
+/* v20 — calibració guiada dins de l'accés privat */
+.cada-calibration-guide{border-top:1px solid #d3dfdc;margin-top:20px;padding-top:18px}
+.cada-calibration-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cada-calibration-heading h3{margin:4px 0;font:normal 1.5rem Georgia,serif}
+.cada-cal-live{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.cada-cal-live>div{background:#f0eee4;padding:13px;display:grid;gap:6px}
+.cada-cal-live span{font-size:.82rem;color:#375c65}
+.cada-cal-live strong{font-size:1rem;color:#244c55}
+.cada-cal-status{font-size:.9rem;color:#285966;background:#edf1e9;padding:10px 12px}
+.cada-cal-status.is-error{color:#8c3725;background:#f6e8e1}
+.cada-cal-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+.cada-cal-actions>div{padding:16px;border:1px solid #b9cfca;background:#fffdf7}
+.cada-cal-actions h4{margin:0 0 8px;color:#244c55}
+.cada-cal-actions p{font-size:.85rem}
+.cada-cal-actions button:disabled{opacity:.45;cursor:not-allowed}
+.cada-cal-preview{padding:14px;background:#f0eee4;color:#285966;font-size:.95rem;margin:16px 0}
+.cada-cal-warning{font-size:.82rem!important}
+@media(max-width:650px){.cada-cal-actions,.cada-cal-live{grid-template-columns:1fr}}

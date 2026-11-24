@@ -121,8 +121,126 @@
       dryRawInput.value=data.raw_sec ?? '';
       wetRawInput.value=data.raw_humit ?? '';
       show(configForm,true);settingsInfo('Configuració carregada de Supabase.');
+      setCalibrationZone();
       await loadActivity();
     }
+    // v20 — Calibració guiada amb dades recents. No activa la bomba.
+    const cal = {
+      guide: document.getElementById('cada-calibration-guide'),
+      refresh: document.getElementById('cada-cal-refresh'),
+      dry: document.getElementById('cada-cal-capture-dry'),
+      wet: document.getElementById('cada-cal-capture-wet'),
+      save: document.getElementById('cada-cal-save'),
+      status: document.getElementById('cada-cal-status'),
+      mean: document.getElementById('cada-cal-mean'),
+      range: document.getElementById('cada-cal-range'),
+      last: document.getElementById('cada-cal-last'),
+      preview: document.getElementById('cada-cal-preview')
+    };
+    let calSample = null;
+    let calRefreshSeq = 0;
+    const calMessage = (msg, invalid=false) => {
+      cal.status.textContent=msg;
+      cal.status.classList.toggle('is-error',invalid);
+    };
+    function renderCalibrationPreview() {
+      const a=dryRawInput.value.trim(), b=wetRawInput.value.trim();
+      const dry=Number(a), wet=Number(b);
+      const valid=a!=='' && b!=='' && Number.isInteger(dry) && Number.isInteger(wet) && dry>=0 && dry<=4095 && wet>=0 && wet<=4095 && Math.abs(dry-wet)>=20;
+      cal.save.disabled=!valid || zoneNumber()!==1 || !currentConfig;
+      if (!valid) {
+        cal.preview.textContent='Calen dos valors RAW entre 0 i 4095, separats almenys per 20 unitats, per calcular el percentatge.';
+        return;
+      }
+      const latest=calSample?.mean;
+      if (latest===undefined) {
+        cal.preview.textContent=`Referència seca: ${dry} RAW (0%). Referència humida: ${wet} RAW (100%). Consulta les lectures per veure una previsió actual.`;
+        return;
+      }
+      const pct=Math.max(0,Math.min(100,100*(latest-dry)/(wet-dry)));
+      cal.preview.textContent=`Amb la lectura mitjana actual (${latest} RAW), la humitat relativa seria ${pct.toLocaleString('ca-ES',{maximumFractionDigits:1})}%. Els extrems de l'escala són ${dry} i ${wet} RAW.`;
+    }
+    function setCalibrationZone() {
+      calSample=null;
+      cal.mean.textContent='— RAW';cal.range.textContent='—';cal.last.textContent='—';
+      const supported=zoneNumber()===1;
+      cal.refresh.disabled=!supported;
+      cal.dry.disabled=true;cal.wet.disabled=true;
+      calMessage(supported ? 'Consulta les lectures del sensor A0 per capturar una referència.' : 'Encara no tenim lectures de cap sensor associat a la jardinera 02. Pots editar manualment els valors RAW, però no capturar-los des d’A0.');
+      renderCalibrationPreview();
+    }
+    async function refreshCalibration() {
+      if(zoneNumber()!==1)return;
+      const seq=++calRefreshSeq;
+      calSample=null;
+      cal.refresh.disabled=true;cal.dry.disabled=true;cal.wet.disabled=true;
+      calMessage('Consultant les lectures recents de l’Arduino…');
+      try {
+        const now=Date.now();
+        const since=new Date(now-3*60*1000).toISOString();
+        const {data,error}=await client.from('telemetria_arduino')
+          .select('humitat_raw,created_at').gte('created_at',since)
+          .order('created_at',{ascending:false}).limit(6);
+        if(seq!==calRefreshSeq || zoneNumber()!==1)return;
+        if(error)throw error;
+        const rows=(data||[]).filter(r=>Number.isInteger(r.humitat_raw)&&r.humitat_raw>=0&&r.humitat_raw<=4095&&Number.isFinite(new Date(r.created_at).getTime()));
+        if(!rows.length)throw new Error('No hi ha lectures recents. Revisa el Wi-Fi i la transmissió de l’Arduino.');
+        const newest=new Date(rows[0].created_at).getTime();
+        const age=Math.max(0,Math.floor((Date.now()-newest)/1000));
+        const values=rows.map(r=>r.humitat_raw);
+        const range=Math.max(...values)-Math.min(...values);
+        const mean=Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+        cal.mean.textContent=`${mean} RAW (${rows.length} mostres)`;
+        cal.range.textContent=`${range} RAW`;
+        cal.last.textContent=`Fa ${age} s`;
+        // A minimal stability test; for 12-bit ADC a >30 RAW spread
+        // warrants waiting instead of silently saving an unreliable reading.
+        const stable=rows.length>=4 && age<=90 && range<=30;
+        if(stable){
+          calSample={mean, newest, range, count:rows.length};
+          cal.dry.disabled=false;cal.wet.disabled=false;
+          calMessage(`Lectura estable: ${rows.length} mostres recents amb variació de ${range} RAW. Ja pots capturar una referència.`);
+        } else {
+          const reason=age>90?'La lectura és massa antiga (més de 90 s).':rows.length<4?'Calen almenys 4 lectures recents. Espera uns minuts.':`Les lectures varien massa (${range} RAW). Espera que el sensor s'estabilitzi.`;
+          calMessage(reason,true);
+        }
+        renderCalibrationPreview();
+      } catch(e) {
+        calMessage(`No es pot preparar la captura: ${e.message}`,true);
+      } finally { if(seq===calRefreshSeq && zoneNumber()===1)cal.refresh.disabled=false; }
+    }
+    function captureCalibration(input,label) {
+      if(!calSample || zoneNumber()!==1)return;
+      if(Date.now()-calSample.newest>90000) {
+        cal.dry.disabled=true;cal.wet.disabled=true;
+        calMessage('Les lectures ja no són recents. Torna a consultar-les abans de capturar.',true);
+        return;
+      }
+      input.value=String(calSample.mean);
+      calMessage(`Punt ${label} capturat: ${calSample.mean} RAW (${calSample.count} lectures). Comprova la mostra i desa la calibració quan tinguis ambdós punts.`);
+      renderCalibrationPreview();
+    }
+    cal.refresh.addEventListener('click',refreshCalibration);
+    cal.dry.addEventListener('click',()=>captureCalibration(dryRawInput,'sec'));
+    cal.wet.addEventListener('click',()=>captureCalibration(wetRawInput,'humit'));
+    [dryRawInput,wetRawInput].forEach(input=>input.addEventListener('input',renderCalibrationPreview));
+    cal.save.addEventListener('click',async()=>{
+      const dry=Number(dryRawInput.value),wet=Number(wetRawInput.value);
+      if(zoneNumber()!==1 || !currentConfig || !Number.isInteger(dry)||!Number.isInteger(wet)||dry<0||dry>4095||wet<0||wet>4095||Math.abs(dry-wet)<20){calMessage('Comprova les dues referències abans de desar.',true);return;}
+      cal.save.disabled=true;
+      calMessage('Desant la calibració…');
+      try {
+        if(!(await hasAccess()))throw new Error('No tens una sessió d’administradora vàlida.');
+        const {data,error}=await client.from('configuracio_reg')
+          .update({raw_sec:dry,raw_humit:wet}).eq('jardinera',1)
+          .select('jardinera').maybeSingle();
+        if(error || !data)throw new Error(error?.message || 'No s’ha actualitzat la jardinera.');
+        currentConfig.raw_sec=dry;currentConfig.raw_humit=wet;
+        calMessage('Calibració desada a Supabase. El panell públic la farà servir en la següent actualització.');
+      } catch(e) {calMessage(`No s’ha pogut desar: ${e.message}`,true);}
+      finally {renderCalibrationPreview();}
+    });
+
     // v15 — Anàlisi privada dels esdeveniments de reg (només lectura, protegida per RLS).
     // El registre de sol·licituds de prova no és el mateix que un reg executat.
     const consumption = {
@@ -290,7 +408,7 @@
         await loadActivity();
       }catch(e){settingsInfo('Error de connexió en registrar la prova.',true);}finally{requestBtn.disabled=false;}
     });
-    zoneSel.addEventListener('change',loadSettings);
+    zoneSel.addEventListener('change',()=>{calRefreshSeq++;setCalibrationZone();loadSettings();});
     document.getElementById('cada-reload').addEventListener('click',loadSettings);
 
     async function verify() {

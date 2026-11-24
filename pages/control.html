@@ -49,6 +49,19 @@ nav: panell
           <label>Lectura RAW en humit (100%)<input type="number" id="cada-raw-humit" min="0" max="4095" step="1" placeholder="Pendent de calibrar"></label>
         </div>
         <p class="muted">Omple tots dos camps, amb una diferència mínima de 20 unitats, o deixa'ls tots dos buits. Les lectures poden augmentar o disminuir amb la humitat segons el sensor.</p>
+        <section class="cada-calibration-guide" id="cada-calibration-guide" aria-labelledby="cada-calibration-title">
+          <div class="cada-calibration-heading"><div><p class="kicker">LECTURES REALS · SENSOR A0</p><h3 id="cada-calibration-title">Calibració guiada</h3></div><button type="button" class="cada-auth-secondary" id="cada-cal-refresh">Consultar lectures</button></div>
+          <p class="muted">Prepara una mostra del mateix substrat sec i una altra de ben regada i drenada. Mantén el sensor a la mateixa profunditat; no mullis l'electrònica superior. No facis servir la humitat de l'aire com a referència del 0%.</p>
+          <div class="cada-cal-live"><div><span>Mitjana de lectures recents</span><strong id="cada-cal-mean">— RAW</strong></div><div><span>Variació de les lectures</span><strong id="cada-cal-range">—</strong></div><div><span>Última lectura</span><strong id="cada-cal-last">—</strong></div></div>
+          <p id="cada-cal-status" class="cada-cal-status" role="status" aria-live="polite">Consulta les lectures per comprovar-ne l'estabilitat.</p>
+          <div class="cada-cal-actions">
+            <div><h4>01 · Substrat sec (0%)</h4><p>Insereix el sensor en substrat sec, espera que estabilitzi i captura la mitjana.</p><button type="button" class="cada-auth-secondary" id="cada-cal-capture-dry" disabled>Capturar valor sec</button></div>
+            <div><h4>02 · Substrat humit (100%)</h4><p>Repeteix-ho en substrat humit després de deixar escórrer l'excés d'aigua.</p><button type="button" class="cada-auth-secondary" id="cada-cal-capture-wet" disabled>Capturar valor humit</button></div>
+          </div>
+          <div class="cada-cal-preview" id="cada-cal-preview">Captura o introdueix manualment les dues referències per veure la conversió.</div>
+          <button type="button" id="cada-cal-save" disabled>Desar només la calibració a Supabase</button>
+          <p class="muted cada-cal-warning">A0 està assignat provisionalment a la jardinera 01. La jardinera 02 necessita el seu propi sensor per fer una captura real. Aquests percentatges descriuen una escala de calibració del substrat, no el contingut volumètric absolut d'aigua. La calibració no canvia el firmware ni activa la bomba.</p>
+        </section>
       </fieldset>
       <h3>Preferències de reg</h3>
       <div class="cada-settings-fields">
@@ -105,6 +118,6 @@ nav: panell
   </section>
   <noscript>Cal activar JavaScript per iniciar sessió.</noscript>
 </section>
-<link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}?v=20">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script defer src="{{ '/js/control-privat.js' | relative_url }}"></script>
+<script defer src="{{ '/js/control-privat.js' | relative_url }}?v=20"></script>
