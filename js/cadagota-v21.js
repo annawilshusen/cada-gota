@@ -1,82 +1,1364 @@
-/* CadaGota v21 — només lectura: no envia ordres al relé. */
-(()=>{'use strict';
-const ROOT=document.getElementById('cg-dashboard');if(!ROOT)return;
-const URL='https://zkzppfkjprwqdlyqkavt.supabase.co';
-const KEY='sb_publishable_L0fopg_qzpYaeOstUIIK-Q_muX1VMhp'; // Clau publica, RLS al servidor
-const $=id=>document.getElementById(id);
-const fmt=new Intl.NumberFormat('ca-ES',{maximumFractionDigits:1});
-const datefmt=new Intl.DateTimeFormat('ca-ES',{dateStyle:'medium',timeStyle:'medium'});
-const periodOptions=[['10 min',1/6],['1 h',1],['24 h',24],['7 d',168],['30 d',720]];
-const state={rows:[],configs:[],hours:{},busy:false,updatedAt:0,error:null};
-for(let i=1;i<=6;i++)state.hours[i]=24;
-function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
-function svg(tag,attrs={},txt){const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));if(txt!==undefined)n.textContent=txt;return n}
-function validDate(v){const d=new Date(v);return Number.isFinite(d.getTime())?d:null}
-function percent(raw,c){if(!c||!Number.isInteger(c.raw_sec)||!Number.isInteger(c.raw_humit)||Math.abs(c.raw_humit-c.raw_sec)<20)return null;return Math.max(0,Math.min(100,100*(Number(raw)-c.raw_sec)/(c.raw_humit-c.raw_sec)))}
-function timeAge(value){const d=validDate(value);if(!d)return 'Data desconeguda';const s=Math.max(0,Math.floor((Date.now()-d.getTime())/1000));return s<60?`Fa ${s} s`:s<3600?`Fa ${Math.floor(s/60)} min`:`Fa ${Math.floor(s/3600)} h`}
-function ring(value,color,label){const r=44, circ=2*Math.PI*r;const s=svg('svg',{viewBox:'0 0 110 110',class:'cg-ring-svg','aria-hidden':'true'});s.append(svg('circle',{cx:55,cy:55,r,fill:'none',stroke:'#dae4df','stroke-width':6}));if(value!==null)s.append(svg('circle',{cx:55,cy:55,r,fill:'none',stroke:color,'stroke-width':6,'stroke-linecap':'round','stroke-dasharray':`${circ*value/100} ${circ}` ,transform:'rotate(-90 55 55)'}));s.append(svg('text',{x:55,y:61,'text-anchor':'middle',class:'cg-ring-text'},label));return s}
-function clock(value){const d=validDate(value);if(!d)return ring(null,'#8caaa9','—');const s=svg('svg',{viewBox:'0 0 110 110',class:'cg-ring-svg','aria-hidden':'true'});const parts=[[(d.getHours()%12+d.getMinutes()/60)/12,44,'#497f8c'],[(d.getMinutes()+d.getSeconds()/60)/60,36,'#739a83'],[d.getSeconds()/60,28,'#bb9760']];for(const [p,r,c]of parts){const circum=2*Math.PI*r;s.append(svg('circle',{cx:55,cy:55,r,fill:'none',stroke:'#e5e8df','stroke-width':3.5}));s.append(svg('circle',{cx:55,cy:55,r,fill:'none',stroke:c,'stroke-width':3.5,'stroke-linecap':'round','stroke-dasharray':`${circum*p} ${circum}`,transform:'rotate(-90 55 55)'}))}s.append(svg('text',{x:55,y:59,'text-anchor':'middle',class:'cg-clock-text'},d.toLocaleTimeString('ca-ES',{hour:'2-digit',minute:'2-digit'})));return s}
-function indicator(title,figure,description,visual){const box=node('div','cg-indicator');box.append(visual,node('strong','cg-indicator-title',title),node('small','',description));return box}
-function configFor(n){return state.configs.find(c=>Number(c.jardinera)===n)||null}
-async function read(table,params){const abort=new AbortController();const timer=setTimeout(()=>abort.abort(),12000);try{const r=await fetch(`${URL}/rest/v1/${table}?${params.toString()}`,{headers:{apikey:KEY,Accept:'application/json'},cache:'no-store',signal:abort.signal});if(!r.ok)throw Error(`${table}: HTTP ${r.status}`);const rows=await r.json();if(!Array.isArray(rows))throw Error('Resposta de dades no vàlida');return rows}finally{clearTimeout(timer)}}
-function diag(row,c,stale){if(!row)return 'No hi ha lectures reals';if(stale)return 'Sense telemetria recent · estat físic desconegut';if(row.diposit_ok===false)return 'Nivell d’aigua insuficient';if(row.bomba_activa===true)return 'Relé activat (segons Arduino)';if(c&&c.mode_automatic===false)return 'Mode automàtic desactivat';if(c){const p=percent(row.humitat_raw,c);if(p!==null&&p>=c.humitat_maxima)return 'Humitat suficient';if(p!==null&&p<c.humitat_minima)return 'Humitat baixa · relé OFF: possible bloqueig de temps (no verificable sense telemetria del motiu)'}return 'Relé desactivat · motiu no comunicat'}
-function buildPlant(i,latest){const c=configFor(i),connected=i===1;const row=connected?latest:null;const name=c?.nom_planta?.trim()||`Planta ${String(i).padStart(2,'0')}`;const species=c?.especie?.trim()||'Espècie pendent d’identificar';const wrap=node('article','cg-plant'+(!connected?' cg-disconnected':''));wrap.id=`cg-plant-${i}`;
-const head=node('div','cg-plant-head');const heading=node('div','');heading.append(node('p','cg-kicker',`JARDINERA ${String(i).padStart(2,'0')} · ${connected?'SENSOR A0':'SENSOR PENDENT'}`),node('h2','',name),node('em','cg-species',species));head.append(heading,node('span','cg-pill '+(connected?'cg-connected':'cg-inactive'),connected?(row&&!stale?'Lectures recents':'Sensor A0 assignat'):'No connectada'));wrap.append(head);
-const notes=node('p','cg-notes',c?.observacions?.trim()||'Sense observacions registrades.');wrap.append(notes);
-const age=row?Date.now()-new Date(row.created_at).getTime():Infinity;const stale=!Number.isFinite(age)||age>90000||age< -30000;
-const humidity=(!stale&&row)?percent(row.humitat_raw,c):null;
-const relay=(!stale&&row)?row.bomba_activa:null;
-const values=node('div','cg-indicators');values.append(indicator('Humitat del sòl',humidity===null?'—':`${fmt.format(humidity)}%`,connected?(humidity===null?'Calibració o lectura no disponible':`${row.humitat_raw} RAW · escala calibrada`):'Sense sensor',ring(humidity,'#438b97',humidity===null?'—':`${fmt.format(humidity)}%`)));
-values.append(indicator('Estat del relé',relay===null?'—':relay?'ON':'OFF',connected?(relay===null?'Estat actual no verificat':diag(row,c,stale)):'Sense relé',ring(relay===null?null:relay?100:0,'#8d986e',relay===null?'—':relay?'ON':'OFF')));
-const time=row&&!stale?datefmt.format(validDate(row.created_at)):'Sense lectura recent';values.append(indicator('Última lectura',time,row?timeAge(row.created_at):'Pendent de connexió',clock(row?.created_at)));wrap.append(values);
-if(connected){const detail=node('details','cg-chart-details');detail.open=false;const su=node('summary','','Consultar l’evolució de la humitat');detail.append(su);const inner=node('div','cg-chart-inner');const controls=node('div','cg-periods');for(const [text,h]of periodOptions){const b=node('button','',text);b.type='button';b.setAttribute('aria-pressed',String(state.hours[i]===h));b.addEventListener('click',()=>{state.hours[i]=h;for(const btn of controls.querySelectorAll('button'))btn.setAttribute('aria-pressed',String(btn===b));renderPlantChart(i,inner)});controls.append(b)}inner.append(controls,node('div','cg-chart-target'),node('p','cg-chart-caption','Les dades antigues de simulació no s’inclouen. Les interrupcions de comunicació es deixen com a buits.'));detail.append(inner);detail.addEventListener('toggle',()=>{if(detail.open)renderPlantChart(i,inner)});wrap.append(detail)}else{wrap.append(node('p','cg-pending','Historial no disponible fins que hi hagi un sensor assignat i dades reals.'))}return wrap}
-function segmentData(data,gapMs){const paths=[],current=[];for(const point of data){if(current.length&&point.t-current[current.length-1].t>gapMs){paths.push([...current]);current.length=0}current.push(point)}if(current.length)paths.push(current);return paths}
-function renderPlantChart(i,inner){const target=inner.querySelector('.cg-chart-target');target.replaceChildren();const c=configFor(i),h=state.hours[i],now=Date.now(),start=now-h*3600000;const series=state.rows.filter(r=>{const t=new Date(r.created_at).getTime();return Number.isFinite(t)&&t>=start&&t<=now&&Number.isInteger(r.humitat_raw)&&r.humitat_raw>=0&&r.humitat_raw<=4095}).map(r=>({t:new Date(r.created_at).getTime(),v:percent(r.humitat_raw,c)??r.humitat_raw})).sort((a,b)=>a.t-b.t);if(!series.length){target.append(node('p','cg-muted','No hi ha lectures reals en aquest període.'));return}
-const calibrated=percent(series[0].v,c)!==null && c&&Number.isInteger(c.raw_sec)&&Number.isInteger(c.raw_humit)&&Math.abs(c.raw_sec-c.raw_humit)>=20;const minV=calibrated?0:Math.max(0,Math.min(...series.map(x=>x.v))-50),maxV=calibrated?100:Math.max(...series.map(x=>x.v))+50;
-// Agregacio per temps: max 90 intervals; els buits no s'uneixen.
-const buckets=Math.min(90,Math.max(20,Math.ceil(720/h)));const bw=(now-start)/buckets;const grouped=[];for(let k=0;k<buckets;k++){const group=series.filter(d=>d.t>=start+k*bw&&d.t<start+(k+1)*bw);if(group.length)grouped.push({t:group[Math.floor(group.length/2)].t,v:group.reduce((sum,d)=>sum+d.v,0)/group.length})}
-const w=840,ht=290,p={l:54,r:16,t:18,b:39},width=w-p.l-p.r,height=ht-p.t-p.b;const x=t=>p.l+(t-start)/(now-start)*width;const y=v=>p.t+height-(v-minV)/(maxV-minV)*height;const s=svg('svg',{viewBox:`0 0 ${w} ${ht}`,role:'img','aria-label':`Historial ${h} hores, ${series.length} lectures`});for(let j=0;j<=4;j++){const yy=p.t+j*height/4;s.append(svg('line',{x1:p.l,y1:yy,x2:w-p.r,y2:yy,stroke:'#dce2dc','stroke-width':1}));s.append(svg('text',{x:p.l-8,y:yy+5,'text-anchor':'end',class:'cg-axis'},`${fmt.format(maxV-j*(maxV-minV)/4)}${calibrated?'%':''}`))}const format=new Intl.DateTimeFormat('ca-ES',h<=24?{hour:'2-digit',minute:'2-digit'}:{day:'2-digit',month:'short'});for(let j=0;j<=4;j++)s.append(svg('text',{x:p.l+j*width/4,y:ht-8,'text-anchor':j===0?'start':j===4?'end':'middle',class:'cg-axis'},format.format(new Date(start+j*(now-start)/4))));const gap=Math.max(90000,bw*2.5);for(const seg of segmentData(grouped,gap)){if(seg.length>1)s.append(svg('polyline',{points:seg.map(d=>`${x(d.t).toFixed(2)},${y(d.v).toFixed(2)}`).join(' '),fill:'none',stroke:'#438b97','stroke-width':2.5,'stroke-linecap':'round','stroke-linejoin':'round'}));else s.append(svg('circle',{cx:x(seg[0].t),cy:y(seg[0].v),r:3.5,fill:'#438b97'}))}if(h<=1){for(const d of grouped)s.append(svg('circle',{cx:x(d.t),cy:y(d.v),r:2,fill:'#438b97'}))}target.append(s);target.append(node('p','cg-muted',`${series.length} lectures registrades · ${grouped.length} intervals representats · ${calibrated?'índex d’humitat calibrat (%)':'lectures RAW (sense calibració)'}. Les mitjanes són només de visualització.`))}
-function renderTank(latest){if(!latest){$('cg-tank-state').textContent='Sense dades reals';$('cg-tank-detail').textContent='Encara no s’ha rebut cap lectura.';return}const age=Date.now()-new Date(latest.created_at).getTime();const fresh=age>=-30000&&age<=90000;$('cg-tank-state').textContent=!fresh?'Lectura antiga':latest.diposit_ok?'Aigua per sobre del flotador':'Nivell inferior al flotador';$('cg-tank-detail').textContent=`D1 · ${fresh?'Última lectura recent':'Sense lectura recent'} · ${timeAge(latest.created_at)}. No és possible estimar litres amb un flotador binari.`}
-function renderAlerts(latest){const alerts=$('cg-alerts');alerts.replaceChildren();const add=(type,title,body)=>{const e=node('div',`cg-alert cg-alert-${type}`);e.append(node('strong','',title),node('span','',body));alerts.append(e)};if(state.error)add('error','Error de consulta',state.error);if(!latest){add('warn','Sense lectures disponibles','No hi ha lectures carregades. Si apareix un error de telemetria, no significa que les dades s’hagin esborrat.');return}const age=Date.now()-new Date(latest.created_at).getTime();if(!Number.isFinite(age)||age>300000)add('warn','Possible desconnexió',`No es reben lectures des de ${timeAge(latest.created_at).toLowerCase()}. Aquest avís només es mostra amb la web oberta.`);else if(age>90000)add('warn','Telemetria endarrerida',`Última lectura: ${timeAge(latest.created_at)}.`);else if(latest.diposit_ok===false)add('warn','Dipòsit per sota del límit','El flotador indica nivell insuficient.');const c=configFor(1),p=percent(latest.humitat_raw,c);if(age<=90000&&p!==null&&p<c?.humitat_minima&&latest.bomba_activa===false)add('info','Humitat baixa i relé desactivat','Pot ser degut al bloqueig temporal; el firmware actual no n’envia la causa, per tant no podem confirmar-la.');}
-function renderStats(){const rows=[...state.rows].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));let count=0,secs=0,gaps=0;for(let i=1;i<rows.length;i++){const prev=rows[i-1],curr=rows[i],dt=(new Date(curr.created_at)-new Date(prev.created_at))/1000;if(!Number.isFinite(dt)||dt<0)continue;if(dt>90){gaps++;continue}if(!prev.bomba_activa&&curr.bomba_activa)count++;if(prev.bomba_activa&&curr.bomba_activa)secs+=dt} $('cg-activations').textContent=String(count);$('cg-runtime').textContent=secs?`${Math.round(secs)} s`:'0 s';$('cg-gaps').textContent=String(gaps)}
-function renderCompare(){const target=$('cg-compare-content');target.replaceChildren();const connected=[1];const elements=connected.map(n=>{const last=state.rows[0];return {n,p:last?percent(last.humitat_raw,configFor(n)):null}});for(const d of elements){const row=node('div','cg-compare-row');row.append(node('span','',configFor(d.n)?.nom_planta||`Planta ${d.n}`));const meter=node('div','cg-compare-meter');const fill=node('span','');fill.style.width=`${d.p??0}%`;meter.append(fill);row.append(meter,node('strong','',d.p===null?'—':`${fmt.format(d.p)}%`));target.append(row)}target.append(node('p','cg-muted','Comparació de l’última lectura de cada planta connectada. Actualment només està identificat el sensor A0 de la planta 1.'))}
-function render(){const latest=state.rows[0]||null;const plants=$('cg-plants');plants.replaceChildren();for(let i=1;i<=6;i++)plants.append(buildPlant(i,latest));renderTank(latest);renderAlerts(latest);renderStats();renderCompare();$('cg-status').textContent=state.error?'Error actualitzant les dades':latest?`Darrera lectura rebuda: ${timeAge(latest.created_at)} · telemetria real`:'Sense dades reals';}
-async function load(){
-  if(state.busy)return;
-  state.busy=true;
-  $('cg-refresh').disabled=true;
-  try {
-    const since=new Date(Date.now()-30*86400000).toISOString();
-    // Separar les peticions: un error de configuració NO pot ocultar lectures reals.
-    const results=await Promise.allSettled([
-      read('configuracio_reg',new URLSearchParams({
-        select:'jardinera,nom_planta,especie,observacions,raw_sec,raw_humit,humitat_minima,humitat_maxima,mode_automatic',
-        order:'jardinera.asc',limit:'6'
-      })),
-      read('telemetria_arduino',new URLSearchParams({
-        select:'humitat_raw,diposit_ok,bomba_activa,created_at',
-        created_at:`gte.${since}`,order:'created_at.desc',limit:'1000'
-      }))
-    ]);
-    const [configResult,telemetryResult]=results;
-    const errors=[];
-    if(configResult.status==='fulfilled'){
-      state.configs=configResult.value;
-    }else{
-      errors.push('Configuració de les plantes: '+String(configResult.reason?.message||configResult.reason));
-    }
-    if(telemetryResult.status==='fulfilled'){
-      state.rows=telemetryResult.value;
-    }else{
-      errors.push('Lectures reals de l’Arduino: '+String(telemetryResult.reason?.message||telemetryResult.reason));
-    }
-    state.error=errors.length?errors.join(' · '):null;
-    state.updatedAt=Date.now();
-  }finally{
-    state.busy=false;
-    $('cg-refresh').disabled=false;
-    render();
+
+/* CadaGota v21.2 — Monitoratge real.
+   Només lectura: no envia ordres al relé.
+*/
+
+(() => {
+  'use strict';
+
+  const ROOT = document.getElementById('cg-dashboard');
+  if (!ROOT) return;
+
+  const URL = 'https://zkzppfkjprwqdlyqkavt.supabase.co';
+
+  // Clau pública de Supabase.
+  // La seguretat de les dades depèn de RLS.
+  const KEY = 'sb_publishable_L0fopg_qzpYaeOstUIIK-Q_muX1VMhp';
+
+  const $ = id => document.getElementById(id);
+
+  const fmt = new Intl.NumberFormat('ca-ES', {
+    maximumFractionDigits: 1
+  });
+
+  const datefmt = new Intl.DateTimeFormat('ca-ES', {
+    dateStyle: 'medium',
+    timeStyle: 'medium'
+  });
+
+  const periodOptions = [
+    ['10 min', 1 / 6],
+    ['1 h', 1],
+    ['24 h', 24],
+    ['7 d', 168],
+    ['30 d', 720]
+  ];
+
+  const state = {
+    rows: [],
+    configs: [],
+    hours: {},
+    busy: false,
+    updatedAt: 0,
+    error: null
+  };
+
+  for (let i = 1; i <= 6; i++) {
+    state.hours[i] = 24;
   }
-}
-$('cg-refresh').addEventListener('click',load);load();setInterval(()=>{if(!document.hidden)load()},30000);setInterval(()=>{if(!document.hidden)render()},15000);
+
+  // ============================================
+  // UTILITATS
+  // ============================================
+
+  function node(tag, cls, txt) {
+    const n = document.createElement(tag);
+
+    if (cls) n.className = cls;
+    if (txt !== undefined) n.textContent = txt;
+
+    return n;
+  }
+
+  function svg(tag, attrs = {}, txt) {
+    const n = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      tag
+    );
+
+    for (const [k, v] of Object.entries(attrs)) {
+      n.setAttribute(k, String(v));
+    }
+
+    if (txt !== undefined) n.textContent = txt;
+
+    return n;
+  }
+
+  function validDate(value) {
+    const d = new Date(value);
+
+    return Number.isFinite(d.getTime()) ? d : null;
+  }
+
+  function percent(raw, config) {
+    if (
+      !config ||
+      !Number.isInteger(config.raw_sec) ||
+      !Number.isInteger(config.raw_humit) ||
+      Math.abs(config.raw_humit - config.raw_sec) < 20
+    ) {
+      return null;
+    }
+
+    const value = Number(raw);
+
+    if (
+      !Number.isInteger(value) ||
+      value < 0 ||
+      value > 4095
+    ) {
+      return null;
+    }
+
+    const result =
+      100 * (value - config.raw_sec) /
+      (config.raw_humit - config.raw_sec);
+
+    return Math.max(0, Math.min(100, result));
+  }
+
+  function timeAge(value) {
+    const d = validDate(value);
+
+    if (!d) return 'Data desconeguda';
+
+    const seconds = Math.max(
+      0,
+      Math.floor((Date.now() - d.getTime()) / 1000)
+    );
+
+    if (seconds < 60) {
+      return `Fa ${seconds} s`;
+    }
+
+    if (seconds < 3600) {
+      return `Fa ${Math.floor(seconds / 60)} min`;
+    }
+
+    if (seconds < 86400) {
+      return `Fa ${Math.floor(seconds / 3600)} h`;
+    }
+
+    return `Fa ${Math.floor(seconds / 86400)} dies`;
+  }
+
+  function configFor(number) {
+    return state.configs.find(
+      c => Number(c.jardinera) === number
+    ) || null;
+  }
+
+  // ============================================
+  // INDICADORS CIRCULARS
+  // ============================================
+
+  function ring(value, color, label) {
+    const radius = 44;
+    const circumference = 2 * Math.PI * radius;
+
+    const s = svg('svg', {
+      viewBox: '0 0 110 110',
+      class: 'cg-ring-svg',
+      'aria-hidden': 'true'
+    });
+
+    s.append(
+      svg('circle', {
+        cx: 55,
+        cy: 55,
+        r: radius,
+        fill: 'none',
+        stroke: '#dae4df',
+        'stroke-width': 6
+      })
+    );
+
+    if (value !== null) {
+      const progress = Math.max(
+        0,
+        Math.min(100, Number(value))
+      );
+
+      s.append(
+        svg('circle', {
+          cx: 55,
+          cy: 55,
+          r: radius,
+          fill: 'none',
+          stroke: color,
+          'stroke-width': 6,
+          'stroke-linecap': 'round',
+          'stroke-dasharray':
+            `${circumference * progress / 100} ${circumference}`,
+          transform: 'rotate(-90 55 55)'
+        })
+      );
+    }
+
+    s.append(
+      svg('text', {
+        x: 55,
+        y: 61,
+        'text-anchor': 'middle',
+        class: 'cg-ring-text'
+      }, label)
+    );
+
+    return s;
+  }
+
+  // ============================================
+  // RELLOTGE DE TRES ANELLS
+  // ============================================
+
+  function clock(value) {
+    const d = validDate(value);
+
+    if (!d) {
+      return ring(null, '#8caaa9', '—');
+    }
+
+    const s = svg('svg', {
+      viewBox: '0 0 110 110',
+      class: 'cg-ring-svg',
+      'aria-hidden': 'true'
+    });
+
+    const parts = [
+      [
+        (d.getHours() % 12 +
+          d.getMinutes() / 60 +
+          d.getSeconds() / 3600) / 12,
+        44,
+        '#497f8c'
+      ],
+      [
+        (d.getMinutes() + d.getSeconds() / 60) / 60,
+        36,
+        '#739a83'
+      ],
+      [
+        d.getSeconds() / 60,
+        28,
+        '#bb9760'
+      ]
+    ];
+
+    for (const [progress, radius, color] of parts) {
+      const circumference = 2 * Math.PI * radius;
+
+      s.append(
+        svg('circle', {
+          cx: 55,
+          cy: 55,
+          r: radius,
+          fill: 'none',
+          stroke: '#e5e8df',
+          'stroke-width': 3.5
+        })
+      );
+
+      s.append(
+        svg('circle', {
+          cx: 55,
+          cy: 55,
+          r: radius,
+          fill: 'none',
+          stroke: color,
+          'stroke-width': 3.5,
+          'stroke-linecap': 'round',
+          'stroke-dasharray':
+            `${circumference * progress} ${circumference}`,
+          transform: 'rotate(-90 55 55)'
+        })
+      );
+    }
+
+    s.append(
+      svg('text', {
+        x: 55,
+        y: 59,
+        'text-anchor': 'middle',
+        class: 'cg-clock-text'
+      }, d.toLocaleTimeString('ca-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }))
+    );
+
+    return s;
+  }
+
+  function indicator(title, figure, description, visual) {
+    const box = node('div', 'cg-indicator');
+
+    box.append(
+      visual,
+      node('strong', 'cg-indicator-title', title),
+      node('small', '', description)
+    );
+
+    return box;
+  }
+
+  // ============================================
+  // CONSULTES A SUPABASE
+  // ============================================
+
+  async function read(table, params) {
+    const abort = new AbortController();
+
+    const timer = setTimeout(
+      () => abort.abort(),
+      12000
+    );
+
+    try {
+      const response = await fetch(
+        `${URL}/rest/v1/${table}?${params.toString()}`,
+        {
+          headers: {
+            apikey: KEY,
+            Accept: 'application/json'
+          },
+          cache: 'no-store',
+          signal: abort.signal
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `${table}: HTTP ${response.status}`
+        );
+      }
+
+      const rows = await response.json();
+
+      if (!Array.isArray(rows)) {
+        throw new Error(
+          `Resposta de dades no vàlida: ${table}`
+        );
+      }
+
+      return rows;
+
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // ============================================
+  // DIAGNOSTIC DEL RELE
+  // ============================================
+
+  function diag(row, config, stale) {
+    if (!row) {
+      return 'No hi ha lectures reals';
+    }
+
+    if (stale) {
+      return 'Sense telemetria recent · estat físic desconegut';
+    }
+
+    if (row.diposit_ok === false) {
+      return 'Nivell d’aigua insuficient';
+    }
+
+    if (row.bomba_activa === true) {
+      return 'Relé activat segons Arduino';
+    }
+
+    if (config && config.mode_automatic === false) {
+      return 'Mode automàtic desactivat';
+    }
+
+    if (config) {
+      const p = percent(row.humitat_raw, config);
+
+      if (
+        p !== null &&
+        p >= config.humitat_maxima
+      ) {
+        return 'Humitat suficient';
+      }
+
+      if (
+        p !== null &&
+        p < config.humitat_minima
+      ) {
+        return 'Humitat baixa · possible bloqueig temporal';
+      }
+    }
+
+    return 'Relé desactivat · motiu no comunicat';
+  }
+
+  // ============================================
+  // FITXES DE LES SIS PLANTES
+  // ============================================
+
+  function buildPlant(i, latest) {
+    const config = configFor(i);
+
+    // Només la planta 1 té sensor físic assignat.
+    const connected = i === 1;
+    const row = connected ? latest : null;
+
+    // CORRECCIO: calcular stale ABANS d'utilitzar-lo.
+    const date = row ? validDate(row.created_at) : null;
+
+    const age = date
+      ? Date.now() - date.getTime()
+      : Infinity;
+
+    const stale =
+      !Number.isFinite(age) ||
+      age > 90000 ||
+      age < -30000;
+
+    const name =
+      config?.nom_planta?.trim() ||
+      `Planta ${String(i).padStart(2, '0')}`;
+
+    const species =
+      config?.especie?.trim() ||
+      'Espècie pendent d’identificar';
+
+    const wrap = node(
+      'article',
+      'cg-plant' + (!connected ? ' cg-disconnected' : '')
+    );
+
+    wrap.id = `cg-plant-${i}`;
+
+    // CAPÇALERA
+
+    const head = node('div', 'cg-plant-head');
+    const heading = node('div', '');
+
+    heading.append(
+      node(
+        'p',
+        'cg-kicker',
+        `JARDINERA ${String(i).padStart(2, '0')} · ${
+          connected ? 'SENSOR A0' : 'SENSOR PENDENT'
+        }`
+      ),
+      node('h2', '', name),
+      node('em', 'cg-species', species)
+    );
+
+    const label = connected
+      ? row && !stale
+        ? 'Lectures recents'
+        : 'Sensor A0 assignat'
+      : 'No connectada';
+
+    head.append(
+      heading,
+      node(
+        'span',
+        'cg-pill ' +
+          (connected ? 'cg-connected' : 'cg-inactive'),
+        label
+      )
+    );
+
+    wrap.append(head);
+
+    // OBSERVACIONS
+
+    wrap.append(
+      node(
+        'p',
+        'cg-notes',
+        config?.observacions?.trim() ||
+        'Sense observacions registrades.'
+      )
+    );
+
+    // DADES DEL SENSOR
+
+    const humidity =
+      row && !stale
+        ? percent(row.humitat_raw, config)
+        : null;
+
+    const relay =
+      row && !stale
+        ? row.bomba_activa
+        : null;
+
+    const values = node('div', 'cg-indicators');
+
+    // HUMITAT
+
+    const humidityText = humidity === null
+      ? '—'
+      : `${fmt.format(humidity)}%`;
+
+    let humidityDescription = 'Sense sensor';
+
+    if (connected) {
+      if (humidity === null) {
+        humidityDescription =
+          row && !stale
+            ? `${row.humitat_raw} RAW · calibració pendent`
+            : 'Sense lectura recent';
+      } else {
+        humidityDescription =
+          `${row.humitat_raw} RAW · escala calibrada`;
+      }
+    }
+
+    values.append(
+      indicator(
+        'Humitat del sòl',
+        humidityText,
+        humidityDescription,
+        ring(
+          humidity,
+          '#438b97',
+          humidityText
+        )
+      )
+    );
+
+    // RELE
+
+    const relayText = relay === null
+      ? '—'
+      : relay
+        ? 'ON'
+        : 'OFF';
+
+    values.append(
+      indicator(
+        'Estat del relé',
+        relayText,
+        connected
+          ? relay === null
+            ? 'Estat actual no verificat'
+            : diag(row, config, stale)
+          : 'Sense relé',
+        ring(
+          relay === null
+            ? null
+            : relay
+              ? 100
+              : 0,
+          '#8d986e',
+          relayText
+        )
+      )
+    );
+
+    // ULTIMA LECTURA
+
+    const time = date
+      ? datefmt.format(date)
+      : 'Sense lectures';
+
+    values.append(
+      indicator(
+        'Última lectura',
+        time,
+        row
+          ? stale
+            ? `${timeAge(row.created_at)} · lectura antiga`
+            : timeAge(row.created_at)
+          : 'Pendent de connexió',
+        clock(row?.created_at)
+      )
+    );
+
+    wrap.append(values);
+
+    // GRAFICA DESPLEGABLE
+
+    if (connected) {
+      const detail = node('details', 'cg-chart-details');
+
+      const summary = node(
+        'summary',
+        '',
+        'Consultar l’evolució de la humitat'
+      );
+
+      detail.append(summary);
+
+      const inner = node('div', 'cg-chart-inner');
+      const controls = node('div', 'cg-periods');
+
+      for (const [text, hours] of periodOptions) {
+        const button = node('button', '', text);
+
+        button.type = 'button';
+
+        button.setAttribute(
+          'aria-pressed',
+          String(state.hours[i] === hours)
+        );
+
+        button.addEventListener('click', () => {
+          state.hours[i] = hours;
+
+          for (
+            const b of controls.querySelectorAll('button')
+          ) {
+            b.setAttribute(
+              'aria-pressed',
+              String(b === button)
+            );
+          }
+
+          renderPlantChart(i, inner);
+        });
+
+        controls.append(button);
+      }
+
+      inner.append(
+        controls,
+        node('div', 'cg-chart-target'),
+        node(
+          'p',
+          'cg-chart-caption',
+          'Només lectures reals. Els períodes sense dades no es representen com a continuïtat.'
+        )
+      );
+
+      detail.append(inner);
+
+      detail.addEventListener('toggle', () => {
+        if (detail.open) {
+          renderPlantChart(i, inner);
+        }
+      });
+
+      wrap.append(detail);
+
+    } else {
+      wrap.append(
+        node(
+          'p',
+          'cg-pending',
+          'Historial no disponible fins que hi hagi un sensor assignat i dades reals.'
+        )
+      );
+    }
+
+    return wrap;
+  }
+
+  // ============================================
+  // SEGMENTACIO DE LES GRAFIQUES
+  // ============================================
+
+  function segmentData(data, gapMs) {
+    const paths = [];
+    const current = [];
+
+    for (const point of data) {
+      if (
+        current.length &&
+        point.t - current[current.length - 1].t > gapMs
+      ) {
+        paths.push([...current]);
+        current.length = 0;
+      }
+
+      current.push(point);
+    }
+
+    if (current.length) {
+      paths.push(current);
+    }
+
+    return paths;
+  }
+
+  // ============================================
+  // GRAFIQUES D'HUMITAT
+  // ============================================
+
+  function renderPlantChart(i, inner) {
+    const target = inner.querySelector('.cg-chart-target');
+
+    if (!target) return;
+
+    target.replaceChildren();
+
+    const config = configFor(i);
+    const hours = state.hours[i];
+
+    const now = Date.now();
+    const start = now - hours * 3600000;
+
+    const calibrated = Boolean(
+      config &&
+      Number.isInteger(config.raw_sec) &&
+      Number.isInteger(config.raw_humit) &&
+      Math.abs(config.raw_sec - config.raw_humit) >= 20
+    );
+
+    const series = state.rows
+      .filter(row => {
+        const t = new Date(row.created_at).getTime();
+
+        return (
+          Number.isFinite(t) &&
+          t >= start &&
+          t <= now &&
+          Number.isInteger(row.humitat_raw) &&
+          row.humitat_raw >= 0 &&
+          row.humitat_raw <= 4095
+        );
+      })
+      .map(row => ({
+        t: new Date(row.created_at).getTime(),
+        v: calibrated
+          ? percent(row.humitat_raw, config)
+          : row.humitat_raw
+      }))
+      .filter(point => Number.isFinite(point.v))
+      .sort((a, b) => a.t - b.t);
+
+    if (!series.length) {
+      target.append(
+        node(
+          'p',
+          'cg-muted',
+          'No hi ha lectures reals en aquest període.'
+        )
+      );
+      return;
+    }
+
+    const values = series.map(point => point.v);
+
+    const minV = calibrated
+      ? 0
+      : Math.max(0, Math.min(...values) - 50);
+
+    let maxV = calibrated
+      ? 100
+      : Math.min(4095, Math.max(...values) + 50);
+
+    if (maxV <= minV) {
+      maxV = minV + 1;
+    }
+
+    // Agregació temporal per simplificar la gràfica.
+
+    const buckets = Math.min(
+      90,
+      Math.max(20, Math.ceil(720 / hours))
+    );
+
+    const bucketWidth = (now - start) / buckets;
+
+    const grouped = [];
+
+    for (let k = 0; k < buckets; k++) {
+      const beginning = start + k * bucketWidth;
+      const ending = beginning + bucketWidth;
+
+      const group = series.filter(
+        d => d.t >= beginning && d.t < ending
+      );
+
+      if (group.length) {
+        grouped.push({
+          t: group[Math.floor(group.length / 2)].t,
+          v: group.reduce(
+            (sum, d) => sum + d.v,
+            0
+          ) / group.length
+        });
+      }
+    }
+
+    const width = 840;
+    const height = 290;
+
+    const padding = {
+      l: 54,
+      r: 16,
+      t: 18,
+      b: 39
+    };
+
+    const plotWidth = width - padding.l - padding.r;
+    const plotHeight = height - padding.t - padding.b;
+
+    const x = t =>
+      padding.l +
+      (t - start) / (now - start) * plotWidth;
+
+    const y = v =>
+      padding.t +
+      plotHeight -
+      (v - minV) / (maxV - minV) * plotHeight;
+
+    const chart = svg('svg', {
+      viewBox: `0 0 ${width} ${height}`,
+      role: 'img',
+      'aria-label':
+        `Historial de ${hours} hores, ${series.length} lectures`
+    });
+
+    // Línies horitzontals i percentatges.
+
+    for (let j = 0; j <= 4; j++) {
+      const yy = padding.t + j * plotHeight / 4;
+
+      chart.append(
+        svg('line', {
+          x1: padding.l,
+          y1: yy,
+          x2: width - padding.r,
+          y2: yy,
+          stroke: '#dce2dc',
+          'stroke-width': 1
+        })
+      );
+
+      const value =
+        maxV - j * (maxV - minV) / 4;
+
+      chart.append(
+        svg('text', {
+          x: padding.l - 8,
+          y: yy + 5,
+          'text-anchor': 'end',
+          class: 'cg-axis'
+        }, `${fmt.format(value)}${calibrated ? '%' : ''}`)
+      );
+    }
+
+    // Eix temporal.
+
+    const format = new Intl.DateTimeFormat(
+      'ca-ES',
+      hours <= 24
+        ? {hour: '2-digit', minute: '2-digit'}
+        : {day: '2-digit', month: 'short'}
+    );
+
+    for (let j = 0; j <= 4; j++) {
+      chart.append(
+        svg('text', {
+          x: padding.l + j * plotWidth / 4,
+          y: height - 8,
+          'text-anchor':
+            j === 0
+              ? 'start'
+              : j === 4
+                ? 'end'
+                : 'middle',
+          class: 'cg-axis'
+        }, format.format(
+          new Date(start + j * (now - start) / 4)
+        ))
+      );
+    }
+
+    // No unir intervals sense dades.
+
+    const gap = Math.max(
+      90000,
+      bucketWidth * 2.5
+    );
+
+    for (const segment of segmentData(grouped, gap)) {
+      if (segment.length > 1) {
+        chart.append(
+          svg('polyline', {
+            points: segment
+              .map(d =>
+                `${x(d.t).toFixed(2)},${y(d.v).toFixed(2)}`
+              )
+              .join(' '),
+            fill: 'none',
+            stroke: '#438b97',
+            'stroke-width': 2.5,
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          })
+        );
+      } else {
+        chart.append(
+          svg('circle', {
+            cx: x(segment[0].t),
+            cy: y(segment[0].v),
+            r: 3.5,
+            fill: '#438b97'
+          })
+        );
+      }
+    }
+
+    // Punts individuals en períodes curts.
+
+    if (hours <= 1) {
+      for (const d of grouped) {
+        chart.append(
+          svg('circle', {
+            cx: x(d.t),
+            cy: y(d.v),
+            r: 2,
+            fill: '#438b97'
+          })
+        );
+      }
+    }
+
+    target.append(chart);
+
+    const unit = calibrated
+      ? 'índex d’humitat calibrat (%)'
+      : 'lectures RAW (sense calibració)';
+
+    target.append(
+      node(
+        'p',
+        'cg-muted',
+        `${series.length} lectures registrades · ` +
+        `${grouped.length} intervals representats · ` +
+        `${unit}. Les mitjanes són només de visualització.`
+      )
+    );
+  }
+
+  // ============================================
+  // DIPOSIT D'AIGUA
+  // ============================================
+
+  function renderTank(latest) {
+    const tankState = $('cg-tank-state');
+    const tankDetail = $('cg-tank-detail');
+
+    if (!tankState || !tankDetail) return;
+
+    if (!latest) {
+      tankState.textContent = 'Sense dades reals';
+
+      tankDetail.textContent =
+        'Encara no s’ha rebut cap lectura.';
+
+      return;
+    }
+
+    const date = validDate(latest.created_at);
+
+    const age = date
+      ? Date.now() - date.getTime()
+      : Infinity;
+
+    const fresh =
+      age >= -30000 &&
+      age <= 90000;
+
+    tankState.textContent = !fresh
+      ? 'Lectura antiga'
+      : latest.diposit_ok === true
+        ? 'Aigua per sobre del flotador'
+        : latest.diposit_ok === false
+          ? 'Nivell inferior al flotador'
+          : 'Estat desconegut';
+
+    tankDetail.textContent =
+      `Sensor D1 · ${timeAge(latest.created_at)}. ` +
+      'El flotador només indica un nivell límit; ' +
+      'el volum en litres encara no es pot estimar.';
+  }
+
+  // ============================================
+  // AVISOS DINS DE LA WEB
+  // ============================================
+
+  function renderAlerts(latest) {
+    const alerts = $('cg-alerts');
+
+    if (!alerts) return;
+
+    alerts.replaceChildren();
+
+    function add(type, title, body) {
+      const element = node(
+        'div',
+        `cg-alert cg-alert-${type}`
+      );
+
+      element.append(
+        node('strong', '', title),
+        node('span', '', body)
+      );
+
+      alerts.append(element);
+    }
+
+    if (state.error) {
+      add(
+        'error',
+        'Error de consulta',
+        state.error
+      );
+    }
+
+    if (!latest) {
+      add(
+        'warn',
+        'Sense lectures disponibles',
+        'No hi ha lectures carregades. ' +
+        'Un error de consulta no significa ' +
+        'que les dades s’hagin esborrat.'
+      );
+      return;
+    }
+
+    const date = validDate(latest.created_at);
+
+    const age = date
+      ? Date.now() - date.getTime()
+      : Infinity;
+
+    if (!Number.isFinite(age) || age > 300000) {
+      add(
+        'warn',
+        'Possible desconnexió',
+        `Última lectura: ${timeAge(latest.created_at)}. ` +
+        'Aquest avís només es mostra amb la web oberta.'
+      );
+    } else if (age > 90000) {
+      add(
+        'warn',
+        'Telemetria endarrerida',
+        `Última lectura: ${timeAge(latest.created_at)}.`
+      );
+    } else if (latest.diposit_ok === false) {
+      add(
+        'warn',
+        'Dipòsit per sota del límit',
+        'El flotador indica un nivell insuficient.'
+      );
+    }
+
+    const config = configFor(1);
+
+    const humidity = percent(
+      latest.humitat_raw,
+      config
+    );
+
+    if (
+      age >= -30000 &&
+      age <= 90000 &&
+      humidity !== null &&
+      humidity < config?.humitat_minima &&
+      latest.bomba_activa === false
+    ) {
+      add(
+        'info',
+        'Humitat baixa i relé desactivat',
+        'Pot ser degut al bloqueig temporal. ' +
+        'El firmware actual no comunica el motiu exacte.'
+      );
+    }
+  }
+
+  // ============================================
+  // ESTADISTIQUES DEL RELE
+  // ============================================
+
+  function renderStats() {
+    const rows = [...state.rows].sort(
+      (a, b) =>
+        new Date(a.created_at) - new Date(b.created_at)
+    );
+
+    let count = 0;
+    let seconds = 0;
+    let gaps = 0;
+
+    for (let i = 1; i < rows.length; i++) {
+      const previous = rows[i - 1];
+      const current = rows[i];
+
+      const dt =
+        (new Date(current.created_at) -
+          new Date(previous.created_at)) / 1000;
+
+      if (
+        !Number.isFinite(dt) ||
+        dt < 0
+      ) {
+        continue;
+      }
+
+      if (dt > 90) {
+        gaps++;
+        continue;
+      }
+
+      if (
+        previous.bomba_activa === false &&
+        current.bomba_activa === true
+      ) {
+        count++;
+      }
+
+      if (
+        previous.bomba_activa === true &&
+        current.bomba_activa === true
+      ) {
+        seconds += dt;
+      }
+    }
+
+    if ($('cg-activations')) {
+      $('cg-activations').textContent = String(count);
+    }
+
+    if ($('cg-runtime')) {
+      $('cg-runtime').textContent =
+        seconds
+          ? `${Math.round(seconds)} s`
+          : '0 s';
+    }
+
+    if ($('cg-gaps')) {
+      $('cg-gaps').textContent = String(gaps);
+    }
+  }
+
+  // ============================================
+  // COMPARACIO ENTRE PLANTES
+  // ============================================
+
+  function renderCompare() {
+    const target = $('cg-compare-content');
+
+    if (!target) return;
+
+    target.replaceChildren();
+
+    // Actualment només tenim A0 connectat.
+    const connected = [1];
+
+    const elements = connected.map(number => {
+      const latest = state.rows[0];
+
+      return {
+        number,
+        humidity: latest
+          ? percent(
+              latest.humitat_raw,
+              configFor(number)
+            )
+          : null
+      };
+    });
+
+    for (const item of elements) {
+      const row = node('div', 'cg-compare-row');
+
+      row.append(
+        node(
+          'span',
+          '',
+          configFor(item.number)?.nom_planta ||
+          `Planta ${item.number}`
+        )
+      );
+
+      const meter = node('div', 'cg-compare-meter');
+      const fill = node('span', '');
+
+      fill.style.width =
+        `${item.humidity ?? 0}%`;
+
+      meter.append(fill);
+
+      row.append(
+        meter,
+        node(
+          'strong',
+          '',
+          item.humidity === null
+            ? '—'
+            : `${fmt.format(item.humidity)}%`
+        )
+      );
+
+      target.append(row);
+    }
+
+    target.append(
+      node(
+        'p',
+        'cg-muted',
+        'Comparació de les plantes connectades. ' +
+        'Actualment només hi ha un sensor assignat: A0.'
+      )
+    );
+  }
+
+  // ============================================
+  // DIBUIXAR EL PANELL
+  // ============================================
+
+  function render() {
+    const latest = state.rows[0] || null;
+
+    const plants = $('cg-plants');
+
+    if (plants) {
+      plants.replaceChildren();
+
+      for (let i = 1; i <= 6; i++) {
+        plants.append(buildPlant(i, latest));
+      }
+    }
+
+    renderTank(latest);
+    renderAlerts(latest);
+    renderStats();
+    renderCompare();
+
+    const status = $('cg-status');
+
+    if (status) {
+      if (state.error) {
+        status.textContent =
+          'Hi ha incidències en la consulta de dades.';
+      } else if (latest) {
+        status.textContent =
+          `Darrera lectura: ${timeAge(latest.created_at)} · ` +
+          'Telemetria real de l’Arduino';
+      } else {
+        status.textContent =
+          'Sense lectures reals disponibles';
+      }
+    }
+  }
+
+  // ============================================
+  // CARREGAR DADES DE SUPABASE
+  // ============================================
+
+  async function load() {
+    if (state.busy) return;
+
+    state.busy = true;
+
+    const refresh = $('cg-refresh');
+
+    if (refresh) {
+      refresh.disabled = true;
+    }
+
+    try {
+      const since = new Date(
+        Date.now() - 30 * 86400000
+      ).toISOString();
+
+      // Consultes independents:
+      // un error de configuració no oculta
+      // les lectures reals de l'Arduino.
+
+      const results = await Promise.allSettled([
+        read(
+          'configuracio_reg',
+          new URLSearchParams({
+            select:
+              'jardinera,nom_planta,especie,observacions,' +
+              'raw_sec,raw_humit,humitat_minima,' +
+              'humitat_maxima,mode_automatic',
+            order: 'jardinera.asc',
+            limit: '6'
+          })
+        ),
+
+        read(
+          'telemetria_arduino',
+          new URLSearchParams({
+            select:
+              'humitat_raw,diposit_ok,bomba_activa,created_at',
+            created_at: `gte.${since}`,
+            order: 'created_at.desc',
+            limit: '1000'
+          })
+        )
+      ]);
+
+      const [configResult, telemetryResult] = results;
+
+      const errors = [];
+
+      if (configResult.status === 'fulfilled') {
+        state.configs = configResult.value;
+      } else {
+        errors.push(
+          'Configuració de les plantes: ' +
+          String(
+            configResult.reason?.message ||
+            configResult.reason
+          )
+        );
+      }
+
+      if (telemetryResult.status === 'fulfilled') {
+        state.rows = telemetryResult.value;
+      } else {
+        errors.push(
+          'Lectures reals de l’Arduino: ' +
+          String(
+            telemetryResult.reason?.message ||
+            telemetryResult.reason
+          )
+        );
+      }
+
+      state.error = errors.length
+        ? errors.join(' · ')
+        : null;
+
+      state.updatedAt = Date.now();
+
+    } catch (error) {
+      state.error =
+        error?.message ||
+        'Error desconegut en carregar les dades';
+
+    } finally {
+      state.busy = false;
+
+      if (refresh) {
+        refresh.disabled = false;
+      }
+
+      render();
+    }
+  }
+
+  // ============================================
+  // INICIAR
+  // ============================================
+
+  const refreshButton = $('cg-refresh');
+
+  if (refreshButton) {
+    refreshButton.addEventListener('click', load);
+  }
+
+  load();
+
+  // Actualització de Supabase cada 30 segons.
+  setInterval(() => {
+    if (!document.hidden) {
+      load();
+    }
+  }, 30000);
+
+  // Actualització visual dels temps.
+  setInterval(() => {
+    if (!document.hidden && !state.busy) {
+      render();
+    }
+  }, 15000);
+
 })();
+
