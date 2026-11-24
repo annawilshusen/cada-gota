@@ -48,7 +48,7 @@
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 12000);
     try {
-      const result = await fetch(`${url}/rest/v1/${query.startsWith("configuracio_reg?") ? query : "telemetria_arduino?"+query}`, {
+      const result = await fetch(`${url}/rest/v1/${String(query).startsWith("configuracio_reg?") ? String(query) : "telemetria_arduino?"+String(query)}`, {
         headers:{apikey:key,Accept:'application/json'},
         cache:'no-store', signal:abort.signal
       });
