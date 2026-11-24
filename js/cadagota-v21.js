@@ -1,7 +1,16 @@
 
-/* CadaGota v21.2 — Monitoratge real.
-   Només lectura: no envia ordres al relé.
-*/
+/*
+ * CadaGota v21.3
+ * Monitoratge real de sis plantes.
+ *
+ * - Dades reals de Supabase
+ * - Conserva l'ultima humitat registrada
+ * - Identifica les lectures antigues
+ * - Relleotge de tres anells
+ * - Gra fiques desplegables
+ * - Avisos dins de la web
+ * - Sense ordres remotes al rele
+ */
 
 (() => {
   'use strict';
@@ -11,8 +20,7 @@
 
   const URL = 'https://zkzppfkjprwqdlyqkavt.supabase.co';
 
-  // Clau pública de Supabase.
-  // La seguretat de les dades depèn de RLS.
+  // Clau publica de Supabase.
   const KEY = 'sb_publishable_L0fopg_qzpYaeOstUIIK-Q_muX1VMhp';
 
   const $ = id => document.getElementById(id);
@@ -391,11 +399,10 @@
   function buildPlant(i, latest) {
     const config = configFor(i);
 
-    // Només la planta 1 té sensor físic assignat.
+    // Actualment nomes la planta 1 te un sensor.
     const connected = i === 1;
     const row = connected ? latest : null;
 
-    // CORRECCIO: calcular stale ABANS d'utilitzar-lo.
     const date = row ? validDate(row.created_at) : null;
 
     const age = date
@@ -422,7 +429,7 @@
 
     wrap.id = `cg-plant-${i}`;
 
-    // CAPÇALERA
+    // CAPCALERA
 
     const head = node('div', 'cg-plant-head');
     const heading = node('div', '');
@@ -468,12 +475,20 @@
       )
     );
 
-    // DADES DEL SENSOR
+    // ========================================
+    // HUMITAT
+    // ========================================
 
-    const humidity =
-      row && !stale
-        ? percent(row.humitat_raw, config)
-        : null;
+    // NOVETAT v21.3:
+    // Mostrem l'ultima humitat registrada
+    // encara que la lectura sigui antiga.
+
+    const humidity = row
+      ? percent(row.humitat_raw, config)
+      : null;
+
+    // En canvi, l'estat actual del rele
+    // nomes es mostra si la lectura es recent.
 
     const relay =
       row && !stale
@@ -482,8 +497,6 @@
 
     const values = node('div', 'cg-indicators');
 
-    // HUMITAT
-
     const humidityText = humidity === null
       ? '—'
       : `${fmt.format(humidity)}%`;
@@ -491,11 +504,19 @@
     let humidityDescription = 'Sense sensor';
 
     if (connected) {
-      if (humidity === null) {
+      if (!row) {
         humidityDescription =
-          row && !stale
-            ? `${row.humitat_raw} RAW · calibració pendent`
-            : 'Sense lectura recent';
+          'Encara no hi ha lectures reals';
+
+      } else if (humidity === null) {
+        humidityDescription =
+          `${row.humitat_raw} RAW · calibració pendent`;
+
+      } else if (stale) {
+        humidityDescription =
+          `${row.humitat_raw} RAW · ` +
+          `Lectura de ${timeAge(row.created_at).toLowerCase()}`;
+
       } else {
         humidityDescription =
           `${row.humitat_raw} RAW · escala calibrada`;
@@ -515,7 +536,9 @@
       )
     );
 
-    // RELE
+    // ========================================
+    // ESTAT DEL RELE
+    // ========================================
 
     const relayText = relay === null
       ? '—'
@@ -523,15 +546,24 @@
         ? 'ON'
         : 'OFF';
 
+    let relayDescription = 'Sense relé';
+
+    if (connected) {
+      if (relay === null) {
+        relayDescription = row
+          ? `Estat actual no verificat · ` +
+            `última lectura ${timeAge(row.created_at).toLowerCase()}`
+          : 'Estat actual no verificat';
+      } else {
+        relayDescription = diag(row, config, stale);
+      }
+    }
+
     values.append(
       indicator(
         'Estat del relé',
         relayText,
-        connected
-          ? relay === null
-            ? 'Estat actual no verificat'
-            : diag(row, config, stale)
-          : 'Sense relé',
+        relayDescription,
         ring(
           relay === null
             ? null
@@ -544,7 +576,9 @@
       )
     );
 
+    // ========================================
     // ULTIMA LECTURA
+    // ========================================
 
     const time = date
       ? datefmt.format(date)
@@ -565,7 +599,9 @@
 
     wrap.append(values);
 
+    // ========================================
     // GRAFICA DESPLEGABLE
+    // ========================================
 
     if (connected) {
       const detail = node('details', 'cg-chart-details');
@@ -740,7 +776,7 @@
       maxV = minV + 1;
     }
 
-    // Agregació temporal per simplificar la gràfica.
+    // Agregacio temporal per simplificar la grafica.
 
     const buckets = Math.min(
       90,
@@ -799,7 +835,7 @@
         `Historial de ${hours} hores, ${series.length} lectures`
     });
 
-    // Línies horitzontals i percentatges.
+    // Linies horitzontals.
 
     for (let j = 0; j <= 4; j++) {
       const yy = padding.t + j * plotHeight / 4;
@@ -889,8 +925,6 @@
         );
       }
     }
-
-    // Punts individuals en períodes curts.
 
     if (hours <= 1) {
       for (const d of grouped) {
@@ -1135,7 +1169,6 @@
 
     target.replaceChildren();
 
-    // Actualment només tenim A0 connectat.
     const connected = [1];
 
     const elements = connected.map(number => {
@@ -1255,9 +1288,9 @@
         Date.now() - 30 * 86400000
       ).toISOString();
 
-      // Consultes independents:
-      // un error de configuració no oculta
-      // les lectures reals de l'Arduino.
+      // Les consultes son independents.
+      // Un error de configuracio no ha d'ocultar
+      // la telemetria real.
 
       const results = await Promise.allSettled([
         read(
@@ -1285,7 +1318,6 @@
       ]);
 
       const [configResult, telemetryResult] = results;
-
       const errors = [];
 
       if (configResult.status === 'fulfilled') {
@@ -1346,14 +1378,12 @@
 
   load();
 
-  // Actualització de Supabase cada 30 segons.
   setInterval(() => {
     if (!document.hidden) {
       load();
     }
   }, 30000);
 
-  // Actualització visual dels temps.
   setInterval(() => {
     if (!document.hidden && !state.busy) {
       render();
@@ -1361,4 +1391,3 @@
   }, 15000);
 
 })();
-
