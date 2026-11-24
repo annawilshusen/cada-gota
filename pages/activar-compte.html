@@ -5,54 +5,157 @@ title: Activa el teu compte
 nav: panell
 ---
 
-<section class="content chapter cada-auth">
+<link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}">
+
+<style>
+  .cada-activation {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .cada-activation-card {
+    max-width: 520px;
+    margin: 36px auto 0;
+    padding: 34px;
+    border: 1px solid #d9dfd8;
+    border-radius: 8px;
+    background: #fafbf8;
+  }
+
+  .cada-activation-card h2 {
+    margin-top: 0;
+  }
+
+  .cada-activation-card .cada-auth-form {
+    max-width: 100%;
+  }
+
+  .cada-activation-status {
+    margin: 20px 0;
+    line-height: 1.7;
+  }
+
+  .cada-activation-help {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-top: 16px;
+  }
+
+  .cada-activation-result {
+    margin-top: 20px;
+    line-height: 1.7;
+  }
+
+  .cada-activation-result a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 600px) {
+    .cada-activation-card {
+      padding: 22px;
+      margin-top: 24px;
+    }
+  }
+</style>
+
+<section class="content chapter cada-activation">
+
   <p class="intro-label">CADA GOTA · EQUIP</p>
-  <h1 class="section-title">Activa el teu compte</h1>
+
+  <h1 class="section-title">
+    Benvingut a CadaGota.
+  </h1>
 
   <p class="lead">
-    Estableix una contrasenya per accedir
-    a CadaGota com a membre de l'equip.
+    Has estat convidat a formar part de l'equip.
+    Només falta un últim pas per activar el teu compte.
   </p>
 
-  <p id="activar-estat" role="status">
-    Comprovant la invitació…
-  </p>
+  <div class="cada-activation-card">
 
-  <form id="activar-form" class="cada-auth-form"
-        style="max-width:480px" hidden>
+    <p class="kicker">ACTIVACIÓ DEL COMPTE</p>
 
-    <label for="activar-password">
-      Nova contrasenya
-    </label>
-    <input
-      id="activar-password"
-      type="password"
-      autocomplete="new-password"
-      minlength="12"
-      required
+    <h2>Estableix la teva contrasenya</h2>
+
+    <p>
+      Aquesta contrasenya et permetrà iniciar sessió
+      i accedir al control privat de CadaGota.
+    </p>
+
+    <p
+      id="activar-estat"
+      class="cada-activation-status"
+      role="status"
+    >
+      Comprovant la invitació…
+    </p>
+
+    <form
+      id="activar-form"
+      class="cada-auth-form"
+      hidden
     >
 
-    <label for="activar-confirmar">
-      Confirma la contrasenya
-    </label>
-    <input
-      id="activar-confirmar"
-      type="password"
-      autocomplete="new-password"
-      minlength="12"
-      required
-    >
+      <label for="activar-password">
+        Nova contrasenya
+      </label>
 
-    <button type="submit" id="activar-boto">
-      Activar el meu compte
-    </button>
-  </form>
+      <input
+        id="activar-password"
+        type="password"
+        autocomplete="new-password"
+        minlength="12"
+        required
+        placeholder="Mínim 12 caràcters"
+      >
 
-  <p id="activar-resultat" role="status"></p>
+      <label for="activar-confirmar">
+        Confirma la contrasenya
+      </label>
+
+      <input
+        id="activar-confirmar"
+        type="password"
+        autocomplete="new-password"
+        minlength="12"
+        required
+        placeholder="Repeteix la contrasenya"
+      >
+
+      <button type="submit" id="activar-boto">
+        Activar el meu compte
+      </button>
+
+      <p class="cada-activation-help">
+        Utilitza una contrasenya segura que no hagis
+        fet servir en altres serveis.
+      </p>
+
+    </form>
+
+    <p
+      id="activar-resultat"
+      class="cada-activation-result"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+  </div>
+
+  <a
+    class="cada-auth-back"
+    href="{{ '/pages/panell.html' | relative_url }}"
+  >
+    Tornar al panell públic
+  </a>
+
 </section>
 
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
+
   const estat = document.getElementById('activar-estat');
   const form = document.getElementById('activar-form');
   const resultat = document.getElementById('activar-resultat');
@@ -60,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!window.supabase?.createClient) {
     estat.textContent =
-      "No s'ha pogut carregar Supabase.";
+      "No s'ha pogut carregar Supabase. Recarrega la pàgina.";
     return;
   }
 
@@ -78,26 +181,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const { data, error } = await client.auth.getUser();
 
-  if (error || !data.user) {
+  if (error || !data?.user) {
     estat.textContent =
-      "No hi ha cap sessió activa. Obre l'enllaç " +
-      "de la invitació des d'aquest mateix navegador.";
+      "No s'ha pogut verificar la invitació. " +
+      "Obre l'enllaç del correu electrònic " +
+      "o inicia una nova sessió.";
     return;
   }
 
   estat.textContent =
-    "Compte verificat: " + data.user.email;
+    'Compte identificat: ' + data.user.email;
 
   form.hidden = false;
 
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
 
-    const password =
-      document.getElementById('activar-password').value;
+    const password = document
+      .getElementById('activar-password').value;
 
-    const confirmar =
-      document.getElementById('activar-confirmar').value;
+    const confirmar = document
+      .getElementById('activar-confirmar').value;
 
     if (password !== confirmar) {
       resultat.textContent =
@@ -114,92 +218,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     boto.disabled = true;
     resultat.textContent = 'Activant el compte…';
 
-    const { error: passwordError } =
-      await client.auth.updateUser({
-        password
-      });
+    try {
+      const { error: passwordError } =
+        await client.auth.updateUser({ password });
 
-    if (passwordError) {
+      if (passwordError) {
+        throw passwordError;
+      }
+
+      const {
+        data: accepted,
+        error: invitationError
+      } = await client.rpc(
+        'acceptar_invitacio_administrador'
+      );
+
+      if (invitationError) {
+        throw invitationError;
+      }
+
+      form.hidden = true;
+
+      if (accepted !== true) {
+        estat.textContent =
+          'Contrasenya configurada.';
+        resultat.textContent =
+          "El compte ja té contrasenya, però no s'ha " +
+          "pogut confirmar una invitació pendent. " +
+          "Contacta amb una administradora de CadaGota.";
+        return;
+      }
+
+      estat.textContent =
+        'El teu compte està activat!';
+
       resultat.textContent =
-        'Error: ' + passwordError.message;
-      boto.disabled = false;
-      return;
-    }
+        "Ja formes part de l'equip de CadaGota.";
 
-    const { error: invitationError } = await client.rpc(
-      'acceptar_invitacio_administrador'
-    );
+      const link = document.createElement('a');
 
-    if (invitationError) {
+      link.href =
+        "{{ '/pages/control.html' | relative_url }}";
+
+      link.textContent =
+        'Accedir al control privat';
+
+      resultat.append(
+        document.createElement('br'),
+        link
+      );
+
+    } catch (error) {
       resultat.textContent =
-        "Contrasenya creada, però no s'han pogut " +
-        "comprovar els permisos: " +
-        invitationError.message;
+        'No s’ha pogut completar l’activació: ' +
+        error.message;
+    } finally {
       boto.disabled = false;
-      return;
     }
-
-    form.hidden = true;
-    estat.textContent = 'Compte configurat correctament!';
-
-    resultat.textContent =
-      'Ja pots accedir al control privat de CadaGota.';
-
-    const enllac = document.createElement('a');
-    enllac.href = "{{ '/pages/control.html' | relative_url }}";
-    enllac.textContent = 'Accedir al control privat';
-
-    resultat.append(
-      document.createTextNode(' '),
-      enllac
-    );
   });
+
 });
 </script>
-```
-
-Desa'l amb **Commit changes**.
-
-## Pas 2. Canviar l'enllaç de les futures invitacions
-
-A **Supabase → Edge Functions → `convidar-administrador` → Code**, busca:
-
-```typescript
-redirectTo:
-  'https://annawilshusen.github.io/cada-gota/pages/control.html',
-```
-
-I substitueix-ho per:
-
-```typescript
-redirectTo:
-  'https://annawilshusen.github.io/cada-gota/pages/activar-compte.html',
-```
-
-Prem **Deploy**.
-
-## Pas 3. Autoritzar la nova pàgina a Supabase
-
-Ves a **Authentication → URL Configuration → Redirect URLs**.
-
-Afegeix aquesta adreça:
-
-```text
-https://annawilshusen.github.io/cada-gota/pages/activar-compte.html
-```
-
-Desa els canvis. Aquest pas és necessari perquè Supabase respecti la destinació indicada en el correu d'invitació. <Cite ref="turn354456search12"/>
-
-## Pas 4. Provar-ho amb el compte que ja has convidat
-
-Com que ja has acceptat una invitació, **no cal que en creïs una altra d'entrada**.
-
-Una vegada publicada la nova pàgina, obre-la amb el mateix navegador on has acceptat la invitació:
-
-<Link url="https://annawilshusen.github.io/cada-gota/pages/activar-compte.html" title="Activar el compte de CadaGota"/>
-
-Si la sessió del compte convidat continua activa, apareixerà el formulari per crear la contrasenya. Si no hi ha sessió, caldrà tornar a obrir un enllaç d'autenticació vàlid del compte convidat; no comparteixis aquest enllaç amb ningú.
-
-**Compte amb una cosa:** si proves la invitació i l'administració al mateix navegador, les sessions poden interferir. Et recomano utilitzar una finestra privada o un altre navegador per provar el compte convidat.
-
-Quan tinguis publicada `activar-compte.html`, comprova si et deixa crear la contrasenya. Després verificarem que pots entrar com a administrador convidat, però que no pots enviar invitacions.
