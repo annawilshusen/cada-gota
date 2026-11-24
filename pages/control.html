@@ -32,13 +32,23 @@ nav: panell
     <p class="muted">Els canvis es guarden a Supabase. Encara no s'envien a l'Arduino ni activen la bomba.</p>
     <div class="cada-settings-header"><label for="cada-zone">Jardinera</label><select id="cada-zone"><option value="1">Jardinera 01</option><option value="2">Jardinera 02</option></select><button type="button" class="cada-auth-secondary" id="cada-reload">Actualitzar</button></div>
     <form id="cada-settings-form" class="cada-settings-form" hidden>
+      <fieldset class="cada-plant-fields">
+        <legend>Fitxa de la planta</legend>
+        <div class="cada-settings-fields">
+          <label>Nom de la planta<input type="text" id="cada-plant-name" maxlength="80" placeholder="Ex.: Lavanda del balcó"></label>
+          <label>Espècie (opcional)<input type="text" id="cada-plant-species" maxlength="120" placeholder="Ex.: Lavandula angustifolia"></label>
+          <label>Data de plantació (opcional)<input type="date" id="cada-plant-date"></label>
+          <label class="cada-plant-notes">Observacions<textarea id="cada-plant-notes" maxlength="1000" rows="3" placeholder="Ex.: orientació, tipus de terra, notes sobre les cures…"></textarea></label>
+        </div>
+      </fieldset>
+      <h3>Preferències de reg</h3>
       <div class="cada-settings-fields">
         <label>Humitat mínima (%)<input type="number" name="min" id="cada-min" min="5" max="80" step="1" required></label>
         <label>Humitat màxima (%)<input type="number" name="max" id="cada-max" min="10" max="95" step="1" required></label>
         <label>Temps màxim de reg (segons)<input type="number" name="duration" id="cada-duration" min="5" max="120" step="1" required></label>
         <label class="cada-settings-checkbox"><input type="checkbox" id="cada-auto"> Mode automàtic</label>
       </div>
-      <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Aquests valors són configuració de prova fins a la integració física.</p>
+      <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Els percentatges són valors de configuració, no mesures calibrades del sensor RAW. Encara no s’apliquen a l’Arduino.</p>
       <button type="submit" id="cada-save">Desar configuració</button>
     </form>
     <p class="cada-auth-message" id="cada-config-message" role="status" aria-live="polite">Carregant configuració…</p>

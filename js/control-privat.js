@@ -30,6 +30,22 @@
   const maxInput = document.getElementById('cada-max');
   const durationInput = document.getElementById('cada-duration');
   const autoInput = document.getElementById('cada-auto');
+  const plantNameInput = document.getElementById('cada-plant-name');
+  const plantSpeciesInput = document.getElementById('cada-plant-species');
+  const plantDateInput = document.getElementById('cada-plant-date');
+  const plantNotesInput = document.getElementById('cada-plant-notes');
+  const plantLabels = {1: 'Jardinera 01', 2: 'Jardinera 02'};
+  function updatePlantLabels() {
+    for (const select of [zoneSel, document.getElementById('cada-consumption-zone')]) {
+      if (!select) continue;
+      for (const option of select.options) {
+        if (option.value === '1' || option.value === '2') {
+          option.textContent = plantLabels[Number(option.value)];
+        }
+      }
+    }
+  }
+
   const settingsInfo = (s, error = false) => {configMsg.textContent=s;configMsg.classList.toggle('is-error',error);};
 
   const show = (element, visible) => { element.hidden = !visible; };
@@ -80,13 +96,26 @@
       if(!all.length){historyRoot.textContent='Encara no hi ha activitat registrada.';return;}
       for(const item of all)historyRoot.append(item.node);
     }
+    async function loadPlantLabels() {
+      const {data,error} = await client.from('configuracio_reg').select('jardinera,nom_planta').in('jardinera',[1,2]);
+      if (error) return;
+      for (const item of data || []) {
+        const name = (item.nom_planta || '').trim();
+        plantLabels[item.jardinera] = name || `Jardinera ${String(item.jardinera).padStart(2,'0')}`;
+      }
+      updatePlantLabels();
+    }
     async function loadSettings() {
       currentConfig=null;show(configForm,false);settingsInfo('Carregant la configuració…');
-      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons').eq('jardinera',zoneNumber()).maybeSingle();
-      if(error||!data){settingsInfo('No es pot consultar la configuració. Executa primer supabase/configuracio-reg-v14.sql al SQL Editor.',true);return;}
+      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions').eq('jardinera',zoneNumber()).maybeSingle();
+      if(error||!data){settingsInfo('No es pot consultar la configuració. Comprova que hagis executat supabase/plantes-editables-v17.sql i que tens permisos.',true);return;}
       currentConfig=data;
       minInput.value=data.humitat_minima;maxInput.value=data.humitat_maxima;
       durationInput.value=data.temps_maxim_segons;autoInput.checked=data.mode_automatic;
+      plantNameInput.value=data.nom_planta ?? '';
+      plantSpeciesInput.value=data.especie ?? '';
+      plantDateInput.value=data.data_plantacio ?? '';
+      plantNotesInput.value=data.observacions ?? '';
       show(configForm,true);settingsInfo('Configuració carregada de Supabase.');
       await loadActivity();
     }
@@ -185,7 +214,7 @@
         const selection=consumption.zone.value;
         const selected=selection==='all'?[1,2]:[Number(selection)];
         const maxZone=Math.max(...selected.map(z=>zones.get(z)||0),0);
-        for(const z of selected)makeBar(consumption.comparison,`Jardinera ${String(z).padStart(2,'0')}`,zones.get(z)||0,maxZone,'compare');
+        for(const z of selected)makeBar(consumption.comparison,plantLabels[z] || `Jardinera ${String(z).padStart(2,'0')}`,zones.get(z)||0,maxZone,'compare');
         const missing=rows.length-valid;
         consumption.note.textContent=(consumption.source.value==='prova'
           ? 'Dades simulades: els litres no representen consum físic. '
@@ -215,9 +244,23 @@
       saveBtn.disabled=true;settingsInfo('Desant els canvis…');
       try{
         if(!(await hasAccess())){settingsInfo('La sessió ja no és vàlida o no tens permisos.',true);return;}
-        const {data,error}=await client.from('configuracio_reg').update({humitat_minima:min,humitat_maxima:max,mode_automatic:autoInput.checked,temps_maxim_segons:secs}).eq('jardinera',zoneNumber()).select('jardinera,humitat_minima').maybeSingle();
+        const name=plantNameInput.value.trim();
+        const species=plantSpeciesInput.value.trim();
+        const notes=plantNotesInput.value.trim();
+        if (name.length>80 || species.length>120 || notes.length>1000) {
+          settingsInfo('La fitxa de la planta supera la longitud permesa.', true); return;
+        }
+        const payload={
+          humitat_minima:min,humitat_maxima:max,
+          mode_automatic:autoInput.checked,temps_maxim_segons:secs,
+          nom_planta:name || null,especie:species || null,
+          data_plantacio:plantDateInput.value || null,
+          observacions:notes || null
+        };
+        const {data,error}=await client.from('configuracio_reg').update(payload).eq('jardinera',zoneNumber()).select('jardinera,humitat_minima').maybeSingle();
         if(error||!data){settingsInfo('No s’han pogut desar els canvis. Comprova els permisos RLS.',true);return;}
         settingsInfo('Configuració desada correctament a Supabase.');
+        await loadPlantLabels();
         await loadSettings();
       }catch(e){settingsInfo('Problema de connexió en desar la configuració.',true);}finally{saveBtn.disabled=false;}
     });
@@ -261,6 +304,7 @@
         account.textContent = user.email || 'Compte autoritzat';
         inform('Accés verificat correctament.');
         show(privateArea, true);
+        await loadPlantLabels();
         await Promise.all([loadSettings(),loadConsumption()]);
       } catch (e) {
         inform('Error de connexió amb Supabase. Torna-ho a provar més tard.', true);
