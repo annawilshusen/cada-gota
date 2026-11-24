@@ -25,6 +25,23 @@
   let historyVersion = 0;
   let busy = false;
   let lastReadings = [];
+  const plantNames = {};
+  const plantLabel = number => plantNames[number] || `Jardinera ${String(number).padStart(2,'0')}`;
+  async function fetchPlantNames() {
+    try {
+      const response=await fetch(`${SUPABASE_URL}/rest/v1/configuracio_reg?select=jardinera,nom_planta`, {
+        headers:{apikey:PUBLISHABLE_KEY,Accept:'application/json'},cache:'no-store'
+      });
+      if(!response.ok) return;
+      const rows=await response.json();
+      for(const r of rows) {
+        const name=typeof r.nom_planta==='string' ? r.nom_planta.trim() : '';
+        plantNames[r.jardinera]=name || `Jardinera ${String(r.jardinera).padStart(2,'0')}`;
+      }
+      for(const option of historyZone.options) option.textContent=plantLabel(Number(option.value));
+      if(lastReadings.length) render(lastReadings);
+    }catch(e){ console.warn('No es poden consultar els noms de les plantes',e); }
+  }
 
   const formatNumber = (n) => new Intl.NumberFormat('ca-ES',{maximumFractionDigits:1}).format(n);
   const formatDate = (dateString) => {
@@ -53,7 +70,7 @@
     }
     for (const [number,row] of [...latest.entries()].sort((a,b)=>a[0]-b[0])) {
       const panel = make('article','panel');
-      panel.append(make('p','kicker',`JARDINERA ${String(number).padStart(2,'0')}`));
+      panel.append(make('p','kicker',plantLabel(number).toLocaleUpperCase('ca-ES')));
       panel.append(make('h3','', 'Humitat del sòl'));
       const humidity = Number(row.humitat);
       const valid = Number.isFinite(humidity) && humidity >= 0 && humidity <= 100;
@@ -61,7 +78,7 @@
       if (valid) {
         const meter = make('div','meter');
         meter.setAttribute('role','progressbar');
-        meter.setAttribute('aria-label',`Humitat de la jardinera ${number}`);
+        meter.setAttribute('aria-label',`Humitat de ${plantLabel(number)}`);
         meter.setAttribute('aria-valuemin','0');
         meter.setAttribute('aria-valuemax','100');
         meter.setAttribute('aria-valuenow',String(humidity));
@@ -147,14 +164,14 @@
     const svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', '0 0 830 310');
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', `Evolució de la humitat de la jardinera ${historyZone.value}, amb ${data.length} lectures`);
+    svg.setAttribute('aria-label', `Evolució de la humitat de ${plantLabel(Number(historyZone.value))}, amb ${data.length} lectures`);
     const svgEl = (tag, attrs = {}, content) => {
       const elem = document.createElementNS(ns, tag);
       for (const [key, value] of Object.entries(attrs)) elem.setAttribute(key, String(value));
       if (content !== undefined) elem.textContent = content;
       return elem;
     };
-    const title = svgEl('title', {}, `Historial d'humitat · jardinera ${historyZone.value}`);
+    const title = svgEl('title', {}, `Historial d'humitat · ${plantLabel(Number(historyZone.value))}`);
     svg.append(title);
     const plot = {left:53, top:16, width:755, height:245};
     const end = Date.now();
@@ -166,7 +183,7 @@
       svg.append(svgEl('line', {x1:plot.left,y1:yy,x2:plot.left+plot.width,y2:yy,stroke:'#d6deda','stroke-width':1}));
       svg.append(svgEl('text', {x:plot.left-12,y:yy+5,'text-anchor':'end',class:'axis-label'}, `${v}%`));
     }
-    const fmt = new Intl.DateTimeFormat('ca-ES', hours === 24 ? {hour:'2-digit',minute:'2-digit'} : {day:'2-digit',month:'short'});
+    const fmt = new Intl.DateTimeFormat('ca-ES', hours <= 24 ? {hour:'2-digit',minute:'2-digit'} : {day:'2-digit',month:'short'});
     for (let i=0; i<=4; i++) {
       const ts = start + (end-start)*i/4;
       const xx = x(ts);
@@ -176,8 +193,10 @@
       svg.append(svgEl('polyline', {points:data.map(row=>`${x(row.time).toFixed(2)},${y(row.humidity).toFixed(2)}`).join(' '),fill:'none',stroke:'#407e8c','stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round'}));
     }
     const tooltipTime = new Intl.DateTimeFormat('ca-ES',{dateStyle:'medium',timeStyle:'short'});
+    const showMarkers = hours <= 1;
     const stride = Math.max(1, Math.ceil(data.length / 150));
     data.forEach((row,index) => {
+      if (!showMarkers) return;
       if (index % stride !== 0 && !row.pump && index !== data.length-1) return;
       const point = svgEl('circle',{cx:x(row.time),cy:y(row.humidity),r:row.pump?6:4,fill:row.pump?'#e3b43d':'#407e8c',stroke:row.pump?'#9a6a1c':'#fffaf0','stroke-width':2});
       point.append(svgEl('title',{},`${tooltipTime.format(new Date(row.time))} · ${formatNumber(row.humidity)} % · Bomba ${row.pump?'activada':'aturada'} · ${row.origin}`));
@@ -233,7 +252,8 @@
     historyButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     loadHistory();
   }));
+  fetchPlantNames();
   load();
   loadHistory();
-  setInterval(() => { if (!document.hidden) { load(); loadHistory(); } }, POLL_MS);
+  setInterval(() => { if (!document.hidden) { fetchPlantNames(); load(); loadHistory(); } }, POLL_MS);
 })();

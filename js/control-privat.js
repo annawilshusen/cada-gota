@@ -34,6 +34,8 @@
   const plantSpeciesInput = document.getElementById('cada-plant-species');
   const plantDateInput = document.getElementById('cada-plant-date');
   const plantNotesInput = document.getElementById('cada-plant-notes');
+  const dryRawInput = document.getElementById('cada-raw-sec');
+  const wetRawInput = document.getElementById('cada-raw-humit');
   const plantLabels = {1: 'Jardinera 01', 2: 'Jardinera 02'};
   function updatePlantLabels() {
     for (const select of [zoneSel, document.getElementById('cada-consumption-zone')]) {
@@ -107,7 +109,7 @@
     }
     async function loadSettings() {
       currentConfig=null;show(configForm,false);settingsInfo('Carregant la configuració…');
-      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions').eq('jardinera',zoneNumber()).maybeSingle();
+      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions,raw_sec,raw_humit').eq('jardinera',zoneNumber()).maybeSingle();
       if(error||!data){settingsInfo('No es pot consultar la configuració. Comprova que hagis executat supabase/plantes-editables-v17.sql i que tens permisos.',true);return;}
       currentConfig=data;
       minInput.value=data.humitat_minima;maxInput.value=data.humitat_maxima;
@@ -116,6 +118,8 @@
       plantSpeciesInput.value=data.especie ?? '';
       plantDateInput.value=data.data_plantacio ?? '';
       plantNotesInput.value=data.observacions ?? '';
+      dryRawInput.value=data.raw_sec ?? '';
+      wetRawInput.value=data.raw_humit ?? '';
       show(configForm,true);settingsInfo('Configuració carregada de Supabase.');
       await loadActivity();
     }
@@ -250,12 +254,22 @@
         if (name.length>80 || species.length>120 || notes.length>1000) {
           settingsInfo('La fitxa de la planta supera la longitud permesa.', true); return;
         }
+        const dryText=dryRawInput.value.trim(),wetText=wetRawInput.value.trim();
+        if(Boolean(dryText)!==Boolean(wetText)) {
+          settingsInfo('Cal introduir tant la lectura en sec com la lectura en humit.', true); return;
+        }
+        const rawSec=dryText ? Number(dryText) : null;
+        const rawHumit=wetText ? Number(wetText) : null;
+        if (rawSec!==null && (!Number.isInteger(rawSec)||!Number.isInteger(rawHumit)||rawSec<0||rawSec>4095||rawHumit<0||rawHumit>4095||Math.abs(rawSec-rawHumit)<20)) {
+          settingsInfo('Calibració invàlida: valors de 0 a 4095 amb una diferència mínima de 20.', true);return;
+        }
         const payload={
           humitat_minima:min,humitat_maxima:max,
           mode_automatic:autoInput.checked,temps_maxim_segons:secs,
           nom_planta:name || null,especie:species || null,
           data_plantacio:plantDateInput.value || null,
-          observacions:notes || null
+          observacions:notes || null,
+          raw_sec:rawSec,raw_humit:rawHumit
         };
         const {data,error}=await client.from('configuracio_reg').update(payload).eq('jardinera',zoneNumber()).select('jardinera,humitat_minima').maybeSingle();
         if(error||!data){settingsInfo('No s’han pogut desar els canvis. Comprova els permisos RLS.',true);return;}

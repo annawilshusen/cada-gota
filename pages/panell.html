@@ -22,23 +22,23 @@ nav: panell
   <section class="reg-telemetry section" id="reg-telemetry" aria-labelledby="reg-telemetry-title">
     <p class="intro-label">ARDUINO UNO R4 WIFI · DADES REALS</p>
     <div class="reg-telemetry-heading">
-      <div><h2 id="reg-telemetry-title">Telemetria de l’Arduino</h2><p class="muted">Lectures reals rebudes a Supabase. La humitat és una lectura RAW de 12 bits, no un percentatge calibrat.</p></div>
+      <div><h2 id="reg-telemetry-title">Telemetria de l’Arduino</h2><p class="muted">Lectures reals rebudes a Supabase. El percentatge es calcula amb els valors sec/humit que configureu al control privat; no és una mesura volumètrica absoluta.</p></div>
       <button type="button" class="reg-refresh" id="telemetry-refresh">Actualitzar dades</button>
     </div>
     <p class="reg-telemetry-status" id="telemetry-status" role="status" aria-live="polite">Consultant l’Arduino…</p>
     <div class="reg-telemetry-cards">
-      <article class="reg-telemetry-card"><p class="kicker">SENSOR A0 · ÚNIC SENSOR CONNECTAT</p><h3>Humitat del sòl</h3><p class="reg-telemetry-number" id="telemetry-raw">—</p><p class="muted">Valor RAW / 4095 · Sense calibrar</p></article>
+      <article class="reg-telemetry-card"><p class="kicker">SENSOR A0 · <span id="telemetry-plant-label">Jardinera 01</span></p><h3>Humitat del sòl</h3><p class="reg-telemetry-number" id="telemetry-raw">—</p><p class="muted" id="telemetry-raw-detail">Calibració pendent · Lectura RAW</p></article>
       <article class="reg-telemetry-card"><p class="kicker">FLOTADOR</p><h3>Estat del dipòsit</h3><p class="reg-telemetry-state" id="telemetry-tank">—</p><p class="muted">Detecta un nivell límit, no el volum d’aigua.</p></article>
       <article class="reg-telemetry-card"><p class="kicker">SORTIDA DECLARADA</p><h3>Estat de la bomba</h3><p class="reg-telemetry-state" id="telemetry-pump">—</p><p class="muted">Estat comunicat pel programa; no és una mesura elèctrica.</p></article>
       <article class="reg-telemetry-card"><p class="kicker">COMUNICACIÓ</p><h3>Última lectura</h3><p class="reg-telemetry-state" id="telemetry-last">—</p><p class="muted" id="telemetry-age">Encara sense dades.</p></article>
     </div>
     <div class="reg-history-controls reg-telemetry-controls">
-      <fieldset class="reg-history-period" aria-label="Període de la telemetria"><legend>Període de la gràfica</legend><div class="reg-history-period-buttons" id="telemetry-period-buttons"><button type="button" data-telemetry-hours="24" aria-pressed="true">24 hores</button><button type="button" data-telemetry-hours="168" aria-pressed="false">7 dies</button><button type="button" data-telemetry-hours="720" aria-pressed="false">30 dies</button></div></fieldset>
+      <fieldset class="reg-history-period" aria-label="Període de la telemetria"><legend>Període de la gràfica</legend><div class="reg-history-period-buttons" id="telemetry-period-buttons"><button type="button" data-telemetry-hours="0.16666666666666666" aria-pressed="false">10 min</button><button type="button" data-telemetry-hours="1" aria-pressed="false">1 hora</button><button type="button" data-telemetry-hours="24" aria-pressed="true">24 hores</button><button type="button" data-telemetry-hours="168" aria-pressed="false">7 dies</button><button type="button" data-telemetry-hours="720" aria-pressed="false">30 dies</button></div></fieldset>
     </div>
     <p id="telemetry-history-status" class="reg-history-message" role="status" aria-live="polite">Carregant evolució…</p>
     <div id="telemetry-chart" class="reg-history-chart reg-telemetry-chart" role="group" aria-label="Gràfica de lectures RAW de l’Arduino"></div>
     <div id="telemetry-summary" class="reg-history-summary"></div>
-    <p class="muted reg-history-note"><strong>Important:</strong> les dades de l’Arduino provenen de <code>telemetria_arduino</code> i no es barregen amb les dades fictícies de <code>lectures_humitat</code>. Encara no es poden comparar amb els llindars d’humitat en percentatge del control privat. El programa actual envia <code>bomba_activa: false</code> en totes les lectures.</p>
+    <p class="muted reg-history-note" id="telemetry-calibration-note">La conversió a percentatge requereix calibrar el sensor en sec i en humit des del control privat.</p><p class="muted reg-history-note"><strong>Important:</strong> les dades de l’Arduino provenen de <code>telemetria_arduino</code> i no es barregen amb les dades fictícies de <code>lectures_humitat</code>. Només es compararan amb els llindars quan disposem de calibració i el control s’hagi integrat al firmware. El programa actual envia <code>bomba_activa: false</code> en totes les lectures.</p>
   </section>
   <section class="reg-history section" aria-labelledby="reg-history-title">
     <p class="intro-label">EVOLUCIÓ DEL SÒL</p>
@@ -50,7 +50,7 @@ nav: panell
       <fieldset class="reg-history-period" aria-label="Període de l’historial">
         <legend>Període</legend>
         <div class="reg-history-period-buttons">
-          <button type="button" data-hours="24" aria-pressed="true">24 hores</button>
+          <button type="button" data-hours="0.16666666666666666" aria-pressed="false">10 min</button><button type="button" data-hours="1" aria-pressed="false">1 hora</button><button type="button" data-hours="24" aria-pressed="true">24 hores</button>
           <button type="button" data-hours="168" aria-pressed="false">7 dies</button>
           <button type="button" data-hours="720" aria-pressed="false">30 dies</button>
         </div>
@@ -58,7 +58,7 @@ nav: panell
     </div>
     <p id="reg-history-status" class="reg-history-message" role="status" aria-live="polite">Carregant l’historial…</p>
     <div id="reg-history-chart" class="reg-history-chart" role="group" aria-label="Gràfica de l’evolució de la humitat"></div>
-    <div class="reg-history-legend"><span class="reg-history-line-key">Humitat del sòl (%)</span><span class="reg-history-pump-key">Bomba activada</span></div>
+    <div class="reg-history-legend"><span class="reg-history-line-key">Humitat del sòl (%)</span><span class="reg-history-pump-key">Bomba activada (si escau)</span></div>
     <div id="reg-history-summary" class="reg-history-summary" aria-live="polite"></div>
     <p class="muted reg-history-note">Aquest gràfic representa la taula històrica «lectures_humitat». Les lectures RAW de l’Arduino es representen a la secció separada de telemetria.</p>
   </section>

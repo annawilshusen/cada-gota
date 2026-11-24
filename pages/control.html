@@ -41,6 +41,15 @@ nav: panell
           <label class="cada-plant-notes">Observacions<textarea id="cada-plant-notes" maxlength="1000" rows="3" placeholder="Ex.: orientació, tipus de terra, notes sobre les cures…"></textarea></label>
         </div>
       </fieldset>
+      <fieldset class="cada-plant-fields">
+        <legend>Calibració del sensor de la jardinera</legend>
+        <p class="muted">Introdueix els valors RAW del mateix sensor quan el substrat està sec i humit. El panell calcularà un índex relatiu del 0% al 100%. No és una mesura volumètrica absoluta.</p>
+        <div class="cada-settings-fields">
+          <label>Lectura RAW en sec (0%)<input type="number" id="cada-raw-sec" min="0" max="4095" step="1" placeholder="Pendent de calibrar"></label>
+          <label>Lectura RAW en humit (100%)<input type="number" id="cada-raw-humit" min="0" max="4095" step="1" placeholder="Pendent de calibrar"></label>
+        </div>
+        <p class="muted">Omple tots dos camps, amb una diferència mínima de 20 unitats, o deixa'ls tots dos buits. Les lectures poden augmentar o disminuir amb la humitat segons el sensor.</p>
+      </fieldset>
       <h3>Preferències de reg</h3>
       <div class="cada-settings-fields">
         <label>Humitat mínima (%)<input type="number" name="min" id="cada-min" min="5" max="80" step="1" required></label>
@@ -48,7 +57,7 @@ nav: panell
         <label>Temps màxim de reg (segons)<input type="number" name="duration" id="cada-duration" min="5" max="120" step="1" required></label>
         <label class="cada-settings-checkbox"><input type="checkbox" id="cada-auto"> Mode automàtic</label>
       </div>
-      <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Els percentatges són valors de configuració, no mesures calibrades del sensor RAW. Encara no s’apliquen a l’Arduino.</p>
+      <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Els percentatges del control són llindars orientatius; s’interpretaran segons la calibració del sensor. Encara no s’apliquen a l’Arduino.</p>
       <button type="submit" id="cada-save">Desar configuració</button>
     </form>
     <p class="cada-auth-message" id="cada-config-message" role="status" aria-live="polite">Carregant configuració…</p>
