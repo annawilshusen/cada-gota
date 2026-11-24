@@ -419,6 +419,18 @@
         const { data: userResult, error: userError } = await client.auth.getUser();
         if (userError || !userResult?.user) { signedOut(); return; }
         const user = userResult.user;
+        // Acceptar automàticament una invitació pendent,
+        // si el compte té el correu verificat.
+        const { error: invitationError } = await client.rpc(
+          'acceptar_invitacio_administrador'
+        );
+        
+        if (invitationError) {
+          console.warn(
+            'No s’ha pogut comprovar la invitació:',
+            invitationError.message
+          );
+        }
         const { data: member, error: memberError } = await client
           .from('administradores')
           .select('user_id')
