@@ -3,71 +3,20 @@ layout: default
 title: Panell de reg
 nav: panell
 ---
-<div class="content chapter irrigation-dashboard" id="irrigation-dashboard">
-  <p class="intro-label">MONITORATGE</p>
-  <h1 class="section-title">Panell de reg</h1>
-  <p class="lead">Humitat del sòl, estat del dipòsit i funcionament del sistema de reg.</p>
-  <div class="dashboard-topline">
-    <p class="status" id="reg-status" role="status" aria-live="polite">Connectant amb Supabase…</p>
-    <button id="reg-refresh" class="reg-refresh" type="button">Actualitzar lectures</button>
-  </div>
-  <p class="muted reg-source" id="reg-source">Aquestes targetes mostren lectures de la taula històrica «lectures_humitat». Les lectures reals del nou Arduino es mostren separadament més avall.</p>
-  <p id="reg-updated" class="muted reg-updated">—</p>
-  <hr class="gold-line">
-  <div class="three-up reg-zones" id="reg-zones" aria-live="polite">
-    <article class="panel"><p class="kicker">JARDINERA 01</p><h3>Humitat del sòl</h3><span class="data-value">—</span><p class="muted">Carregant…</p></article>
-    <article class="panel"><p class="kicker">JARDINERA 02</p><h3>Humitat del sòl</h3><span class="data-value">—</span><p class="muted">Carregant…</p></article>
-    <article class="panel"><p class="kicker">DIPÒSIT</p><h3>Nivell d’aigua</h3><span class="data-value" id="reg-tank">—</span><p class="muted" id="reg-tank-note">Esperant la darrera lectura.</p></article>
-  </div>
-  <section class="reg-telemetry section" id="reg-telemetry" aria-labelledby="reg-telemetry-title">
-    <p class="intro-label">ARDUINO UNO R4 WIFI · DADES REALS</p>
-    <div class="reg-telemetry-heading">
-      <div><h2 id="reg-telemetry-title">Telemetria de l’Arduino</h2><p class="muted">Lectures reals rebudes a Supabase. El percentatge es calcula amb els valors sec/humit que configureu al control privat; no és una mesura volumètrica absoluta.</p></div>
-      <button type="button" class="reg-refresh" id="telemetry-refresh">Actualitzar dades</button>
-    </div>
-    <p class="reg-telemetry-status" id="telemetry-status" role="status" aria-live="polite">Consultant l’Arduino…</p>
-    <div class="reg-telemetry-cards">
-      <article class="reg-telemetry-card"><p class="kicker">SENSOR A0 · <span id="telemetry-plant-label">Jardinera 01</span></p><h3>Humitat del sòl</h3><p class="reg-telemetry-number" id="telemetry-raw">—</p><p class="muted" id="telemetry-raw-detail">Calibració pendent · Lectura RAW</p></article>
-      <article class="reg-telemetry-card"><p class="kicker">FLOTADOR</p><h3>Estat del dipòsit</h3><p class="reg-telemetry-state" id="telemetry-tank">—</p><p class="muted">Detecta un nivell límit, no el volum d’aigua.</p></article>
-      <article class="reg-telemetry-card"><p class="kicker">SORTIDA DECLARADA</p><h3>Estat de la bomba</h3><p class="reg-telemetry-state" id="telemetry-pump">—</p><p class="muted">Estat comunicat pel programa; no és una mesura elèctrica.</p></article>
-      <article class="reg-telemetry-card"><p class="kicker">COMUNICACIÓ</p><h3>Última lectura</h3><p class="reg-telemetry-state" id="telemetry-last">—</p><p class="muted" id="telemetry-age">Encara sense dades.</p></article>
-    </div>
-    <div class="reg-history-controls reg-telemetry-controls">
-      <fieldset class="reg-history-period" aria-label="Període de la telemetria"><legend>Període de la gràfica</legend><div class="reg-history-period-buttons" id="telemetry-period-buttons"><button type="button" data-telemetry-hours="0.16666666666666666" aria-pressed="false">10 min</button><button type="button" data-telemetry-hours="1" aria-pressed="false">1 hora</button><button type="button" data-telemetry-hours="24" aria-pressed="true">24 hores</button><button type="button" data-telemetry-hours="168" aria-pressed="false">7 dies</button><button type="button" data-telemetry-hours="720" aria-pressed="false">30 dies</button></div></fieldset>
-    </div>
-    <p id="telemetry-history-status" class="reg-history-message" role="status" aria-live="polite">Carregant evolució…</p>
-    <div id="telemetry-chart" class="reg-history-chart reg-telemetry-chart" role="group" aria-label="Gràfica de lectures RAW de l’Arduino"></div>
-    <div id="telemetry-summary" class="reg-history-summary"></div>
-    <p class="muted reg-history-note" id="telemetry-calibration-note">La conversió a percentatge requereix calibrar el sensor en sec i en humit des del control privat.</p><p class="muted reg-history-note"><strong>Important:</strong> les dades de l’Arduino provenen de <code>telemetria_arduino</code> i no es barregen amb les dades fictícies de <code>lectures_humitat</code>. Només es compararan amb els llindars quan disposem de calibració i el control s’hagi integrat al firmware. El programa actual envia <code>bomba_activa: false</code> en totes les lectures.</p>
+<section class="content chapter cg-dashboard" id="cg-dashboard">
+  <p class="intro-label">CADA GOTA · MONITORATGE REAL</p>
+  <h1 class="section-title">Les nostres plantes</h1>
+  <p class="lead">Seguiment dels sensors del projecte de reg. Les dades provenen de l’Arduino i s’actualitzen automàticament; no s’hi mostren les lectures de simulació.</p>
+  <div class="cg-toolbar"><p id="cg-status" role="status" aria-live="polite">Connectant amb Supabase…</p><button id="cg-refresh" type="button">Actualitzar lectures</button></div>
+  <div id="cg-alerts" class="cg-alerts" aria-live="polite"></div>
+  <div id="cg-plants" class="cg-plants"></div>
+  <section class="cg-tank-section" aria-labelledby="cg-tank-title">
+    <p class="intro-label">RESERVA D’AIGUA</p><h2 id="cg-tank-title">Dipòsit principal</h2>
+    <div class="cg-tank-card"><div class="cg-tank-visual" role="img" aria-label="Representació esquemàtica d’un dipòsit, sense escala de volum"><svg viewBox="0 0 190 230" aria-hidden="true"><defs><clipPath id="cg-tank-clip"><rect x="28" y="17" width="134" height="190" rx="13"/></clipPath></defs><rect x="28" y="17" width="134" height="190" rx="13" fill="none" stroke="#5b807d" stroke-width="3"/><g clip-path="url(#cg-tank-clip)"><path d="M28 112 Q61 106 95 112 T162 112 V207 H28 Z" fill="#b5d6d8" opacity=".8"/><path d="M28 112 Q61 106 95 112 T162 112" fill="none" stroke="#438b97" stroke-width="3"/></g><line x1="13" y1="169" x2="175" y2="169" stroke="#aa874d" stroke-width="2" stroke-dasharray="5 5"/></svg><p>Il·lustració orientativa, no proporcional</p></div><div class="cg-tank-meta"><p class="cg-kicker">SENSOR DE NIVELL · FLOTADOR D1</p><p class="cg-tank-value" id="cg-tank-state">Sense dades</p><p id="cg-tank-detail">El flotador detecta si s’ha superat un nivell límit; no mesura litres ni percentatge d’ompliment.</p><div class="cg-tank-capacity"><span>Capacitat nominal del dipòsit</span><strong>20 L</strong></div><div class="cg-tank-capacity"><span>Volum actual estimat</span><strong id="cg-tank-litres">Pendent de sensor</strong></div><p class="cg-muted">La figura queda preparada per a un futur sensor de nivell proporcional i una estimació de consum basada en el cabal.</p></div></div>
   </section>
-  <section class="reg-history section" aria-labelledby="reg-history-title">
-    <p class="intro-label">EVOLUCIÓ DEL SÒL</p>
-    <h2 id="reg-history-title">Historial d’humitat</h2>
-    <div class="reg-history-controls">
-      <label for="reg-history-zone">Jardinera
-        <select id="reg-history-zone"><option value="1">Jardinera 01</option><option value="2">Jardinera 02</option></select>
-      </label>
-      <fieldset class="reg-history-period" aria-label="Període de l’historial">
-        <legend>Període</legend>
-        <div class="reg-history-period-buttons">
-          <button type="button" data-hours="0.16666666666666666" aria-pressed="false">10 min</button><button type="button" data-hours="1" aria-pressed="false">1 hora</button><button type="button" data-hours="24" aria-pressed="true">24 hores</button>
-          <button type="button" data-hours="168" aria-pressed="false">7 dies</button>
-          <button type="button" data-hours="720" aria-pressed="false">30 dies</button>
-        </div>
-      </fieldset>
-    </div>
-    <p id="reg-history-status" class="reg-history-message" role="status" aria-live="polite">Carregant l’historial…</p>
-    <div id="reg-history-chart" class="reg-history-chart" role="group" aria-label="Gràfica de l’evolució de la humitat"></div>
-    <div class="reg-history-legend"><span class="reg-history-line-key">Humitat del sòl (%)</span><span class="reg-history-pump-key">Bomba activada (si escau)</span></div>
-    <div id="reg-history-summary" class="reg-history-summary" aria-live="polite"></div>
-    <p class="muted reg-history-note">Aquest gràfic representa la taula històrica «lectures_humitat». Les lectures RAW de l’Arduino es representen a la secció separada de telemetria.</p>
-  </section>
-  <section class="section reading"><h2>Control privat</h2>
-<p>Les administradores del projecte poden iniciar sessió amb el seu compte de CadaGota. La consulta de la humitat continua sent pública.</p>
-<a class="reg-private-link" href="{{ '/pages/control.html' | relative_url }}">Accedir al control privat</a>
-<p class="muted reg-private-hint">L’accés privat ja es pot provar. Les ordres a les bombes encara no estan habilitades.</p>
+  <section class="cg-compare" aria-labelledby="cg-compare-title"><p class="intro-label">ANÀLISI EXPERIMENTAL</p><h2 id="cg-compare-title">Comparació entre plantes</h2><p id="cg-compare-caption" class="cg-muted">Les plantes encara no connectades no generen dades ni línies artificials.</p><div id="cg-compare-content" class="cg-compare-content">Esperant lectures…</div></section>
+  <section class="cg-statistics" aria-labelledby="cg-statistics-title"><p class="intro-label">REGISTRE REAL</p><h2 id="cg-statistics-title">Funcionament del relé</h2><div class="cg-stat-grid"><div><small>Canvis OFF → ON observats</small><strong id="cg-activations">—</strong></div><div><small>Temps actiu observat</small><strong id="cg-runtime">—</strong></div><div><small>Interrupcions de telemetria</small><strong id="cg-gaps">—</strong></div></div><p class="cg-muted">Estimacions a partir de les lectures registrades, no un comptador d’activacions del firmware. Les desconnexions poden deixar activacions sense registrar. No indiquen litres consumits.</p></section>
+  <section class="reading cg-private"><h2>Control privat</h2><p>Modifica la informació de les plantes, la calibració i els llindars des del panell d’administració. El firmware aplica la configuració que descarrega de Supabase.</p><a class="reg-private-link" href="{{ '/pages/control.html' | relative_url }}">Accedir al control privat</a></section>
 </section>
-</div>
-<link rel="stylesheet" href="{{ '/css/panell-live.css' | relative_url }}">
-<script src="{{ '/js/panell-live.js' | relative_url }}?v=19" defer></script>
-<script src="{{ '/js/telemetria-arduino.js' | relative_url }}?v=19" defer></script>
+<link rel="stylesheet" href="{{ '/css/cadagota-v21.css' | relative_url }}?v=21">
+<script src="{{ '/js/cadagota-v21.js' | relative_url }}?v=21" defer></script>

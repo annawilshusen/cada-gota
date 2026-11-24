@@ -4,20 +4,21 @@ title: El projecte
 nav: projecte
 description: Índex del treball de recerca CadaGota.
 ---
-<div class="content project-overview">
+<div class="content project-overview cg-project">
  <p class="intro-label">TREBALL DE RECERCA</p><h1 class="section-title">El projecte</h1>
- <p class="lead">El contingut està organitzat a partir dels capítols de la introducció i el marc teòric. Cada tema té una pàgina independent i un índex dels seus apartats.</p>
- <p class="draft-note"><strong>Versió en desenvolupament.</strong> Els capítols ja estan presentats com a text i bibliografia web. El TDR encara està en desenvolupament i el text recuperat de la versió escanejada necessita una revisió editorial final.</p>
- <div class="chapter-cards">
+ <p class="lead">Vuit capítols, vuit parades d’un recorregut que segueix el cicle de l’aigua. Cada tema manté la seva pàgina i continguts independents.</p>
+ <p class="draft-note"><strong>Versió en desenvolupament.</strong> Els textos i la bibliografia del TDR continuen en procés de revisió editorial.</p>
+ <nav class="cg-watercycle" aria-label="Els vuit capítols del projecte">
+ <div class="cg-watercycle-landscape" aria-hidden="true"><svg viewBox="0 0 960 150" preserveAspectRatio="xMidYMid meet"><path d="M0 125 L110 31 L194 97 L286 20 L411 126" fill="none" stroke="#869b8c" stroke-width="6" stroke-linejoin="round"/><path d="M0 137 Q160 105 286 126 T540 125 T960 124" fill="none" stroke="#83b7bd" stroke-width="8" stroke-linecap="round"/><path d="M603 83 Q643 33 680 79 Q710 38 742 77 Q789 43 818 82 Q850 66 871 90" fill="none" stroke="#a8c5bf" stroke-width="7" stroke-linecap="round"/></svg></div>
+ <div class="cg-watercycle-steps">
  {% for chapter in site.data.chapters %}
-   <a class="chapter-card" href="{{ '/capitols/' | append: chapter.slug | append: '.html' | relative_url }}">
-     <span class="card-number">{{ chapter.number }} / {{ chapter.section }}</span>
-     <h2>{{ chapter.title }}</h2><p>{{ chapter.description }}</p><span class="card-arrow">Veure el capítol →</span>
+   <a class="cg-water-stop" href="{{ '/capitols/' | append: chapter.slug | append: '.html' | relative_url }}">
+     <span class="cg-stop-dot" aria-hidden="true">{{ chapter.number }}</span>
+     <span class="cg-stop-copy"><span class="cg-stop-meta">PARADA {{ chapter.number }} · APARTAT {{ chapter.section }}</span><strong>{{ chapter.title }}</strong><span>{{ chapter.description }}</span><span class="cg-stop-action">Explorar el capítol →</span></span>
    </a>
  {% endfor %}
  </div>
- <section class="document-section"><p class="intro-label">DOCUMENTACIÓ</p><h2>Treball complet</h2>
- <p>El PDF inclou el material del TDR disponible fins ara. El treball de camp encara no és definitiu.</p>
- <a class="button button-paper" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" target="_blank" rel="noopener">Obrir el TDR provisional ↗</a>
- <a class="inline-link" href="{{ '/pages/document.html' | relative_url }}">Informació i bibliografia →</a></section>
+ </nav>
+ <section class="document-section"><p class="intro-label">DOCUMENTACIÓ</p><h2>Treball complet</h2><p>El PDF inclou el material provisional del TDR disponible fins ara.</p><a class="button button-paper" href="{{ '/assets/documents/tdr-provisional.pdf' | relative_url }}" target="_blank" rel="noopener">Consultar el PDF provisional</a></section>
 </div>
+<link rel="stylesheet" href="{{ '/css/cadagota-v21.css' | relative_url }}?v=21">
