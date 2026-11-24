@@ -43,3 +43,22 @@
 .reg-private-link{display:inline-block;background:var(--sea-deep);border:1px solid var(--sea-deep);padding:12px 22px;text-decoration:none;color:var(--paper);font-weight:700;margin:6px 0}
 .reg-private-link:hover,.reg-private-link:focus-visible{background:var(--paper);color:var(--sea-deep);opacity:1}
 .reg-private-hint{font-size:.83rem;margin-top:12px}
+
+/* v16 — telemetria física, diferenciada de les lectures històriques de prova. */
+.irrigation-dashboard .reg-telemetry{margin-top:60px;border-top:1px solid var(--gold);padding-top:28px}
+.irrigation-dashboard .reg-telemetry-heading{display:flex;align-items:start;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.irrigation-dashboard .reg-telemetry-heading h2{font:normal clamp(2rem,4vw,3.3rem)/1.18 Georgia,serif;margin:5px 0 10px}
+.irrigation-dashboard .reg-telemetry-heading .muted{max-width:680px;margin:0 0 14px}
+.irrigation-dashboard .reg-telemetry-status{border-left:3px solid #407e8c;background:#eee8d7;padding:10px 13px;font-weight:650;font-size:.91rem;margin:12px 0 18px}
+.irrigation-dashboard .reg-telemetry-status[data-state=stale]{border-color:#bc882a}
+.irrigation-dashboard .reg-telemetry-status[data-state=error]{border-color:#ad634f}
+.irrigation-dashboard .reg-telemetry-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:12px 0 25px}
+.irrigation-dashboard .reg-telemetry-card{border:1px solid #b7cac7;background:#fffaf0;padding:18px;min-width:0}
+.irrigation-dashboard .reg-telemetry-card .kicker{font-size:.66rem;letter-spacing:.1em}
+.irrigation-dashboard .reg-telemetry-card h3{font-size:1.06rem;margin:10px 0}
+.irrigation-dashboard .reg-telemetry-number{font:normal clamp(2.2rem,5vw,3.3rem) Georgia,serif;color:#265f6b;margin:10px 0}
+.irrigation-dashboard .reg-telemetry-state{font:normal clamp(1.25rem,2.5vw,1.8rem) Georgia,serif;color:#265f6b;margin:12px 0;overflow-wrap:anywhere}
+.irrigation-dashboard .reg-telemetry-card .muted{font-size:.82rem;margin:8px 0 0}
+.irrigation-dashboard .reg-telemetry-controls{margin-top:22px}
+.irrigation-dashboard .reg-telemetry-chart{min-height:240px}
+@media(max-width:620px){.irrigation-dashboard .reg-telemetry-cards{grid-template-columns:1fr}}

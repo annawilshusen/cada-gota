@@ -107,7 +107,7 @@
       const hasReal = rows.some(row => row.origen === 'arduino');
       const hasTest = rows.some(row => row.origen !== 'arduino');
       status.textContent = !rows.length ? 'Connectat · Sense lectures' : hasReal && hasTest ? 'Connectat · Dades reals i de prova' : hasReal ? 'Connectat · Lectures de l’Arduino' : 'Connectat a Supabase · Dades de prova';
-      document.getElementById('reg-source').textContent = hasReal ? 'Lectures rebudes de Supabase. Les dades amb origen «prova» no són mesures reals.' : 'Dades de prova de Supabase. L’Arduino encara no està connectat.';
+      document.getElementById('reg-source').textContent = hasReal ? 'Taula històrica «lectures_humitat»: les files amb origen «prova» són simulades. La telemetria RAW real es mostra separadament.' : 'Taula històrica «lectures_humitat»: dades de prova. Consulta la telemetria real de l’Arduino a la secció següent.';
     } catch(error) {
       status.textContent = 'No s’han pogut consultar les lectures';
       if (!lastReadings.length) {
