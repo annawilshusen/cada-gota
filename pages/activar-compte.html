@@ -1,0 +1,205 @@
+
+---
+layout: default
+title: Activa el teu compte
+nav: panell
+---
+
+<section class="content chapter cada-auth">
+  <p class="intro-label">CADA GOTA · EQUIP</p>
+  <h1 class="section-title">Activa el teu compte</h1>
+
+  <p class="lead">
+    Estableix una contrasenya per accedir
+    a CadaGota com a membre de l'equip.
+  </p>
+
+  <p id="activar-estat" role="status">
+    Comprovant la invitació…
+  </p>
+
+  <form id="activar-form" class="cada-auth-form"
+        style="max-width:480px" hidden>
+
+    <label for="activar-password">
+      Nova contrasenya
+    </label>
+    <input
+      id="activar-password"
+      type="password"
+      autocomplete="new-password"
+      minlength="12"
+      required
+    >
+
+    <label for="activar-confirmar">
+      Confirma la contrasenya
+    </label>
+    <input
+      id="activar-confirmar"
+      type="password"
+      autocomplete="new-password"
+      minlength="12"
+      required
+    >
+
+    <button type="submit" id="activar-boto">
+      Activar el meu compte
+    </button>
+  </form>
+
+  <p id="activar-resultat" role="status"></p>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const estat = document.getElementById('activar-estat');
+  const form = document.getElementById('activar-form');
+  const resultat = document.getElementById('activar-resultat');
+  const boto = document.getElementById('activar-boto');
+
+  if (!window.supabase?.createClient) {
+    estat.textContent =
+      "No s'ha pogut carregar Supabase.";
+    return;
+  }
+
+  const client = window.supabase.createClient(
+    'https://zkzppfkjprwqdlyqkavt.supabase.co',
+    'sb_publishable_L0fopg_qzpYaeOstUIIK-Q_muX1VMhp',
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    }
+  );
+
+  const { data, error } = await client.auth.getUser();
+
+  if (error || !data.user) {
+    estat.textContent =
+      "No hi ha cap sessió activa. Obre l'enllaç " +
+      "de la invitació des d'aquest mateix navegador.";
+    return;
+  }
+
+  estat.textContent =
+    "Compte verificat: " + data.user.email;
+
+  form.hidden = false;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const password =
+      document.getElementById('activar-password').value;
+
+    const confirmar =
+      document.getElementById('activar-confirmar').value;
+
+    if (password !== confirmar) {
+      resultat.textContent =
+        'Les contrasenyes no coincideixen.';
+      return;
+    }
+
+    if (password.length < 12) {
+      resultat.textContent =
+        'La contrasenya ha de tenir almenys 12 caràcters.';
+      return;
+    }
+
+    boto.disabled = true;
+    resultat.textContent = 'Activant el compte…';
+
+    const { error: passwordError } =
+      await client.auth.updateUser({
+        password
+      });
+
+    if (passwordError) {
+      resultat.textContent =
+        'Error: ' + passwordError.message;
+      boto.disabled = false;
+      return;
+    }
+
+    const { error: invitationError } = await client.rpc(
+      'acceptar_invitacio_administrador'
+    );
+
+    if (invitationError) {
+      resultat.textContent =
+        "Contrasenya creada, però no s'han pogut " +
+        "comprovar els permisos: " +
+        invitationError.message;
+      boto.disabled = false;
+      return;
+    }
+
+    form.hidden = true;
+    estat.textContent = 'Compte configurat correctament!';
+
+    resultat.textContent =
+      'Ja pots accedir al control privat de CadaGota.';
+
+    const enllac = document.createElement('a');
+    enllac.href = "{{ '/pages/control.html' | relative_url }}";
+    enllac.textContent = 'Accedir al control privat';
+
+    resultat.append(
+      document.createTextNode(' '),
+      enllac
+    );
+  });
+});
+</script>
+```
+
+Desa'l amb **Commit changes**.
+
+## Pas 2. Canviar l'enllaç de les futures invitacions
+
+A **Supabase → Edge Functions → `convidar-administrador` → Code**, busca:
+
+```typescript
+redirectTo:
+  'https://annawilshusen.github.io/cada-gota/pages/control.html',
+```
+
+I substitueix-ho per:
+
+```typescript
+redirectTo:
+  'https://annawilshusen.github.io/cada-gota/pages/activar-compte.html',
+```
+
+Prem **Deploy**.
+
+## Pas 3. Autoritzar la nova pàgina a Supabase
+
+Ves a **Authentication → URL Configuration → Redirect URLs**.
+
+Afegeix aquesta adreça:
+
+```text
+https://annawilshusen.github.io/cada-gota/pages/activar-compte.html
+```
+
+Desa els canvis. Aquest pas és necessari perquè Supabase respecti la destinació indicada en el correu d'invitació. <Cite ref="turn354456search12"/>
+
+## Pas 4. Provar-ho amb el compte que ja has convidat
+
+Com que ja has acceptat una invitació, **no cal que en creïs una altra d'entrada**.
+
+Una vegada publicada la nova pàgina, obre-la amb el mateix navegador on has acceptat la invitació:
+
+<Link url="https://annawilshusen.github.io/cada-gota/pages/activar-compte.html" title="Activar el compte de CadaGota"/>
+
+Si la sessió del compte convidat continua activa, apareixerà el formulari per crear la contrasenya. Si no hi ha sessió, caldrà tornar a obrir un enllaç d'autenticació vàlid del compte convidat; no comparteixis aquest enllaç amb ningú.
+
+**Compte amb una cosa:** si proves la invitació i l'administració al mateix navegador, les sessions poden interferir. Et recomano utilitzar una finestra privada o un altre navegador per provar el compte convidat.
+
+Quan tinguis publicada `activar-compte.html`, comprova si et deixa crear la contrasenya. Després verificarem que pots entrar com a administrador convidat, però que no pots enviar invitacions.
