@@ -1,4 +1,4 @@
-/* CadaGota v24 — insígnies, rols decoratius i complements desbloquejables.
+/* CadaGota v25 — insígnies, rols decoratius i complements desbloquejables.
  * Els rols decoratius MAI concedeixen permisos Supabase.
  * Cor de CadaGota: només auth.app_metadata (servidor), no user_metadata.
  */
@@ -23,6 +23,7 @@
     {id:'teoria',name:'Entenc la teoria',desc:'Coneixes el marc teòric i els objectius del projecte.',mode:'claim',gift:'Llavor germinant'},
     {id:'cor',name:'Cor de CadaGota',desc:'Distinció especial concedida exclusivament per l’equip CadaGota.',mode:'team',gift:'Corona vegetal especial'}
   ];
+  const BADGE_SYMBOLS={primera:"💧",projecte:"🌿",panell:"🔎",girls:"💻",tdr:"🛠️",jornades:"🌻",nazaret:"🐝",tecnologia:"⚙️",teoria:"📖",cor:"💛"};
   const UNLOCK={tshirt:'girls',laptop:'tdr',paper:'tdr',cloud:'jornades',bee:'nazaret',glasses:'tecnologia',seed:'teoria'};
   let client=null,user=null,saving=false,awarding=false;
   const own =()=>Array.isArray(user?.user_metadata?.cadagota_badges)?user.user_metadata.cadagota_badges.filter(id=>BADGES.some(b=>b.id===id&&b.mode!=='team')):[];
@@ -53,15 +54,25 @@
     .cg-badge-toast p{margin:4px 0 0;font-size:.85rem}.cg-badge-toast button{border:0;background:none;color:#244f58;font-size:1.3rem;cursor:pointer}
     .cg-role-field{display:grid;gap:7px;font-weight:700;margin:14px 0}
     .cg-role-field select{width:100%;padding:10px;border:1px solid #9fbab2;background:#fffdf7;font:inherit;color:#244f58}
-    .cg-decor-field{border-top:1px solid #d3ded7;margin:15px 0 0;padding:13px 0 0;display:grid;gap:8px}
+    .cg-decor-field{display:none!important} /* Decoracions integrades als complements */
     .cg-decor-field label{display:flex;gap:8px;align-items:center;font-size:.88rem}
     .cg-avatar-options label.cg-locked{opacity:.6}
     .cg-profile-decoration{pointer-events:none}
+    .cg-badge-card{position:relative;padding:16px 15px 14px 76px;min-height:190px}
+    .cg-badge-icon{position:absolute;top:15px;left:14px;width:49px;height:49px;border-radius:50%;display:grid;place-items:center;background:#e6eee6;border:2px solid #92b5a7;box-shadow:inset 0 0 0 3px #f9f6eb;font-size:1.6rem}
+    .cg-badge-card.is-earned .cg-badge-icon{background:#dceacb;border-color:#6f9b77}
+    .cg-badge-card button.cg-badge-revoke{background:transparent;color:#865747;border-color:#bd9789}
+    .cg-modal-x{position:sticky;top:0;float:right;z-index:5;width:36px;height:36px;margin:-10px -10px 0 8px;display:grid;place-items:center;border:1px solid #aec5be;background:#fffaf0;color:#28525b;font-size:1.4rem;line-height:1;border-radius:50%;cursor:pointer;box-shadow:0 2px 8px #204c5519}
+    .cg-modal-x:hover{background:#e4eee5}
+    .cg-special-option.cg-locked{opacity:.5}
+
     @media(max-width:550px){.cg-badges-list{grid-template-columns:1fr}.cg-badge-notifications{top:76px;right:10px}}
   `;document.head.append(css);
 
   // Modal independent del personalitzador.
   const badgesDialog=el('dialog',undefined,'cg-badges-dialog');
+  const closeBadgesTop=el('button','×','cg-modal-x');closeBadgesTop.type='button';closeBadgesTop.setAttribute('aria-label','Tancar insígnies');closeBadgesTop.addEventListener('click',()=>badgesDialog.close());badgesDialog.append(closeBadgesTop);
+  const closeAvatarTop=el('button','×','cg-modal-x');closeAvatarTop.type='button';closeAvatarTop.setAttribute('aria-label','Tancar personalització');closeAvatarTop.addEventListener('click',()=>dialog.close());dialog.prepend(closeAvatarTop);
   badgesDialog.append(el('h2','Les meves insígnies'),el('p','Guanya o reclama insígnies, i desbloqueja complements per a la teva gota. Les insígnies reclamades per tu mateix no estan verificades per l’escola.'));
   const badgesList=el('div',undefined,'cg-badges-list');badgesDialog.append(badgesList);
   const badgesFeedback=el('p','');badgesFeedback.setAttribute('role','status');badgesDialog.append(badgesFeedback);
@@ -70,10 +81,12 @@
     badgesList.replaceChildren();const unlocked=earned();
     for(const b of BADGES){
       const card=el('article',undefined,'cg-badge-card'+(unlocked.has(b.id)?' is-earned':''));
-      card.append(el('strong',b.name),el('p',b.desc),el('small','Desbloqueja: '+b.gift));
-      const button=el('button',unlocked.has(b.id)?'Aconseguida':b.mode==='claim'?'Reclamar insígnia':b.mode==='team'?'Només equip CadaGota':'Automàtica');
-      button.type='button';button.disabled=unlocked.has(b.id)||b.mode!=='claim'||saving||!user;
-      if(!button.disabled)button.addEventListener('click',()=>claim(b.id));
+      card.append(el('span',BADGE_SYMBOLS[b.id],'cg-badge-icon'),el('strong',b.name),el('p',b.desc),el('small','Desbloqueja: '+b.gift));
+      const claimed=unlocked.has(b.id);
+      const button=el('button',claimed?(b.mode==='claim'?'Retirar insígnia':'Aconseguida'):b.mode==='claim'?'Reclamar insígnia':b.mode==='team'?'Només equip CadaGota':'Automàtica');
+      button.type='button';button.disabled=b.mode!=='claim'||saving||!user;
+      if(claimed&&b.mode==='claim'){button.classList.add('cg-badge-revoke');button.addEventListener('click',()=>revoke(b.id));}
+      else if(!button.disabled)button.addEventListener('click',()=>claim(b.id));
       card.append(button);badgesList.append(card);
     }
   }
@@ -83,6 +96,21 @@
     saving=true;badgesFeedback.textContent='Desant la insígnia…';
     try{await updateMetadata({cadagota_badges:[...new Set([...own(),id])]});badgesFeedback.textContent='Insígnia aconseguida!';notify('Insígnia desbloquejada: '+badge(id).name,badge(id).gift);renderBadges();updateLocked();}
     catch(e){badgesFeedback.textContent='No s’ha pogut desar: '+(e?.message||'Error');}
+    finally{saving=false;renderBadges();}
+  }
+  async function revoke(id){
+    if(!user||saving||badge(id)?.mode!=='claim'||!earned().has(id))return;
+    saving=true;badgesFeedback.textContent='Retirant la insígnia…';
+    try{
+      const oldAvatar=user.user_metadata?.cadagota_avatar||{};
+      const avatarWithoutLocked={...oldAvatar,accessories:Array.isArray(oldAvatar.accessories)?oldAvatar.accessories.filter(a=>UNLOCK[a]!==id):[]};
+      const oldDecor=user.user_metadata?.cadagota_decoration||{};
+      const decorWithoutLocked={...oldDecor,head:id==='jornades'&&oldDecor.head==='flower'?'':oldDecor.head};
+      await updateMetadata({cadagota_badges:own().filter(x=>x!==id),cadagota_avatar:avatarWithoutLocked,cadagota_decoration:decorWithoutLocked});
+      badgesFeedback.textContent='Insígnia retirada. La pots tornar a reclamar quan vulguis.';
+      // Si perd el dret a un complement, es deixa de mostrar en tornar a desar.
+      updateLocked();
+    }catch(e){badgesFeedback.textContent='No s’ha pogut retirar: '+(e?.message||'Error');}
     finally{saving=false;renderBadges();}
   }
   async function autoAward(){
@@ -109,6 +137,43 @@
   for(const [value,label] of [['','Cap'],['stars','Petites estrelles · Descobrint CadaGota']]){const o=el('option',label);o.value=value;backSelect.append(o);}backLabel.append(backSelect);deco.append(backLabel);
   const options=dialog.querySelector('.cg-avatar-field:last-of-type');if(options)options.after(deco);else dialog.querySelector('form')?.append(deco);
   const form=dialog.querySelector('form');const saveButton=dialog.querySelector('.cg-avatar-save');const inputName=dialog.querySelector('input[autocomplete="nickname"]');
+  const complements=dialog.querySelector('.cg-avatar-field:last-of-type .cg-avatar-options');
+  const specialInputs={};
+  for(const [id,label] of [['flower','Flor al cap'],['crown','Corona vegetal'],['stars','Estrelles al voltant']]){
+    if(!complements)break;
+    const labelNode=el('label',undefined,'cg-special-option');
+    const cb=el('input');cb.type='checkbox';cb.value=id;cb.dataset.cgSpecial=id;
+    labelNode.append(cb,document.createTextNode(label));complements.append(labelNode);specialInputs[id]=cb;
+  }
+  // Ranures: només un complement per cada zona del personatge.
+  const slots=[['seed','bow','flower','crown'],['tshirt','laptop'],['bee','cloud','stars']];
+  const getChoice=id=>specialInputs[id]||dialog.querySelector(`[data-avatar-accessory="${id}"]`);
+  let normalizing=false;
+  function exclusivity(event){
+    if(normalizing)return;
+    const chosen=event.target;
+    if(!(chosen instanceof HTMLInputElement)||chosen.type!=='checkbox'||!chosen.checked)return;
+    const id=chosen.dataset.cgSpecial||chosen.dataset.avatarAccessory;
+    if(!id)return;
+    const group=slots.find(arr=>arr.includes(id));
+    if(group)for(const other of group){if(other!==id){const input=getChoice(other);if(input)input.checked=false;}}
+    headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
+    backSelect.value=specialInputs.stars?.checked?'stars':'';
+    // Recalcular el dibuix després de desmarcar els complements incompatibles.
+    normalizing=true;chosen.dispatchEvent(new Event('change',{bubbles:true}));normalizing=false;
+    decorateCurrent();
+  }
+  form.addEventListener('change',exclusivity);
+  function syncSpecial(){
+    if(specialInputs.flower)specialInputs.flower.checked=headSelect.value==='flower';
+    if(specialInputs.crown)specialInputs.crown.checked=headSelect.value==='crown';
+    if(specialInputs.stars)specialInputs.stars.checked=backSelect.value==='stars';
+    const active=[...form.querySelectorAll('[data-avatar-accessory]:checked'),...Object.values(specialInputs).filter(x=>x.checked)];
+    for(const group of slots){const checked=active.filter(i=>group.includes(i.value));for(const extra of checked.slice(1))extra.checked=false;}
+    headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
+    backSelect.value=specialInputs.stars?.checked?'stars':'';
+    decorateCurrent();
+  }
   const stateDecor=()=>({head:headSelect.value,around:backSelect.value});
   function validDecor(raw){const d=raw||{};const unlocked=earned();return {head:d.head==='crown'&&unlocked.has('cor')?'crown':d.head==='flower'&&unlocked.has('jornades')?'flower':'',around:d.around==='stars'&&unlocked.has('projecte')?'stars':''};}
   function renderDecoration(svgNode,decor){
@@ -142,15 +207,21 @@
     }
     for(const opt of headSelect.options)opt.disabled=(opt.value==='flower'&&!unlocked.has('jornades'))||(opt.value==='crown'&&!unlocked.has('cor'));
     for(const opt of backSelect.options)opt.disabled=opt.value==='stars'&&!unlocked.has('projecte');
+    for(const [id,need] of [['flower','jornades'],['crown','cor'],['stars','projecte']]){
+      const input=specialInputs[id];if(!input)continue;
+      input.disabled=!unlocked.has(need);if(input.disabled)input.checked=false;
+      input.closest('label')?.classList.toggle('cg-locked',input.disabled);
+      input.title=input.disabled?`Es desbloqueja amb: ${badge(need).name}`:'';
+    }
     selectedDecor=validDecor(user?.user_metadata?.cadagota_decoration);
-    if(!dialog.open){headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;}
+    if(!dialog.open){headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;syncSpecial();}
     decorateCurrent();
   }
   // En obrir la personalització, carregar el rol i decoracions actuals.
   const originalShow=()=>{
     roleSelect.value=ROLES.includes(user?.user_metadata?.cadagota_role)?user.user_metadata.cadagota_role:'Alumnat';
     selectedDecor=validDecor(user?.user_metadata?.cadagota_decoration);
-    headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;updateLocked();
+    headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;updateLocked();syncSpecial();
   };
   const openObserver=new MutationObserver(()=>{if(dialog.open)originalShow();});
   openObserver.observe(dialog,{attributes:true,attributeFilter:['open']});
@@ -166,6 +237,8 @@
     try{
       const color=form.querySelector('input[name="cg-avatar-color"]:checked')?.value||'blau';
       const face=form.querySelector('input[name="cg-avatar-face"]:checked')?.value||'happy';
+      headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
+      backSelect.value=specialInputs.stars?.checked?'stars':'';
       const extras=[...form.querySelectorAll('[data-avatar-accessory]:checked')].filter(i=>!i.disabled&&(!UNLOCK[i.value]||earned().has(UNLOCK[i.value]))).map(i=>i.value);
       // Ranura única: cabell/cap; ulleres; roba; mà; voltant.
       const slots=[['seed','bow'],['tshirt','laptop']];
