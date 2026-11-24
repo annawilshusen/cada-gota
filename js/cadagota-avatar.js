@@ -1,7 +1,8 @@
 
 /*
- * CadaGota — Avatar personalitzable
- * Guarda les preferències a Supabase Auth.
+ * CadaGota — Avatar v2
+ * Perfil integrat a la navegació superior.
+ * Personalització desada a Supabase Auth.
  * No modifica el sistema de reg.
  */
 
@@ -35,13 +36,20 @@
     cloud: 'Núvol'
   };
 
+  const FACES = {
+    happy: 'Somrient',
+    cute: 'Ulls tancats',
+    wink: 'Picant l’ullet',
+    calm: 'Tranquil·la'
+  };
+
   const DEFAULT = {
     color: 'blau',
     face: 'happy',
     accessories: []
   };
 
-  let client;
+  let client = null;
   let currentUser = null;
   let avatar = {...DEFAULT, accessories: []};
 
@@ -49,18 +57,17 @@
     const source = data || {};
 
     return {
-      color: COLORS[source.color]
+      color: Object.hasOwn(COLORS, source.color)
         ? source.color
         : DEFAULT.color,
 
-      face: ['happy', 'cute', 'wink', 'calm']
-        .includes(source.face)
+      face: Object.hasOwn(FACES, source.face)
         ? source.face
         : DEFAULT.face,
 
       accessories: Array.isArray(source.accessories)
         ? [...new Set(source.accessories)]
-            .filter(x => ACCESSORIES[x])
+            .filter(x => Object.hasOwn(ACCESSORIES, x))
         : []
     };
   }
@@ -263,6 +270,52 @@
     `;
   }
 
+  function drawGuestAvatar() {
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 160 170"
+        role="img"
+        aria-label="Gota grisa, sessió no iniciada">
+
+        <path d="M80 23
+          C67 46 31 72 31 105
+          C31 134 53 155 80 155
+          C107 155 129 134 129 105
+          C129 72 93 46 80 23 Z"
+          fill="#bcc5c3"
+          stroke="#687c7e"
+          stroke-width="3"/>
+
+        <path d="M57 77 Q64 56 73 49"
+          fill="none"
+          stroke="#ffffff"
+          stroke-opacity=".45"
+          stroke-width="6"
+          stroke-linecap="round"/>
+
+        <circle cx="64" cy="87" r="3" fill="#647578"/>
+        <circle cx="96" cy="87" r="3" fill="#647578"/>
+
+        <path d="M73 104 Q80 99 87 104"
+          fill="none"
+          stroke="#647578"
+          stroke-width="3"
+          stroke-linecap="round"/>
+
+        <circle cx="115" cy="127" r="18"
+          fill="#f7eee2"
+          stroke="#a16c6c"
+          stroke-width="3"/>
+
+        <path d="M108 120 L122 134
+          M122 120 L108 134"
+          stroke="#ae6b6b"
+          stroke-width="4"
+          stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
   // ==========================================
   // ESTILS
   // ==========================================
@@ -270,48 +323,62 @@
   const style = document.createElement('style');
 
   style.textContent = `
-    .cg-profile-bar {
+    /* Perfil dins la mateixa barra blava */
+
+    .site-header .cg-profile-bar {
       display: flex;
-      justify-content: flex-end;
       align-items: center;
-      gap: 12px;
-      padding: 8px clamp(16px, 5vw, 65px);
-      background: #e8ecdf;
-      border-bottom: 1px solid #b6c9c6;
-      color: #28525b;
+      justify-content: flex-end;
+      gap: 9px;
+      flex-shrink: 0;
+      margin-left: 5px;
+      color: var(--paper, #f6efdb);
     }
 
-    .cg-profile-bar[hidden] {
-      display: none !important;
-    }
-
-    .cg-profile-email {
+    .site-header .cg-profile-name {
+      font: inherit;
       font-size: .85rem;
-      overflow-wrap: anywhere;
+      font-weight: 600;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      padding: 6px 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .cg-avatar-button {
-      width: 52px;
-      height: 52px;
+    .site-header .cg-avatar-button {
+      width: 44px;
+      height: 44px;
       padding: 2px;
-      background: #fffaf0;
-      border: 2px solid #94b6b4;
-      border-radius: 50%;
-      cursor: pointer;
       display: grid;
       place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.65);
+      background: rgba(255,255,255,.12);
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
     }
 
-    .cg-avatar-button svg {
+    .site-header .cg-avatar-button svg {
       width: 100%;
       height: 100%;
     }
 
-    .cg-avatar-button:hover,
-    .cg-avatar-button:focus-visible {
-      border-color: #286b78;
-      outline-offset: 3px;
+    .site-header .cg-avatar-button:hover,
+    .site-header .cg-profile-name:hover {
+      opacity: .8;
     }
+
+    .site-header .main-nav {
+      margin-left: auto;
+    }
+
+    /* Editor de l'avatar */
 
     .cg-avatar-dialog {
       width: min(620px, calc(100vw - 32px));
@@ -325,12 +392,12 @@
     }
 
     .cg-avatar-dialog::backdrop {
-      background: rgba(19, 51, 60, .55);
+      background: rgba(19,51,60,.55);
     }
 
     .cg-avatar-dialog h2 {
       font-family: Georgia, serif;
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-size: clamp(1.6rem,4vw,2.2rem);
       margin: 0 0 8px;
     }
 
@@ -343,6 +410,23 @@
     .cg-avatar-preview svg {
       display: block;
       width: 100%;
+    }
+
+    .cg-username-label {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-weight: 700;
+      margin: 18px 0;
+    }
+
+    .cg-username-label input {
+      width: 100%;
+      font: inherit;
+      padding: 11px 12px;
+      border: 1px solid #94aaa9;
+      color: #244c55;
+      background: #fffdf7;
     }
 
     .cg-avatar-field {
@@ -401,19 +485,53 @@
       background: #285c69;
     }
 
+    .cg-avatar-actions button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
     .cg-avatar-feedback {
       min-height: 1.5em;
       font-size: .85rem;
       margin-top: 10px;
     }
 
-    @media (max-width: 500px) {
-      .cg-profile-bar {
-        justify-content: center;
+    /* Adaptació a tauletes i mòbils */
+
+    @media (max-width: 930px) {
+      .site-header .cg-profile-bar {
+        margin-left: auto;
       }
 
-      .cg-profile-email {
+      .site-header .menu-toggle {
+        order: 3;
+      }
+
+      .site-header .main-nav {
+        order: 4;
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 550px) {
+      .site-header .cg-profile-name {
+        max-width: 95px;
         font-size: .75rem;
+      }
+
+      .site-header .cg-avatar-button {
+        width: 36px;
+        height: 36px;
+      }
+
+      .site-header .header-inner {
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .site-header .cg-profile-name {
+        max-width: 67px;
       }
     }
   `;
@@ -421,34 +539,31 @@
   document.head.append(style);
 
   // ==========================================
-  // BARRA DE PERFIL
+  // PERFIL A LA CAPÇALERA
   // ==========================================
 
-  const header = document.querySelector('.site-header');
+  const headerInner =
+    document.querySelector('.site-header .header-inner');
 
-  if (!header) return;
+  if (!headerInner) return;
 
   const bar = document.createElement('div');
   bar.className = 'cg-profile-bar';
-  bar.hidden = true;
 
-  const emailLabel = document.createElement('span');
-  emailLabel.className = 'cg-profile-email';
+  const profileName = document.createElement('button');
+  profileName.type = 'button';
+  profileName.className = 'cg-profile-name';
+  profileName.textContent = 'Iniciar sessió';
 
   const avatarButton = document.createElement('button');
   avatarButton.type = 'button';
   avatarButton.className = 'cg-avatar-button';
-  avatarButton.title = 'Personalitzar avatar';
-  avatarButton.setAttribute(
-    'aria-label',
-    'Personalitzar avatar de CadaGota'
-  );
 
-  bar.append(emailLabel, avatarButton);
-  header.insertAdjacentElement('afterend', bar);
+  bar.append(profileName, avatarButton);
+  headerInner.append(bar);
 
   // ==========================================
-  // EDITOR
+  // EDITOR DE PERFIL
   // ==========================================
 
   const dialog = document.createElement('dialog');
@@ -459,13 +574,26 @@
 
   const description = document.createElement('p');
   description.textContent =
-    'Personalitza la teva gota de CadaGota. ' +
+    'Tria el teu nom d’usuari i personalitza la gota. ' +
     'Pots combinar diversos complements.';
+
+  const usernameLabel = document.createElement('label');
+  usernameLabel.className = 'cg-username-label';
+  usernameLabel.textContent = 'Nom d’usuari';
+
+  const usernameInput = document.createElement('input');
+  usernameInput.type = 'text';
+  usernameInput.maxLength = 30;
+  usernameInput.placeholder = 'Ex.: GotaCientifica';
+  usernameInput.autocomplete = 'nickname';
+
+  usernameLabel.append(usernameInput);
 
   const preview = document.createElement('div');
   preview.className = 'cg-avatar-preview';
 
   const form = document.createElement('form');
+
   form.addEventListener('submit', event => {
     event.preventDefault();
   });
@@ -486,6 +614,8 @@
     return options;
   }
 
+  // Colors
+
   const colorOptions = fieldset('Color de la gota');
 
   for (const [name, color] of Object.entries(COLORS)) {
@@ -499,6 +629,7 @@
     const sample = document.createElement('span');
     sample.textContent =
       name.charAt(0).toUpperCase() + name.slice(1);
+
     sample.style.borderLeft = `6px solid ${color}`;
     sample.style.paddingLeft = '7px';
 
@@ -506,16 +637,11 @@
     colorOptions.append(label);
   }
 
+  // Expressions
+
   const faceOptions = fieldset('Expressió de la cara');
 
-  const faces = {
-    happy: 'Somrient',
-    cute: 'Ulls tancats',
-    wink: 'Picant l’ullet',
-    calm: 'Tranquil·la'
-  };
-
-  for (const [name, text] of Object.entries(faces)) {
+  for (const [name, text] of Object.entries(FACES)) {
     const label = document.createElement('label');
     const input = document.createElement('input');
 
@@ -526,6 +652,8 @@
     label.append(input, text);
     faceOptions.append(label);
   }
+
+  // Complements
 
   const accessoryOptions = fieldset('Complements');
 
@@ -555,25 +683,34 @@
   const save = document.createElement('button');
   save.type = 'button';
   save.className = 'cg-avatar-save';
-  save.textContent = 'Desar la meva gota';
+  save.textContent = 'Desar el meu perfil';
 
   actions.append(cancel, save);
   form.append(actions, feedback);
 
-  dialog.append(heading, description, preview, form);
+  dialog.append(
+    heading,
+    description,
+    usernameLabel,
+    preview,
+    form
+  );
+
   document.body.append(dialog);
+
+  // ==========================================
+  // LECTURA I PREVISUALITZACIÓ
+  // ==========================================
 
   function readForm() {
     return safeAvatar({
-      color:
-        form.querySelector(
-          'input[name="cg-avatar-color"]:checked'
-        )?.value,
+      color: form.querySelector(
+        'input[name="cg-avatar-color"]:checked'
+      )?.value,
 
-      face:
-        form.querySelector(
-          'input[name="cg-avatar-face"]:checked'
-        )?.value,
+      face: form.querySelector(
+        'input[name="cg-avatar-face"]:checked'
+      )?.value,
 
       accessories: [
         ...form.querySelectorAll(
@@ -581,6 +718,10 @@
         )
       ].map(input => input.value)
     });
+  }
+
+  function updatePreview() {
+    preview.innerHTML = drawAvatar(readForm());
   }
 
   function fillForm(data) {
@@ -603,37 +744,70 @@
       input.checked = a.accessories.includes(input.value);
     });
 
-    updatePreview();
-  }
+    usernameInput.value =
+      currentUser?.user_metadata?.cadagota_username || '';
 
-  function updatePreview() {
-    preview.innerHTML = drawAvatar(readForm());
+    updatePreview();
   }
 
   form.addEventListener('change', updatePreview);
 
-  avatarButton.addEventListener('click', () => {
+  // ==========================================
+  // OBRIR PERFIL O INICIAR SESSIÓ
+  // ==========================================
+
+  function openProfile() {
+    if (!currentUser) {
+      // GitHub Pages publica el projecte a /cada-gota/.
+      const rootLink = document.querySelector('.identity');
+      const base = rootLink?.href || window.location.origin + '/';
+
+      window.location.href =
+        new URL('pages/control.html', base).href;
+
+      return;
+    }
+
     fillForm(avatar);
     feedback.textContent = '';
-    dialog.showModal();
-  });
+
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+  }
+
+  avatarButton.addEventListener('click', openProfile);
+  profileName.addEventListener('click', openProfile);
 
   cancel.addEventListener('click', () => {
     dialog.close();
   });
 
+  // ==========================================
+  // DESAR PERFIL A SUPABASE AUTH
+  // ==========================================
+
   save.addEventListener('click', async () => {
     if (!currentUser || !client) return;
+
+    const username = usernameInput.value.trim();
+
+    if (username.length < 2 || username.length > 30) {
+      feedback.textContent =
+        'El nom d’usuari ha de tenir entre 2 i 30 caràcters.';
+      return;
+    }
 
     const next = readForm();
 
     save.disabled = true;
-    feedback.textContent = 'Desant la personalització…';
+    feedback.textContent = 'Desant el perfil…';
 
     try {
       const {data, error} = await client.auth.updateUser({
         data: {
-          cadagota_avatar: next
+          cadagota_avatar: next,
+          cadagota_username: username
         }
       });
 
@@ -642,16 +816,15 @@
       currentUser = data.user || currentUser;
       avatar = next;
 
+      profileName.textContent = username;
       avatarButton.innerHTML = drawAvatar(avatar);
-
-      feedback.textContent =
-        'Avatar desat correctament!';
 
       dialog.close();
 
     } catch (error) {
       feedback.textContent =
-        'No s’ha pogut desar: ' + error.message;
+        'No s’ha pogut desar: ' +
+        (error?.message || 'Error desconegut');
 
     } finally {
       save.disabled = false;
@@ -659,29 +832,63 @@
   });
 
   // ==========================================
-  // AUTENTICACIÓ
+  // ESTAT DE LA SESSIÓ
   // ==========================================
 
   function showUser(user) {
     currentUser = user || null;
 
-    if (!user) {
-      bar.hidden = true;
+    if (!currentUser) {
+      profileName.textContent = 'Iniciar sessió';
+      profileName.title = 'Iniciar sessió';
+
+      avatarButton.innerHTML = drawGuestAvatar();
+      avatarButton.title = 'Iniciar sessió';
+
+      avatarButton.setAttribute(
+        'aria-label',
+        'Iniciar sessió a CadaGota'
+      );
+
       return;
     }
 
     avatar = safeAvatar(
-      user.user_metadata?.cadagota_avatar
+      currentUser.user_metadata?.cadagota_avatar
     );
 
-    emailLabel.textContent = user.email || 'Usuari';
-    avatarButton.innerHTML = drawAvatar(avatar);
+    const username =
+      currentUser.user_metadata?.cadagota_username?.trim();
 
-    bar.hidden = false;
+    profileName.textContent =
+      username || 'El meu perfil';
+
+    profileName.title =
+      'Personalitzar el meu perfil';
+
+    avatarButton.innerHTML = drawAvatar(avatar);
+    avatarButton.title = 'Personalitzar avatar';
+
+    avatarButton.setAttribute(
+      'aria-label',
+      'Personalitzar el meu perfil de CadaGota'
+    );
   }
 
+  // Mostrar la gota grisa mentre es consulta la sessió.
+  showUser(null);
+
+  // ==========================================
+  // AUTENTICACIÓ SUPABASE
+  // ==========================================
+
   async function init() {
-    if (!window.supabase?.createClient) return;
+    if (!window.supabase?.createClient) {
+      console.warn(
+        'CadaGota: no s’ha pogut carregar Supabase Auth.'
+      );
+      return;
+    }
 
     client = window.supabase.createClient(
       SUPABASE_URL,
@@ -695,10 +902,16 @@
       }
     );
 
-    const {data: sessionData} =
-      await client.auth.getSession();
+    const {data, error} = await client.auth.getSession();
 
-    showUser(sessionData?.session?.user || null);
+    if (error) {
+      console.warn(
+        'No s’ha pogut recuperar la sessió:',
+        error.message
+      );
+    }
+
+    showUser(data?.session?.user || null);
 
     client.auth.onAuthStateChange((_event, session) => {
       showUser(session?.user || null);
@@ -708,3 +921,4 @@
   init();
 
 })();
+
