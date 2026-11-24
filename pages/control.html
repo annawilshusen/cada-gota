@@ -15,6 +15,13 @@ nav: panell
     <label for="auth-password">Contrasenya</label>
     <input id="auth-password" name="password" type="password" autocomplete="current-password" required>
     <button type="submit" id="auth-submit">Iniciar sessió</button>
+    <a
+      href="{{ '/pages/invitat.html' | relative_url }}"
+      class="cada-auth-secondary"
+      style="display:block;text-align:center;text-decoration:none;padding:12px;margin-top:8px;"
+    >
+      Accedir com a invitat (només lectura)
+    </a>
   </form>
 
   <div id="auth-no-access" class="cada-auth-denied" hidden>
