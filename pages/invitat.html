@@ -3,184 +3,26 @@ layout: default
 title: Control en mode invitat
 nav: panell
 ---
-
-<section class="content chapter">
+<link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}?v=20">
+<style>
+.cg-guest-notice{border-left:4px solid #407e8c;background:#e9eee5;padding:16px 20px;margin:18px 0 26px}
+.cg-guest-notice strong{color:#285c69}
+.cg-guest-notice p{margin:5px 0 0}
+.cg-guest-control input[readonly],.cg-guest-control textarea[readonly],.cg-guest-control input:disabled{background:#f2eee4;color:#35565d;opacity:1;cursor:default}
+.cg-guest-control button:disabled{opacity:.55;cursor:not-allowed}
+.cg-guest-control #cada-settings-form{display:block!important}
+.cg-guest-control .cada-auth-toolbar,.cg-guest-control .cada-consumption,.cg-guest-control .cada-settings-simulator,.cg-guest-control [data-signout],.cg-guest-control #cada-save,.cg-guest-control #cada-cal-save,.cg-guest-control #cada-request-submit,.cg-guest-control .cada-cal-actions{display:none!important}
+.cg-guest-control .cada-auth-private{display:block!important}
+.cg-guest-control .cada-calibration-heading button{display:inline-block}
+.cg-guest-control .cg-guest-unavailable{color:#566b69;font-style:italic;padding:10px 0}
+</style>
+<section class="content chapter cada-auth cg-guest-control" id="cg-guest-page">
   <p class="intro-label">CADA GOTA · ACCÉS DE LECTURA</p>
-  <h1 class="section-title">Control del reg</h1>
-
-  <p class="lead">
-    Mode invitat. Pots consultar la configuració
-    del sistema, però no modificar-la.
-  </p>
-
-  <p class="callout">
-    <strong>Només lectura.</strong>
-    Els valors que es mostren provenen de Supabase.
-    No s'enviarà cap ordre a l'Arduino.
-  </p>
-
-  <div style="display:flex;gap:12px;flex-wrap:wrap;margin:25px 0">
-    <a class="button" href="{{ '/pages/panell.html' | relative_url }}">
-      Veure les lectures i gràfiques
-    </a>
-
-    <a class="button" href="{{ '/pages/control.html' | relative_url }}">
-      Accés d'administració
-    </a>
-  </div>
-
-  <h2>Configuració de les jardineres</h2>
-  <p class="muted">
-    Valors de configuració desats actualment.
-    Els canvis només els poden fer les administradores.
-  </p>
-
-  <p id="guest-status" role="status">
-    Carregant la configuració…
-  </p>
-
-  <div id="guest-plants"
-    style="display:grid;gap:16px;margin-top:24px">
-  </div>
+  <h1 class="section-title">Control privat</h1>
+  <p class="lead">Consulta la mateixa configuració del panell d’administració, sense opcions de modificació.</p>
+  <div class="cg-guest-notice"><strong>INVITAT · NOMÉS LECTURA</strong><p>Els camps són informatius. Les modificacions i les ordres de reg estan desactivades. Qualsevol visitant amb l’enllaç pot consultar les dades publicades.</p></div>
+  <p id="cg-guest-message" class="cada-auth-message" role="status" aria-live="polite">Carregant el panell de consulta…</p>
+  <div id="cg-guest-content"></div>
+  <p><a class="cada-auth-back" href="{{ '/pages/panell.html' | relative_url }}">Tornar al panell públic</a></p>
 </section>
-
-<script>
-(() => {
-  'use strict';
-
-  const URL =
-    'https://zkzppfkjprwqdlyqkavt.supabase.co';
-
-  const KEY =
-    'sb_publishable_L0fopg_qzpYaeOstUIIK-Q_muX1VMhp';
-
-  const target = document.getElementById('guest-plants');
-  const status = document.getElementById('guest-status');
-
-  function make(tag, text) {
-    const element = document.createElement(tag);
-    if (text !== undefined) element.textContent = text;
-    return element;
-  }
-
-  function field(card, label, value) {
-    const p = make('p');
-    const strong = make('strong', `${label}: `);
-    p.append(strong, document.createTextNode(String(value)));
-    card.append(p);
-  }
-
-  async function load() {
-    try {
-      const params = new URLSearchParams({
-        select: [
-          'jardinera',
-          'nom_planta',
-          'especie',
-          'observacions',
-          'raw_sec',
-          'raw_humit',
-          'humitat_minima',
-          'humitat_maxima',
-          'mode_automatic'
-        ].join(','),
-        order: 'jardinera.asc'
-      });
-
-      const response = await fetch(
-        `${URL}/rest/v1/configuracio_reg?${params}`,
-        {
-          headers: {
-            apikey: KEY,
-            Accept: 'application/json'
-          },
-          cache: 'no-store'
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const rows = await response.json();
-      target.replaceChildren();
-
-      for (const plant of rows) {
-        const card = make('article');
-        card.className = 'panel';
-
-        card.append(
-          make(
-            'h3',
-            plant.nom_planta ||
-            `Jardinera ${plant.jardinera}`
-          )
-        );
-
-        field(
-          card,
-          'Jardinera',
-          plant.jardinera
-        );
-
-        field(
-          card,
-          'Espècie',
-          plant.especie || 'No indicada'
-        );
-
-        field(
-          card,
-          'Humitat mínima',
-          `${plant.humitat_minima}%`
-        );
-
-        field(
-          card,
-          'Humitat màxima',
-          `${plant.humitat_maxima}%`
-        );
-
-        field(
-          card,
-          'Mode',
-          plant.mode_automatic
-            ? 'Automàtic'
-            : 'Manual'
-        );
-
-        field(
-          card,
-          'Calibració en sec',
-          plant.raw_sec ?? 'Pendent'
-        );
-
-        field(
-          card,
-          'Calibració en humit',
-          plant.raw_humit ?? 'Pendent'
-        );
-
-        field(
-          card,
-          'Observacions',
-          plant.observacions || 'Sense observacions'
-        );
-
-        target.append(card);
-      }
-
-      status.textContent =
-        `${rows.length} jardineres consultades. ` +
-        'Mode de només lectura.';
-
-    } catch (error) {
-      status.textContent =
-        'No s’ha pogut carregar la configuració: ' +
-        error.message;
-    }
-  }
-
-  load();
-})();
-</script>
+<script defer src="{{ '/js/cadagota-invitat-control.js' | relative_url }}?v=2"></script>
