@@ -1,4 +1,4 @@
-/* CadaGota v25 — insígnies, rols decoratius i complements desbloquejables.
+/* CadaGota v26 — insígnies, rols decoratius i complements desbloquejables.
  * Els rols decoratius MAI concedeixen permisos Supabase.
  * Cor de CadaGota: només auth.app_metadata (servidor), no user_metadata.
  */
@@ -146,45 +146,57 @@
     labelNode.append(cb,document.createTextNode(label));complements.append(labelNode);specialInputs[id]=cb;
   }
   // Ranures: només un complement per cada zona del personatge.
-  const slots=[['seed','bow','flower','crown'],['tshirt','laptop'],['bee','cloud','stars']];
+  const slots=[['tshirt','laptop']];
   const getChoice=id=>specialInputs[id]||dialog.querySelector(`[data-avatar-accessory="${id}"]`);
   let normalizing=false;
   function exclusivity(event){
     if(normalizing)return;
     const chosen=event.target;
-    if(!(chosen instanceof HTMLInputElement)||chosen.type!=='checkbox'||!chosen.checked)return;
+    if(!(chosen instanceof HTMLInputElement)||chosen.type!=='checkbox')return;
     const id=chosen.dataset.cgSpecial||chosen.dataset.avatarAccessory;
     if(!id)return;
+    if(!chosen.checked){decorateCurrent();return;}
     const group=slots.find(arr=>arr.includes(id));
     if(group)for(const other of group){if(other!==id){const input=getChoice(other);if(input)input.checked=false;}}
-    headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
-    backSelect.value=specialInputs.stars?.checked?'stars':'';
+    // Totes les altres decoracions poden conviure; només roba/ordinador s'exclouen.
     // Recalcular el dibuix després de desmarcar els complements incompatibles.
     normalizing=true;chosen.dispatchEvent(new Event('change',{bubbles:true}));normalizing=false;
     decorateCurrent();
   }
   form.addEventListener('change',exclusivity);
   function syncSpecial(){
-    if(specialInputs.flower)specialInputs.flower.checked=headSelect.value==='flower';
-    if(specialInputs.crown)specialInputs.crown.checked=headSelect.value==='crown';
-    if(specialInputs.stars)specialInputs.stars.checked=backSelect.value==='stars';
-    const active=[...form.querySelectorAll('[data-avatar-accessory]:checked'),...Object.values(specialInputs).filter(x=>x.checked)];
-    for(const group of slots){const checked=active.filter(i=>group.includes(i.value));for(const extra of checked.slice(1))extra.checked=false;}
-    headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
-    backSelect.value=specialInputs.stars?.checked?'stars':'';
+    const decor=selectedDecor;
+    for(const id of ['flower','crown','stars']){
+      if(specialInputs[id])specialInputs[id].checked=Boolean(decor[id]);
+    }
+    const shirt=getChoice('tshirt'), laptop=getChoice('laptop');
+    if(shirt?.checked && laptop?.checked) laptop.checked=false;
     decorateCurrent();
   }
-  const stateDecor=()=>({head:headSelect.value,around:backSelect.value});
-  function validDecor(raw){const d=raw||{};const unlocked=earned();return {head:d.head==='crown'&&unlocked.has('cor')?'crown':d.head==='flower'&&unlocked.has('jornades')?'flower':'',around:d.around==='stars'&&unlocked.has('projecte')?'stars':''};}
+  // Compatible amb el format antic {head:'flower',around:'stars'}.
+  // El nou permet portar flor i corona alhora.
+  const stateDecor=()=>({
+    flower:Boolean(specialInputs.flower?.checked),
+    crown:Boolean(specialInputs.crown?.checked),
+    stars:Boolean(specialInputs.stars?.checked)
+  });
+  function validDecor(raw){
+    const d=raw||{},unlocked=earned();
+    return {
+      flower:unlocked.has('jornades') && (d.flower===true || d.head==='flower'),
+      crown:unlocked.has('cor') && (d.crown===true || d.head==='crown'),
+      stars:unlocked.has('projecte') && (d.stars===true || d.around==='stars')
+    };
+  }
   function renderDecoration(svgNode,decor){
-    if(!svgNode)return;const d=validDecor(decor);const sign=`${d.head}:${d.around}`;
+    if(!svgNode)return;const d=validDecor(decor);const sign=`${d.flower}:${d.crown}:${d.stars}`;
     const old=svgNode.querySelector('[data-cg-decor]');if(old?.getAttribute('data-sign')===sign)return;
     if(old)old.remove();
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('data-cg-decor','1');g.setAttribute('data-sign',sign);g.setAttribute('class','cg-profile-decoration');
     let code='';
-    if(d.around==='stars')code+='<path d="M19 36 l3 6 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1z M137 63 l2 5 6 1 -4 4 1 6 -5 -3 -5 3 1 -6 -4 -4 6 -1z" fill="#e3b43d"/>';
-    if(d.head==='flower')code+='<g transform="translate(82 24)"><path d="M0 0 C-20 -18 -25 0 -10 5 C-28 16 -8 28 0 12 C9 29 27 17 12 5 C29 -8 11 -17 0 0Z" fill="#efc1b1" stroke="#b9828a" stroke-width="1.4"/><circle cx="1" cy="6" r="6" fill="#e3b43d"/></g>';
-    if(d.head==='crown')code+='<path d="M55 44 L56 25 L68 32 L81 13 L94 32 L106 25 L106 44Z" fill="#b9a96b" stroke="#71875f" stroke-width="2"/><circle cx="81" cy="29" r="4" fill="#f3e5b6"/>';
+    if(d.stars)code+='<path d="M19 36 l3 6 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1z M137 63 l2 5 6 1 -4 4 1 6 -5 -3 -5 3 1 -6 -4 -4 6 -1z" fill="#e3b43d"/>';
+    if(d.flower)code+='<g transform="translate(82 24)"><path d="M0 0 C-20 -18 -25 0 -10 5 C-28 16 -8 28 0 12 C9 29 27 17 12 5 C29 -8 11 -17 0 0Z" fill="#efc1b1" stroke="#b9828a" stroke-width="1.4"/><circle cx="1" cy="6" r="6" fill="#e3b43d"/></g>';
+    if(d.crown)code+='<path d="M55 44 L56 25 L68 32 L81 13 L94 32 L106 25 L106 44Z" fill="#b9a96b" stroke="#71875f" stroke-width="2"/><circle cx="81" cy="29" r="4" fill="#f3e5b6"/>';
     g.innerHTML=code;svgNode.append(g);
   }
   let selectedDecor={head:'',around:''};
@@ -214,14 +226,14 @@
       input.title=input.disabled?`Es desbloqueja amb: ${badge(need).name}`:'';
     }
     selectedDecor=validDecor(user?.user_metadata?.cadagota_decoration);
-    if(!dialog.open){headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;syncSpecial();}
+    if(!dialog.open)syncSpecial();
     decorateCurrent();
   }
   // En obrir la personalització, carregar el rol i decoracions actuals.
   const originalShow=()=>{
     roleSelect.value=ROLES.includes(user?.user_metadata?.cadagota_role)?user.user_metadata.cadagota_role:'Alumnat';
     selectedDecor=validDecor(user?.user_metadata?.cadagota_decoration);
-    headSelect.value=selectedDecor.head;backSelect.value=selectedDecor.around;updateLocked();syncSpecial();
+    updateLocked();syncSpecial();
   };
   const openObserver=new MutationObserver(()=>{if(dialog.open)originalShow();});
   openObserver.observe(dialog,{attributes:true,attributeFilter:['open']});
@@ -237,12 +249,9 @@
     try{
       const color=form.querySelector('input[name="cg-avatar-color"]:checked')?.value||'blau';
       const face=form.querySelector('input[name="cg-avatar-face"]:checked')?.value||'happy';
-      headSelect.value=specialInputs.flower?.checked?'flower':specialInputs.crown?.checked?'crown':'';
-      backSelect.value=specialInputs.stars?.checked?'stars':'';
       const extras=[...form.querySelectorAll('[data-avatar-accessory]:checked')].filter(i=>!i.disabled&&(!UNLOCK[i.value]||earned().has(UNLOCK[i.value]))).map(i=>i.value);
-      // Ranura única: cabell/cap; ulleres; roba; mà; voltant.
-      const slots=[['seed','bow'],['tshirt','laptop']];
-      for(const group of slots){const present=group.filter(id=>extras.includes(id));for(const duplicate of present.slice(1))extras.splice(extras.indexOf(duplicate),1);}
+      // L'unica incompatibilitat és samarreta Girls In Tech / ordinador.
+      if(extras.includes('tshirt')&&extras.includes('laptop'))extras.splice(extras.indexOf('laptop'),1);
       const next={color,face,accessories:extras};
       const hadFirst=earned().has('primera');
       const nextBadges=hadFirst?own():[...new Set([...own(),'primera'])];

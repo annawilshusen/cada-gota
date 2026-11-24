@@ -1,4 +1,4 @@
-/* CadaGota v24 — perfil unificat i mode invitat sense compte. */
+/* CadaGota v26 — perfil unificat i mode invitat sense compte. */
 (() => {
   'use strict';
   const SUPABASE_URL = 'https://zkzppfkjprwqdlyqkavt.supabase.co';
@@ -20,19 +20,31 @@
     .site-header .cg-profile-bar:hover,.site-header .cg-profile-bar:focus-within{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.32)}
     .site-header .cg-profile-bar:hover .cg-profile-name,.site-header .cg-profile-bar:hover .cg-avatar-button{filter:brightness(1.17)}
     .cg-role-small{font-size:.67rem;color:#f6efdb;opacity:.82;white-space:nowrap}
+    .site-header .cg-profile-identity-stack{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;min-width:0;line-height:1.18}
+    .site-header .cg-profile-identity-stack .cg-profile-name{padding:0;text-align:left;max-width:195px}
+    .site-header .cg-profile-identity-stack .cg-role-small{display:block;font-size:.72rem;font-weight:400;line-height:1.4;color:#f6efdb;opacity:.86;max-width:195px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     .cg-profile-menu{position:absolute;top:calc(100% + 9px);right:0;z-index:101;min-width:215px;background:#fffaf0;border:1px solid #b5c9c0;box-shadow:0 12px 30px #173a4933;padding:6px;cursor:default}
     .cg-profile-menu[hidden]{display:none!important}
     .cg-profile-menu button{display:block;width:100%;text-align:left;font:inherit;font-size:.87rem;color:#28525b;background:none;border:0;padding:12px;cursor:pointer}
     .cg-profile-menu button:hover,.cg-profile-menu button:focus-visible{background:#e7eee7}
     .cg-avatar-signout{margin-right:auto!important;color:#944c43!important;border-color:#c5a098!important}
     .site-header .cg-avatar-button{overflow:hidden!important}
-    @media(max-width:1040px){.cg-role-small{display:none}}
-    @media(max-width:640px){.site-header .identity span{display:none!important}.site-header .cg-profile-name{display:none!important}.site-header .cg-profile-bar{margin-left:auto;padding:2px 4px}.site-header .menu-toggle{order:3}.site-header .header-inner{gap:8px}.site-header .cg-avatar-button{width:38px;height:38px}}
+    @media(max-width:1040px){.site-header .cg-profile-identity-stack .cg-role-small{display:block}}
+    @media(max-width:640px){.site-header .identity span{display:none!important}.site-header .cg-profile-identity-stack{display:none!important}.site-header .cg-profile-name{display:none!important}.site-header .cg-profile-bar{margin-left:auto;padding:2px 4px}.site-header .menu-toggle{order:3}.site-header .header-inner{gap:8px}.site-header .cg-avatar-button{width:38px;height:38px}}
     @media(max-width:380px){.site-header .header-inner{padding-inline:12px;gap:5px}.site-header .identity img{width:36px;height:36px}.site-header .cg-avatar-button{width:34px;height:34px}}
   `;
   document.head.append(style);
   const menu = document.createElement('div');menu.className='cg-profile-menu';menu.hidden=true;bar.append(menu);
-  const roleTag=document.createElement('span');roleTag.className='cg-role-small';avatar.before(roleTag);
+  // Nom i rol apilats dins del mateix control conjunt amb l'avatar.
+  const identityStack=document.createElement('span');
+  identityStack.className='cg-profile-identity-stack';
+  name.before(identityStack);
+  identityStack.append(name);
+  const roleTag=document.createElement('span');
+  roleTag.className='cg-role-small';
+  identityStack.append(roleTag);
+
   function showGuest(){name.textContent='Invitat';avatar.innerHTML=guestGraphic;avatar.title='Entrar amb un compte';roleTag.textContent='';}
   function directLogin(){
     const here = location.pathname + location.search + location.hash;
