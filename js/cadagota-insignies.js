@@ -39,6 +39,20 @@
     // Sense notificacions externes, només a la web oberta.
     setTimeout(()=>toast.remove(),8000);
   }
+  const goldRingStyle = document.createElement('style');
+  
+  goldRingStyle.textContent = `
+    .site-header .cg-avatar-button.cg-cor-daurat {
+      border: 3px solid #D4AF37;
+      box-shadow:
+        0 0 0 1px rgba(255, 240, 180, 0.45),
+        0 0 12px rgba(212, 175, 55, 0.35);
+      background: rgba(255, 215, 100, 0.12);
+    }
+  `;
+  
+  document.head.append(goldRingStyle);
+  
   const css=document.createElement('style');css.textContent=`
     .cg-badges-dialog{width:min(700px,calc(100vw - 24px));max-height:88vh;overflow:auto;padding:clamp(20px,4vw,32px);border:1px solid #96b4ae;color:#244f58;background:#fffaf0;box-shadow:0 15px 44px #12334233}
     .cg-badges-dialog::backdrop{background:#12344388}
@@ -210,6 +224,10 @@
   new MutationObserver(decorateCurrent).observe(avatar,{childList:true,subtree:false});
   function updateLocked(){
     const unlocked=earned();
+    avatar.classList.toggle(
+      'cg-cor-daurat',
+      unlocked.has('cor')
+    );
     for(const [accessory,need] of Object.entries(UNLOCK)){
       const input=dialog.querySelector(`[data-avatar-accessory="${accessory}"]`);if(!input)continue;
       const allowed=unlocked.has(need);
