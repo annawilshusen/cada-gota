@@ -16,8 +16,6 @@ if (toggle && nav) {
 
 // Missatges de la franja inferior — edita'ls aquí sense tocar l'HTML.
 const tickerMessages = [
-
-const tickerMessages = [
   "No et mullis!",
   "No t’ofeguis en un got d’aigua.",
   "Quan no et sentis inspirat, prova de fer una pluja d’idees.",
@@ -62,7 +60,6 @@ const tickerMessages = [
   "Sí, aquesta web té frases que es mouen per sota. No, no era imprescindible per al TDR.",
   "Si has llegit tres missatges seguits, revisa que no t’hagis deixat l’aixeta oberta.",
   "Si trobes una errada ortogràfica, és una oportunitat per posar en pràctica el pensament crític."
-];
 
 ];
 const ticker = document.querySelector('.news-ticker');
