@@ -82,7 +82,8 @@
       'cada-min': row.humitat_minima,
       'cada-max': row.humitat_maxima,
       'cada-duration': row.temps_maxim_segons,
-      'cada-auto': row.mode_automatic
+      'cada-auto': row.mode_automatic,
+      'cada-sensor-connectat': row.sensor_connectat
     };
     Object.entries(values).forEach(([id,v]) => setValue(id,v));
     setText('cada-config-message', 'Configuració de només lectura · dades desades a Supabase.');
@@ -93,7 +94,7 @@
   async function loadConfig() {
     setStatus('Actualitzant la configuració…');
     try {
-      const fields = 'jardinera,nom_planta,especie,observacions,raw_sec,raw_humit,humitat_minima,humitat_maxima,mode_automatic,data_plantacio,temps_maxim_segons';
+      const fields = 'jardinera,nom_planta,especie,observacions,raw_sec,raw_humit,humitat_minima,humitat_maxima,mode_automatic,sensor_connectat,data_plantacio,temps_maxim_segons';
       // L'RLS/grants públics poden excloure data_plantacio i temps_maxim_segons;
       // en aquest cas es consulta una versió reduïda, sense demanar més permisos.
       try {
@@ -101,7 +102,7 @@
       } catch (e) {
         if (!/HTTP 40[013]/.test(e.message)) throw e;
         configs = await getPublic('configuracio_reg', new URLSearchParams({
-          select:'jardinera,nom_planta,especie,observacions,raw_sec,raw_humit,humitat_minima,humitat_maxima,mode_automatic',
+          select:'jardinera,nom_planta,especie,observacions,raw_sec,raw_humit,humitat_minima,humitat_maxima,mode_automatic,sensor_connectat',
           order:'jardinera.asc'
         }));
       }
@@ -123,6 +124,10 @@
   }
   async function loadTelemetry() {
     const selected = Number($('cada-zone')?.value || 1);
+    if (configs.find(row => Number(row.jardinera) === selected)?.sensor_connectat === false) {
+      setText('cada-cal-status', 'Sensor desactivat.');
+      return;
+    }
     try {
       const rows = await getPublic('telemetria_arduino',new URLSearchParams({
         select:'humitat_raw,created_at',jardinera:`eq.${selected}`,order:'created_at.desc',limit:'20'

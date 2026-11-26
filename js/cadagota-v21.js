@@ -399,7 +399,8 @@
   function buildPlant(i) {
     const config = configFor(i);
 
-    const row = state.rows.find(reading => reading.jardinera === i) || null;
+    const disabled = config?.sensor_connectat === false;
+    const row = disabled ? null : state.rows.find(reading => reading.jardinera === i) || null;
     const connected = Boolean(row);
 
     const date = row ? validDate(row.created_at) : null;
@@ -437,19 +438,19 @@
       node(
         'p',
         'cg-kicker',
-        `JARDINERA ${String(i).padStart(2, '0')} · ${
-          connected ? `SENSOR A${i - 1}` : 'SENSE LECTURES'
-        }`
+        `JARDINERA ${String(i).padStart(2, '0')} · PIN A${i - 1}`
       ),
       node('h2', '', name),
       node('em', 'cg-species', species)
     );
 
-    const label = connected
-      ? row && !stale
-        ? 'Lectures recents'
-        : 'Darrera lectura antiga'
-      : 'No connectada';
+    const label = disabled
+      ? 'Pendent de connectar'
+      : !row
+        ? 'Pendent de lectura'
+        : stale
+          ? 'Darrera lectura antiga'
+          : 'Lectura recent';
 
     head.append(
       heading,
@@ -500,7 +501,7 @@
       ? '—'
       : `${fmt.format(humidity)}%`;
 
-    let humidityDescription = 'Sense sensor';
+    let humidityDescription = disabled ? 'Sensor desactivat' : 'Esperant lectures';
 
     if (connected) {
       if (!row) {
@@ -545,7 +546,7 @@
         ? 'ON'
         : 'OFF';
 
-    let relayDescription = 'Sense relé';
+    let relayDescription = disabled ? 'Reg desactivat' : 'Esperant lectures';
 
     if (connected) {
       if (relay === null) {
@@ -1188,7 +1189,9 @@
 
     target.replaceChildren();
 
-    const connected = [...new Set(state.rows.map(row => row.jardinera))].sort((a, b) => a - b);
+    const connected = [...new Set(state.rows.map(row => row.jardinera))]
+      .filter(number => configFor(number)?.sensor_connectat !== false)
+      .sort((a, b) => a - b);
 
     const elements = connected.map(number => {
       const latest = state.rows.find(row => row.jardinera === number);
@@ -1265,7 +1268,7 @@
     }
 
     renderTank(latest);
-    renderAlerts(state.rows.find(row => row.jardinera === 1) || latest);
+    renderAlerts(state.rows.find(row => configFor(row.jardinera)?.sensor_connectat !== false) || null);
     renderStats();
     renderCompare();
 
@@ -1317,7 +1320,7 @@
             select:
               'jardinera,nom_planta,especie,observacions,' +
               'raw_sec,raw_humit,humitat_minima,' +
-              'humitat_maxima,mode_automatic',
+              'humitat_maxima,mode_automatic,sensor_connectat',
             order: 'jardinera.asc',
             limit: '6'
           })

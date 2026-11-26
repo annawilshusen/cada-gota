@@ -30,6 +30,7 @@
   const maxInput = document.getElementById('cada-max');
   const durationInput = document.getElementById('cada-duration');
   const autoInput = document.getElementById('cada-auto');
+  const sensorInput = document.getElementById('cada-sensor-connectat');
   const plantNameInput = document.getElementById('cada-plant-name');
   const plantSpeciesInput = document.getElementById('cada-plant-species');
   const plantDateInput = document.getElementById('cada-plant-date');
@@ -110,12 +111,13 @@
     async function loadSettings() {
       const zone=zoneNumber();
       currentConfig=null;show(configForm,false);settingsInfo('Carregant la configuració…');
-      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions,raw_sec,raw_humit').eq('jardinera',zone).maybeSingle();
+      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,sensor_connectat,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions,raw_sec,raw_humit').eq('jardinera',zone).maybeSingle();
       if(zoneNumber()!==zone)return;
       if(error||!data){settingsInfo('No es pot consultar la configuració. Comprova que hagis executat supabase/plantes-editables-v17.sql i que tens permisos.',true);return;}
       currentConfig=data;
       minInput.value=data.humitat_minima;maxInput.value=data.humitat_maxima;
       durationInput.value=data.temps_maxim_segons;autoInput.checked=data.mode_automatic;
+      sensorInput.checked=data.sensor_connectat===true;
       plantNameInput.value=data.nom_planta ?? '';
       plantSpeciesInput.value=data.especie ?? '';
       plantDateInput.value=data.data_plantacio ?? '';
@@ -389,7 +391,7 @@
         }
         const payload={
           humitat_minima:min,humitat_maxima:max,
-          mode_automatic:autoInput.checked,temps_maxim_segons:secs,
+          mode_automatic:autoInput.checked,sensor_connectat:sensorInput.checked,temps_maxim_segons:secs,
           nom_planta:name || null,especie:species || null,
           data_plantacio:plantDateInput.value || null,
           observacions:notes || null,
