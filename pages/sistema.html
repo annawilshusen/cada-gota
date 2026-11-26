@@ -1,7 +1,16 @@
 ---
 layout: default
-title: Redirecció
-nav: projecte
+title: Sistema de reg
+nav: sistema
+description: Disseny i construcció del sistema de reg de CadaGota.
 ---
-<div class="content"><p>Aquest apartat s'ha traslladat a <a href="{{ '/capitols/reg.html' | relative_url }}">la seva pàgina dins del projecte</a>.</p></div>
-<script>window.location.replace("{{ '/capitols/reg.html' | relative_url }}");</script>
+<article class="content chapter">
+  <h1 class="section-title">Sistema de reg</h1>
+  <p class="lead">Hem construït un sistema de reg que decideix quan cal aportar aigua a les jardineres de l’escola a partir de la humitat de la terra.</p>
+  <h2>Disseny i construcció</h2>
+  <p>El muntatge està preparat per a sis jardineres. Cadascuna té una entrada assignada per al sensor d’humitat i un relé per obrir l’electrovàlvula que li correspon. Un flotador al dipòsit compartit informa l’Arduino de si hi ha prou aigua per regar.</p>
+  <h2>Quan es rega?</h2>
+  <p>Quan la humitat és inferior al llindar configurat, l’Arduino pot obrir l’electrovàlvula de la jardinera. El reg s’atura quan la terra arriba al llindar superior, quan s’esgota el temps màxim o quan el flotador indica que falta aigua. Les jardineres es reguen d’una en una.</p>
+  <p><a class="button button-light" href="{{ '/pages/panell.html' | relative_url }}">Obrir el panell de reg</a></p>
+  <p><a class="inline-link" href="{{ '/capitols/reg.html' | relative_url }}">Llegir el capítol de reg del treball de recerca →</a></p>
+</article>

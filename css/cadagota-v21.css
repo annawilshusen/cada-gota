@@ -49,3 +49,19 @@
 @media(max-width:720px){.cg-watercycle-steps{grid-template-columns:1fr}.cg-watercycle-steps:before{left:21px}.cg-water-stop{min-height:0}.cg-tank-card{grid-template-columns:1fr}.cg-indicators{gap:5px}.cg-indicator small{font-size:.7rem}.cg-stat-grid{grid-template-columns:1fr}.cg-alert{flex-direction:column;gap:4px}}
 @media(max-width:420px){.cg-plant{padding:15px}.cg-ring-text{font-size:18px}.cg-clock-text{font-size:13px}.cg-plant-head{flex-direction:column}.cg-indicator-title{font-size:.78rem}}
 @media(prefers-reduced-motion:reduce){.cg-water-stop{transition:none}}
+
+/* Targetes compactes del panell de reg. */
+.cg-plant-nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.cg-plant-nav a{display:grid;place-items:center;min-width:44px;min-height:44px;padding:0 9px;border:1px solid var(--cg-border);color:#254d52;background:var(--cg-paper);text-decoration:none;font-weight:700}
+.cg-plant-nav a:hover,.cg-plant-nav a:focus-visible{background:#e0ebe5}
+.cg-plants{gap:10px;margin-top:14px}
+.cg-plant{padding:16px;scroll-margin-top:90px}
+.cg-plant:target{outline:2px solid #438b97;outline-offset:2px}
+.cg-plant-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:16px}
+.cg-plant-head h2{font-size:clamp(1.35rem,2.3vw,1.9rem);margin:4px 0}
+.cg-plant-head .cg-pill{display:table;margin-top:6px}
+.cg-indicators{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+.cg-indicator{text-align:left;padding:6px 8px}
+.cg-indicator-value{display:block;font-size:1.25rem;color:#254d52}
+.cg-chart-details{margin-top:10px}
+@media(max-width:620px){.cg-plant-head{grid-template-columns:1fr;gap:10px}}

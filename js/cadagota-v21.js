@@ -147,156 +147,13 @@
     ) || null;
   }
 
-  // ============================================
-  // INDICADORS CIRCULARS
-  // ============================================
-
-  function ring(value, color, label) {
-    const radius = 44;
-    const circumference = 2 * Math.PI * radius;
-
-    const s = svg('svg', {
-      viewBox: '0 0 110 110',
-      class: 'cg-ring-svg',
-      'aria-hidden': 'true'
-    });
-
-    s.append(
-      svg('circle', {
-        cx: 55,
-        cy: 55,
-        r: radius,
-        fill: 'none',
-        stroke: '#dae4df',
-        'stroke-width': 6
-      })
-    );
-
-    if (value !== null) {
-      const progress = Math.max(
-        0,
-        Math.min(100, Number(value))
-      );
-
-      s.append(
-        svg('circle', {
-          cx: 55,
-          cy: 55,
-          r: radius,
-          fill: 'none',
-          stroke: color,
-          'stroke-width': 6,
-          'stroke-linecap': 'round',
-          'stroke-dasharray':
-            `${circumference * progress / 100} ${circumference}`,
-          transform: 'rotate(-90 55 55)'
-        })
-      );
-    }
-
-    s.append(
-      svg('text', {
-        x: 55,
-        y: 61,
-        'text-anchor': 'middle',
-        class: 'cg-ring-text'
-      }, label)
-    );
-
-    return s;
-  }
-
-  // ============================================
-  // RELLOTGE DE TRES ANELLS
-  // ============================================
-
-  function clock(value) {
-    const d = validDate(value);
-
-    if (!d) {
-      return ring(null, '#8caaa9', '—');
-    }
-
-    const s = svg('svg', {
-      viewBox: '0 0 110 110',
-      class: 'cg-ring-svg',
-      'aria-hidden': 'true'
-    });
-
-    const parts = [
-      [
-        (d.getHours() % 12 +
-          d.getMinutes() / 60 +
-          d.getSeconds() / 3600) / 12,
-        44,
-        '#497f8c'
-      ],
-      [
-        (d.getMinutes() + d.getSeconds() / 60) / 60,
-        36,
-        '#739a83'
-      ],
-      [
-        d.getSeconds() / 60,
-        28,
-        '#bb9760'
-      ]
-    ];
-
-    for (const [progress, radius, color] of parts) {
-      const circumference = 2 * Math.PI * radius;
-
-      s.append(
-        svg('circle', {
-          cx: 55,
-          cy: 55,
-          r: radius,
-          fill: 'none',
-          stroke: '#e5e8df',
-          'stroke-width': 3.5
-        })
-      );
-
-      s.append(
-        svg('circle', {
-          cx: 55,
-          cy: 55,
-          r: radius,
-          fill: 'none',
-          stroke: color,
-          'stroke-width': 3.5,
-          'stroke-linecap': 'round',
-          'stroke-dasharray':
-            `${circumference * progress} ${circumference}`,
-          transform: 'rotate(-90 55 55)'
-        })
-      );
-    }
-
-    s.append(
-      svg('text', {
-        x: 55,
-        y: 59,
-        'text-anchor': 'middle',
-        class: 'cg-clock-text'
-      }, d.toLocaleTimeString('ca-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
-      }))
-    );
-
-    return s;
-  }
-
-  function indicator(title, figure, description, visual) {
+  function indicator(title, figure, description) {
     const box = node('div', 'cg-indicator');
-
     box.append(
-      visual,
-      node('strong', 'cg-indicator-title', title),
+      node('span', 'cg-indicator-title', title),
+      node('strong', 'cg-indicator-value', figure),
       node('small', '', description)
     );
-
     return box;
   }
 
@@ -349,48 +206,6 @@
   // ============================================
   // DIAGNOSTIC DEL RELE
   // ============================================
-
-  function diag(row, config, stale) {
-    if (!row) {
-      return 'No hi ha lectures reals';
-    }
-
-    if (stale) {
-      return 'Sense telemetria recent · estat físic desconegut';
-    }
-
-    if (row.diposit_ok === false) {
-      return 'Nivell d’aigua insuficient';
-    }
-
-    if (row.bomba_activa === true) {
-      return 'Relé activat segons Arduino';
-    }
-
-    if (config && config.mode_automatic === false) {
-      return 'Mode automàtic desactivat';
-    }
-
-    if (config) {
-      const p = percent(row.humitat_raw, config);
-
-      if (
-        p !== null &&
-        p >= config.humitat_maxima
-      ) {
-        return 'Humitat suficient';
-      }
-
-      if (
-        p !== null &&
-        p < config.humitat_minima
-      ) {
-        return 'Humitat baixa · possible bloqueig temporal';
-      }
-    }
-
-    return 'Relé desactivat · motiu no comunicat';
-  }
 
   // ============================================
   // FITXES DE LES SIS PLANTES
@@ -446,49 +261,20 @@
 
     const label = disabled
       ? 'Pendent de connectar'
-      : !row
-        ? 'Pendent de lectura'
-        : stale
-          ? 'Darrera lectura antiga'
-          : 'Lectura recent';
+      : config?.sensor_connectat === true || row
+        ? 'Connectada'
+        : 'Pendent de lectura';
 
-    head.append(
-      heading,
-      node(
-        'span',
-        'cg-pill ' +
-          (connected ? 'cg-connected' : 'cg-inactive'),
-        label
-      )
-    );
-
+    heading.append(node('span', 'cg-pill ' +
+      (label === 'Connectada' ? 'cg-connected' : 'cg-inactive'), label));
+    head.append(heading);
     wrap.append(head);
 
-    // OBSERVACIONS
-
-    wrap.append(
-      node(
-        'p',
-        'cg-notes',
-        config?.observacions?.trim() ||
-        'Sense observacions registrades.'
-      )
-    );
-
-    // ========================================
+    // ============================================
     // HUMITAT
     // ========================================
 
-    // NOVETAT v21.3:
-    // Mostrem l'ultima humitat registrada
-    // encara que la lectura sigui antiga.
-
-    const humidity = row
-      ? percent(row.humitat_raw, config)
-      : null;
-
-    // En canvi, l'estat actual del rele
-    // nomes es mostra si la lectura es recent.
+    const humidity = row ? percent(row.humitat_raw, config) : null;
 
     const relay =
       row && !stale
@@ -497,107 +283,26 @@
 
     const values = node('div', 'cg-indicators');
 
-    const humidityText = humidity === null
-      ? '—'
-      : `${fmt.format(humidity)}%`;
+    const humidityText = humidity !== null
+      ? `${fmt.format(humidity)}%`
+      : row ? `${row.humitat_raw} RAW` : '—';
 
-    let humidityDescription = disabled ? 'Sensor desactivat' : 'Esperant lectures';
+    const humidityDescription = row
+      ? (humidity === null ? 'Calibració pendent' : `${row.humitat_raw} RAW`)
+      : (disabled ? 'Sensor desactivat' : 'Esperant lectures');
 
-    if (connected) {
-      if (!row) {
-        humidityDescription =
-          'Encara no hi ha lectures reals';
-
-      } else if (humidity === null) {
-        humidityDescription =
-          `${row.humitat_raw} RAW · calibració pendent`;
-
-      } else if (stale) {
-        humidityDescription =
-          `${row.humitat_raw} RAW · ` +
-          `Lectura de ${timeAge(row.created_at).toLowerCase()}`;
-
-      } else {
-        humidityDescription =
-          `${row.humitat_raw} RAW · escala calibrada`;
-      }
-    }
+    const relayText = relay === null ? '—' : relay ? 'ON' : 'OFF';
+    const relayDescription = disabled
+      ? 'Reg desactivat'
+      : relay === null
+        ? (row ? 'Estat actual desconegut' : 'Esperant lectures')
+        : 'Estat a la lectura';
 
     values.append(
-      indicator(
-        'Humitat del sòl',
-        humidityText,
-        humidityDescription,
-        ring(
-          humidity,
-          '#438b97',
-          humidityText
-        )
-      )
+      indicator('Humitat del sòl', humidityText, humidityDescription),
+      indicator('Estat del relé', relayText, relayDescription)
     );
-
-    // ========================================
-    // ESTAT DEL RELE
-    // ========================================
-
-    const relayText = relay === null
-      ? '—'
-      : relay
-        ? 'ON'
-        : 'OFF';
-
-    let relayDescription = disabled ? 'Reg desactivat' : 'Esperant lectures';
-
-    if (connected) {
-      if (relay === null) {
-        relayDescription = row
-          ? `Estat actual no verificat · ` +
-            `última lectura ${timeAge(row.created_at).toLowerCase()}`
-          : 'Estat actual no verificat';
-      } else {
-        relayDescription = diag(row, config, stale);
-      }
-    }
-
-    values.append(
-      indicator(
-        'Estat del relé',
-        relayText,
-        relayDescription,
-        ring(
-          relay === null
-            ? null
-            : relay
-              ? 100
-              : 0,
-          '#8d986e',
-          relayText
-        )
-      )
-    );
-
-    // ========================================
-    // ULTIMA LECTURA
-    // ========================================
-
-    const time = date
-      ? datefmt.format(date)
-      : 'Sense lectures';
-
-    values.append(
-      indicator(
-        'Última lectura',
-        time,
-        row
-          ? stale
-            ? `${timeAge(row.created_at)} · lectura antiga`
-            : timeAge(row.created_at)
-          : 'Pendent de connexió',
-        clock(row?.created_at)
-      )
-    );
-
-    wrap.append(values);
+    head.append(values);
 
     // ========================================
     // GRAFICA DESPLEGABLE
@@ -1073,8 +778,7 @@
       add(
         'warn',
         'Possible desconnexió',
-        `Última lectura: ${timeAge(latest.created_at)}. ` +
-        'Aquest avís només es mostra amb la web oberta.'
+        `Última lectura: ${timeAge(latest.created_at)}.`
       );
     } else if (age > 90000) {
       add(
@@ -1110,71 +814,6 @@
         'Pot ser degut al bloqueig temporal. ' +
         'El firmware actual no comunica el motiu exacte.'
       );
-    }
-  }
-
-  // ============================================
-  // ESTADISTIQUES DEL RELE
-  // ============================================
-
-  function renderStats() {
-    const rows = state.rows.filter(row => row.jardinera === 1).sort(
-      (a, b) =>
-        new Date(a.created_at) - new Date(b.created_at)
-    );
-
-    let count = 0;
-    let seconds = 0;
-    let gaps = 0;
-
-    for (let i = 1; i < rows.length; i++) {
-      const previous = rows[i - 1];
-      const current = rows[i];
-
-      const dt =
-        (new Date(current.created_at) -
-          new Date(previous.created_at)) / 1000;
-
-      if (
-        !Number.isFinite(dt) ||
-        dt < 0
-      ) {
-        continue;
-      }
-
-      if (dt > 90) {
-        gaps++;
-        continue;
-      }
-
-      if (
-        previous.bomba_activa === false &&
-        current.bomba_activa === true
-      ) {
-        count++;
-      }
-
-      if (
-        previous.bomba_activa === true &&
-        current.bomba_activa === true
-      ) {
-        seconds += dt;
-      }
-    }
-
-    if ($('cg-activations')) {
-      $('cg-activations').textContent = String(count);
-    }
-
-    if ($('cg-runtime')) {
-      $('cg-runtime').textContent =
-        seconds
-          ? `${Math.round(seconds)} s`
-          : '0 s';
-    }
-
-    if ($('cg-gaps')) {
-      $('cg-gaps').textContent = String(gaps);
     }
   }
 
@@ -1260,16 +899,22 @@
     const plants = $('cg-plants');
 
     if (plants) {
-      plants.replaceChildren();
-
+      const openCharts = new Set(
+        [...plants.querySelectorAll('.cg-chart-details[open]')]
+          .map(details => details.closest('.cg-plant').id)
+      );
+      const cards = [];
       for (let i = 1; i <= 6; i++) {
-        plants.append(buildPlant(i));
+        const card = buildPlant(i);
+        const chart = card.querySelector('.cg-chart-details');
+        if (chart && openCharts.has(card.id)) chart.open = true;
+        cards.push(card);
       }
+      plants.replaceChildren(...cards);
     }
 
     renderTank(latest);
     renderAlerts(state.rows.find(row => configFor(row.jardinera)?.sensor_connectat !== false) || null);
-    renderStats();
     renderCompare();
 
     const status = $('cg-status');
@@ -1279,9 +924,10 @@
         status.textContent =
           'Hi ha incidències en la consulta de dades.';
       } else if (latest) {
-        status.textContent =
-          `Darrera lectura: ${timeAge(latest.created_at)} · ` +
-          'Telemetria real de l’Arduino';
+        const date = validDate(latest.created_at);
+        const age = date ? Date.now() - date.getTime() : Infinity;
+        status.textContent = `Última lectura rebuda · ${date ? datefmt.format(date) : 'hora desconeguda'}` +
+          (age > 90000 || age < -30000 ? ' · Lectura antiga o amb hora incorrecta' : '');
       } else {
         status.textContent =
           'Sense lectures reals disponibles';
