@@ -22,7 +22,7 @@
     .cg-role-small{font-size:.67rem;color:#f6efdb;opacity:.82;white-space:nowrap}
     .site-header .cg-profile-identity-stack{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;min-width:0;line-height:1.18}
     .site-header .cg-profile-identity-stack .cg-profile-name{padding:0;text-align:left;max-width:195px}
-    .site-header .cg-profile-identity-stack .cg-role-small{display:block;font-size:.72rem;font-weight:400;line-height:1.4;color:#f6efdb;opacity:.86;max-width:195px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .site-header .cg-profile-identity-stack .cg-role-small{display:block;align-self:stretch;text-align:right;font-size:.72rem;font-weight:400;line-height:1.4;color:#f6efdb;opacity:.86;max-width:195px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
     .cg-profile-menu{position:absolute;top:calc(100% + 9px);right:0;z-index:101;min-width:215px;background:#fffaf0;border:1px solid #b5c9c0;box-shadow:0 12px 30px #173a4933;padding:6px;cursor:default}
     .cg-profile-menu[hidden]{display:none!important}
