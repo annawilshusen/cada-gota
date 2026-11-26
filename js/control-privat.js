@@ -31,6 +31,7 @@
   const durationInput = document.getElementById('cada-duration');
   const autoInput = document.getElementById('cada-auto');
   const sensorInput = document.getElementById('cada-sensor-connectat');
+  const sensorStatus = document.getElementById('cada-sensor-status');
   const plantNameInput = document.getElementById('cada-plant-name');
   const plantSpeciesInput = document.getElementById('cada-plant-species');
   const plantDateInput = document.getElementById('cada-plant-date');
@@ -118,6 +119,7 @@
       minInput.value=data.humitat_minima;maxInput.value=data.humitat_maxima;
       durationInput.value=data.temps_maxim_segons;autoInput.checked=data.mode_automatic;
       sensorInput.checked=data.sensor_connectat===true;
+      sensorStatus.textContent='El canvi del sensor es desa automàticament.';
       plantNameInput.value=data.nom_planta ?? '';
       plantSpeciesInput.value=data.especie ?? '';
       plantDateInput.value=data.data_plantacio ?? '';
@@ -364,6 +366,42 @@
     }
     consumption.refresh.addEventListener('click',loadConsumption);
     [consumption.source,consumption.period,consumption.zone].forEach(sel=>sel.addEventListener('change',loadConsumption));
+    sensorInput.addEventListener('change', async () => {
+      const zone = zoneNumber();
+      if (currentConfig?.jardinera !== zone) return;
+
+      const connected = sensorInput.checked;
+      sensorInput.disabled = true;
+      sensorStatus.textContent = 'Desant l’estat del sensor…';
+
+      try {
+        if (!(await hasAccess())) throw new Error('Cal una sessió d’administradora.');
+        const { data, error } = await client.from('configuracio_reg')
+          .update({ sensor_connectat: connected })
+          .eq('jardinera', zone)
+          .select('sensor_connectat')
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data || data.sensor_connectat !== connected) {
+          throw new Error('Supabase no ha confirmat el canvi.');
+        }
+
+        if (currentConfig?.jardinera === zone) {
+          currentConfig.sensor_connectat = data.sensor_connectat;
+          sensorInput.checked = data.sensor_connectat;
+          sensorStatus.textContent = connected ? 'Sensor activat i desat.' : 'Sensor desactivat i desat.';
+        }
+      } catch (error) {
+        if (currentConfig?.jardinera === zone) {
+          sensorInput.checked = currentConfig.sensor_connectat === true;
+          sensorStatus.textContent = `No s’ha pogut desar el sensor. ${error.message}`;
+        }
+      } finally {
+        sensorInput.disabled = false;
+      }
+    });
+
     configForm.addEventListener('submit',async ev=>{
       ev.preventDefault();
       const zone=zoneNumber();
@@ -391,7 +429,7 @@
         }
         const payload={
           humitat_minima:min,humitat_maxima:max,
-          mode_automatic:autoInput.checked,sensor_connectat:sensorInput.checked,temps_maxim_segons:secs,
+          mode_automatic:autoInput.checked,temps_maxim_segons:secs,
           nom_planta:name || null,especie:species || null,
           data_plantacio:plantDateInput.value || null,
           observacions:notes || null,

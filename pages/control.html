@@ -76,6 +76,7 @@ nav: panell
         <label>Humitat màxima (%)<input type="number" name="max" id="cada-max" min="10" max="95" step="1" required></label>
         <label>Temps màxim de reg (segons)<input type="number" name="duration" id="cada-duration" min="5" max="120" step="1" required></label>
         <label class="cada-settings-checkbox"><input type="checkbox" id="cada-sensor-connectat"> Sensor connectat</label>
+        <p class="muted" id="cada-sensor-status" role="status"></p>
         <label class="cada-settings-checkbox"><input type="checkbox" id="cada-auto"> Mode automàtic</label>
       </div>
       <p class="muted">La humitat màxima ha de superar la mínima en 5 punts com a mínim. Els percentatges del control són llindars orientatius; s’interpretaran segons la calibració del sensor. Encara no s’apliquen a l’Arduino.</p>
@@ -128,6 +129,6 @@ nav: panell
 </section>
 <link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}?v=20">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script defer src="{{ '/js/control-privat.js' | relative_url }}?v=23"></script>
+<script defer src="{{ '/js/control-privat.js' | relative_url }}?v=24"></script>
 <script defer src="{{ '/js/cadagota-control-v21.js' | relative_url }}?v=22"></script>
 <script defer src="{{ '/js/cadagota-equip.js' | relative_url }}?v=1"></script>
