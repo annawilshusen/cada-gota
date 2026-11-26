@@ -965,6 +965,25 @@
     const tankDetail = $('cg-tank-detail');
 
     if (!tankState || !tankDetail) return;
+    const water = document.querySelector('.cg-tank-visual svg g[clip-path]');
+    const timestamp = latest ? validDate(latest.created_at) : null;
+    const readingAge = timestamp ? Date.now() - timestamp.getTime() : Infinity;
+    const level = readingAge >= -30000 && readingAge <= 90000
+      ? latest.diposit_ok
+      : null;
+    
+    if (water) {
+      const [fill, surface] = water.querySelectorAll('path');
+      const known = level === true || level === false;
+      water.style.display = known ? '' : 'none';
+    
+      if (known && fill && surface) {
+        const y = level ? 112 : 185;
+        const wave = `M28 ${y} Q61 ${y - 6} 95 ${y} T162 ${y}`;
+        fill.setAttribute('d', `${wave} V207 H28 Z`);
+        surface.setAttribute('d', wave);
+      }
+    }
 
     if (!latest) {
       tankState.textContent = 'Sense dades reals';
