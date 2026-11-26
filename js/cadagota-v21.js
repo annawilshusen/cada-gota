@@ -286,9 +286,9 @@
 
     const humidityDescription = row
       ? (humidity === null ? 'Calibració pendent' : `${row.humitat_raw} RAW`)
-      : (disabled ? 'Sensor desactivat' : 'Esperant lectures');
+      : (disabled ? '' : 'Esperant lectures');
 
-    const relayText = relay === true ? 'Obert' : relay === false ? 'Tancat' : 'Desconegut';
+    const relayText = relay === true ? 'Obert' : relay === false ? 'Tancat' : '—';
     const relayColor = relay === true ? 'open' : relay === false ? 'closed' : 'unknown';
     values.append(
       indicator('Humitat del sòl', humidityText, humidityDescription, 'humidity', humidity),
