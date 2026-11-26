@@ -112,52 +112,34 @@
     await loadInvitations();
   }
 
+  function renderInvitation(invitation) {
+    const item = document.createElement('article');
+    item.className = 'cada-activity-item';
+    const email = document.createElement('strong');
+    email.textContent = invitation.email;
+    const status = document.createElement('p');
+    const date = new Date(invitation.created_at).toLocaleDateString('ca-ES');
+    status.textContent = `${invitation.estat} · ${date}`;
+    item.append(email, status);
+    return item;
+  }
+
   async function loadInvitations() {
     if (!isPrincipal) return;
-
-    list.replaceChildren();
-
-    const {data, error} = await client
-      .from('invitacions_administradors')
-      .select('email,estat,created_at')
-      .order('created_at', {ascending: false})
-      .limit(30);
-
-    if (error) {
-      list.textContent =
-        'No s’han pogut consultar les invitacions.';
-      return;
-    }
-
-    if (!data?.length) {
-      list.textContent =
-        'Encara no has enviat cap invitació.';
-      return;
-    }
-
-    for (const invitation of data) {
-      const item = document.createElement('article');
-
-      item.style.cssText = `
-        padding: 12px 0;
-        border-bottom: 1px solid #ccd8d1;
-      `;
-
-      const email = document.createElement('strong');
-      email.textContent = invitation.email;
-
-      const status = document.createElement('p');
-
-      const date = new Date(
-        invitation.created_at
-      ).toLocaleDateString('ca-ES');
-
-      status.textContent =
-        `${invitation.estat} · ${date}`;
-
-      item.append(email, status);
-      list.append(item);
-    }
+    await window.cadaGotaRecentList(list, (start, end) =>
+      client.from('invitacions_administradors')
+        .select('email,estat,created_at')
+        .order('created_at', {ascending: false})
+        .order('email', {ascending: true})
+        .range(start, end),
+      renderInvitation,
+      {
+        key: 'invitacions',
+        loading: 'Carregant les invitacions…',
+        error: 'No s’han pogut consultar les invitacions.',
+        empty: 'Encara no has enviat cap invitació.',
+        more: 'Veure totes les invitacions'
+      });
   }
 
   form.addEventListener('submit', async event => {

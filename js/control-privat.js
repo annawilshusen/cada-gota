@@ -89,16 +89,23 @@
       div.append(header,small,p);return div;
     };
     async function loadActivity() {
-      const zone=zoneNumber();
-      historyRoot.replaceChildren();
-      const [edits,requests]=await Promise.all([
-        client.from('historial_configuracio_reg').select('created_at,humitat_minima_nova,humitat_maxima_nova,mode_automatic_nou,temps_maxim_segons_nou').eq('jardinera',zone).order('created_at',{ascending:false}).limit(15),
-        client.from('solicituds_reg_prova').select('created_at,durada_segons,estat').eq('jardinera',zone).order('created_at',{ascending:false}).limit(15)
-      ]);
-      if(edits.error||requests.error){historyRoot.textContent='No es pot carregar l’historial. Revisa el SQL i els permisos.';return;}
-      const all=[...(edits.data||[]).map(r=>({date:r.created_at,node:activity('Configuració modificada',r.created_at,`Llindars ${r.humitat_minima_nova}–${r.humitat_maxima_nova} %, mode ${r.mode_automatic_nou?'automàtic':'manual'}, màxim ${r.temps_maxim_segons_nou} s.`)})),...(requests.data||[]).map(r=>({date:r.created_at,node:activity('Sol·licitud simulada',r.created_at,`${r.durada_segons} segons; no enviada a l’Arduino.`)}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,20);
-      if(!all.length){historyRoot.textContent='Encara no hi ha activitat registrada.';return;}
-      for(const item of all)historyRoot.append(item.node);
+      const zone = zoneNumber();
+      await window.cadaGotaRecentList(historyRoot, (start, end) =>
+        client.from('historial_configuracio_reg')
+          .select('created_at,humitat_minima_nova,humitat_maxima_nova,mode_automatic_nou,temps_maxim_segons_nou')
+          .eq('jardinera', zone)
+          .order('created_at', {ascending: false})
+          .order('id', {ascending: false})
+          .range(start, end),
+        row => activity('Configuració modificada', row.created_at,
+          `Llindars ${row.humitat_minima_nova}–${row.humitat_maxima_nova} %, mode ${row.mode_automatic_nou ? 'automàtic' : 'manual'}, màxim ${row.temps_maxim_segons_nou} s.`),
+        {
+          key: String(zone),
+          loading: 'Carregant l’activitat…',
+          error: 'No s’ha pogut consultar l’activitat.',
+          empty: 'Encara no hi ha activitat registrada.',
+          more: 'Veure tota l’activitat'
+        });
     }
     async function loadPlantLabels() {
       const {data,error} = await client.from('configuracio_reg').select('jardinera,nom_planta').gte('jardinera',1).lte('jardinera',6);

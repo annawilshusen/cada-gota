@@ -142,13 +142,15 @@
     ) || null;
   }
 
-  function indicator(title, figure, description, color) {
+  function indicator(title, figure, description, color, progress = null) {
     const box = node('div', `cg-indicator cg-indicator--${color}`);
-    box.append(
-      node('span', 'cg-indicator-title', title),
-      node('strong', 'cg-indicator-value', figure),
-      node('small', '', description)
-    );
+    const ring = node('div', 'cg-reading-ring');
+    if (progress !== null) ring.style.setProperty('--cg-progress', `${progress}%`);
+    const content = node('div', 'cg-reading-ring-center');
+    content.append(node('strong', 'cg-indicator-value', figure));
+    if (description) content.append(node('small', '', description));
+    ring.append(content);
+    box.append(ring, node('span', 'cg-indicator-title', title));
     return box;
   }
 
@@ -286,17 +288,11 @@
       ? (humidity === null ? 'Calibració pendent' : `${row.humitat_raw} RAW`)
       : (disabled ? 'Sensor desactivat' : 'Esperant lectures');
 
-    const relayText = relay === true ? 'Obert' : relay === false ? 'Tancat' : '—';
+    const relayText = relay === true ? 'Obert' : relay === false ? 'Tancat' : 'Desconegut';
     const relayColor = relay === true ? 'open' : relay === false ? 'closed' : 'unknown';
-    const relayDescription = disabled
-      ? 'Reg desactivat'
-      : relay === null
-        ? (row ? 'Estat actual desconegut' : 'Esperant lectures')
-        : 'Estat a la lectura';
-
     values.append(
-      indicator('Humitat del sòl', humidityText, humidityDescription, 'humidity'),
-      indicator('Estat del relé', relayText, relayDescription, relayColor)
+      indicator('Humitat del sòl', humidityText, humidityDescription, 'humidity', humidity),
+      indicator('Estat del relé', relayText, '', relayColor)
     );
     head.append(values);
 
