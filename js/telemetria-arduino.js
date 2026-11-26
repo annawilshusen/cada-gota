@@ -177,8 +177,8 @@
     historyStatus.textContent='Carregant evolució…';
     try {
       const start=new Date(Date.now()-hours*3600000).toISOString();
-      const recentQuery=new URLSearchParams({select:'humitat_raw,diposit_ok,bomba_activa,created_at',order:'created_at.desc',limit:'1'});
-      const graphQuery=new URLSearchParams({select:'humitat_raw,created_at',created_at:`gte.${start}`,order:'created_at.desc',limit:'1000'});
+      const recentQuery=new URLSearchParams({select:'humitat_raw,diposit_ok,bomba_activa,created_at',jardinera:'eq.1',order:'created_at.desc',limit:'1'});
+      const graphQuery=new URLSearchParams({select:'humitat_raw,created_at',jardinera:'eq.1',created_at:`gte.${start}`,order:'created_at.desc',limit:'1000'});
       await loadCalibration();
       const [recent,history]=await Promise.all([readRows(recentQuery),readRows(graphQuery)]);
       renderLatest(recent[0]??null);

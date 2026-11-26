@@ -36,12 +36,12 @@
   const plantNotesInput = document.getElementById('cada-plant-notes');
   const dryRawInput = document.getElementById('cada-raw-sec');
   const wetRawInput = document.getElementById('cada-raw-humit');
-  const plantLabels = {1: 'Jardinera 01', 2: 'Jardinera 02'};
+  const plantLabels = Object.fromEntries(Array.from({length: 6}, (_, i) => [i + 1, `Jardinera 0${i + 1}`]));
   function updatePlantLabels() {
     for (const select of [zoneSel, document.getElementById('cada-consumption-zone')]) {
       if (!select) continue;
       for (const option of select.options) {
-        if (option.value === '1' || option.value === '2') {
+        if (plantLabels[Number(option.value)]) {
           option.textContent = plantLabels[Number(option.value)];
         }
       }
@@ -99,7 +99,7 @@
       for(const item of all)historyRoot.append(item.node);
     }
     async function loadPlantLabels() {
-      const {data,error} = await client.from('configuracio_reg').select('jardinera,nom_planta').in('jardinera',[1,2]);
+      const {data,error} = await client.from('configuracio_reg').select('jardinera,nom_planta').gte('jardinera',1).lte('jardinera',6);
       if (error) return;
       for (const item of data || []) {
         const name = (item.nom_planta || '').trim();
@@ -108,8 +108,10 @@
       updatePlantLabels();
     }
     async function loadSettings() {
+      const zone=zoneNumber();
       currentConfig=null;show(configForm,false);settingsInfo('Carregant la configuració…');
-      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions,raw_sec,raw_humit').eq('jardinera',zoneNumber()).maybeSingle();
+      const {data,error}=await client.from('configuracio_reg').select('jardinera,humitat_minima,humitat_maxima,mode_automatic,temps_maxim_segons,nom_planta,especie,data_plantacio,observacions,raw_sec,raw_humit').eq('jardinera',zone).maybeSingle();
+      if(zoneNumber()!==zone)return;
       if(error||!data){settingsInfo('No es pot consultar la configuració. Comprova que hagis executat supabase/plantes-editables-v17.sql i que tens permisos.',true);return;}
       currentConfig=data;
       minInput.value=data.humitat_minima;maxInput.value=data.humitat_maxima;
@@ -147,7 +149,7 @@
       const a=dryRawInput.value.trim(), b=wetRawInput.value.trim();
       const dry=Number(a), wet=Number(b);
       const valid=a!=='' && b!=='' && Number.isInteger(dry) && Number.isInteger(wet) && dry>=0 && dry<=4095 && wet>=0 && wet<=4095 && Math.abs(dry-wet)>=20;
-      cal.save.disabled=!valid || zoneNumber()!==1 || !currentConfig;
+      cal.save.disabled=!valid || currentConfig?.jardinera!==zoneNumber();
       if (!valid) {
         cal.preview.textContent='Calen dos valors RAW entre 0 i 4095, separats almenys per 20 unitats, per calcular el percentatge.';
         return;
@@ -163,14 +165,13 @@
     function setCalibrationZone() {
       calSample=null;
       cal.mean.textContent='— RAW';cal.range.textContent='—';cal.last.textContent='—';
-      const supported=zoneNumber()===1;
-      cal.refresh.disabled=!supported;
+      cal.refresh.disabled=false;
       cal.dry.disabled=true;cal.wet.disabled=true;
-      calMessage(supported ? 'Consulta les lectures del sensor A0 per capturar una referència.' : 'Encara no tenim lectures de cap sensor associat a la jardinera 02. Pots editar manualment els valors RAW, però no capturar-los des d’A0.');
+      calMessage('Consulta les lectures del sensor d’aquesta jardinera per capturar una referència.');
       renderCalibrationPreview();
     }
     async function refreshCalibration() {
-      if(zoneNumber()!==1)return;
+      const zone=zoneNumber();
       const seq=++calRefreshSeq;
       calSample=null;
       cal.refresh.disabled=true;cal.dry.disabled=true;cal.wet.disabled=true;
@@ -179,9 +180,9 @@
         const now=Date.now();
         const since=new Date(now-3*60*1000).toISOString();
         const {data,error}=await client.from('telemetria_arduino')
-          .select('humitat_raw,created_at').gte('created_at',since)
+          .select('humitat_raw,created_at').eq('jardinera',zone).gte('created_at',since)
           .order('created_at',{ascending:false}).limit(6);
-        if(seq!==calRefreshSeq || zoneNumber()!==1)return;
+        if(seq!==calRefreshSeq || zoneNumber()!==zone)return;
         if(error)throw error;
         const rows=(data||[]).filter(r=>Number.isInteger(r.humitat_raw)&&r.humitat_raw>=0&&r.humitat_raw<=4095&&Number.isFinite(new Date(r.created_at).getTime()));
         if(!rows.length)throw new Error('No hi ha lectures recents. Revisa el Wi-Fi i la transmissió de l’Arduino.');
@@ -207,10 +208,10 @@
         renderCalibrationPreview();
       } catch(e) {
         calMessage(`No es pot preparar la captura: ${e.message}`,true);
-      } finally { if(seq===calRefreshSeq && zoneNumber()===1)cal.refresh.disabled=false; }
+      } finally { if(seq===calRefreshSeq && zoneNumber()===zone)cal.refresh.disabled=false; }
     }
     function captureCalibration(input,label) {
-      if(!calSample || zoneNumber()!==1)return;
+      if(!calSample)return;
       if(Date.now()-calSample.newest>90000) {
         cal.dry.disabled=true;cal.wet.disabled=true;
         calMessage('Les lectures ja no són recents. Torna a consultar-les abans de capturar.',true);
@@ -226,15 +227,17 @@
     [dryRawInput,wetRawInput].forEach(input=>input.addEventListener('input',renderCalibrationPreview));
     cal.save.addEventListener('click',async()=>{
       const dry=Number(dryRawInput.value),wet=Number(wetRawInput.value);
-      if(zoneNumber()!==1 || !currentConfig || !Number.isInteger(dry)||!Number.isInteger(wet)||dry<0||dry>4095||wet<0||wet>4095||Math.abs(dry-wet)<20){calMessage('Comprova les dues referències abans de desar.',true);return;}
+      const zone=zoneNumber();
+      if(currentConfig?.jardinera!==zone || !Number.isInteger(dry)||!Number.isInteger(wet)||dry<0||dry>4095||wet<0||wet>4095||Math.abs(dry-wet)<20){calMessage('Comprova les dues referències abans de desar.',true);return;}
       cal.save.disabled=true;
       calMessage('Desant la calibració…');
       try {
         if(!(await hasAccess()))throw new Error('No tens una sessió d’administradora vàlida.');
         const {data,error}=await client.from('configuracio_reg')
-          .update({raw_sec:dry,raw_humit:wet}).eq('jardinera',1)
+          .update({raw_sec:dry,raw_humit:wet}).eq('jardinera',zone)
           .select('jardinera').maybeSingle();
         if(error || !data)throw new Error(error?.message || 'No s’ha actualitzat la jardinera.');
+        if(currentConfig?.jardinera!==zone)return;
         currentConfig.raw_sec=dry;currentConfig.raw_humit=wet;
         calMessage('Calibració desada a Supabase. El panell públic la farà servir en la següent actualització.');
       } catch(e) {calMessage(`No s’ha pogut desar: ${e.message}`,true);}
@@ -360,12 +363,15 @@
     consumption.refresh.addEventListener('click',loadConsumption);
     [consumption.source,consumption.period,consumption.zone].forEach(sel=>sel.addEventListener('change',loadConsumption));
     configForm.addEventListener('submit',async ev=>{
-      ev.preventDefault();if(!currentConfig)return;
+      ev.preventDefault();
+      const zone=zoneNumber();
+      if(currentConfig?.jardinera!==zone)return;
       const min=Number(minInput.value),max=Number(maxInput.value),secs=Number(durationInput.value);
       if(!Number.isInteger(min)||min<5||min>80||!Number.isInteger(max)||max>95||max<min+5||!Number.isInteger(secs)||secs<5||secs>120){settingsInfo('Comprova els llindars i el temps màxim.',true);return;}
       saveBtn.disabled=true;settingsInfo('Desant els canvis…');
       try{
         if(!(await hasAccess())){settingsInfo('La sessió ja no és vàlida o no tens permisos.',true);return;}
+        if(zoneNumber()!==zone || currentConfig?.jardinera!==zone)return;
         const name=plantNameInput.value.trim();
         const species=plantSpeciesInput.value.trim();
         const notes=plantNotesInput.value.trim();
@@ -389,7 +395,7 @@
           observacions:notes || null,
           raw_sec:rawSec,raw_humit:rawHumit
         };
-        const {data,error}=await client.from('configuracio_reg').update(payload).eq('jardinera',zoneNumber()).select('jardinera,humitat_minima').maybeSingle();
+        const {data,error}=await client.from('configuracio_reg').update(payload).eq('jardinera',zone).select('jardinera,humitat_minima').maybeSingle();
         if(error||!data){settingsInfo('No s’han pogut desar els canvis. Comprova els permisos RLS.',true);return;}
         settingsInfo('Configuració desada correctament a Supabase.');
         await loadPlantLabels();

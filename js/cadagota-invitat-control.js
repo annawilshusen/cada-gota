@@ -86,10 +86,8 @@
     };
     Object.entries(values).forEach(([id,v]) => setValue(id,v));
     setText('cada-config-message', 'Configuració de només lectura · dades desades a Supabase.');
-    if (Number(row.jardinera) !== 1) {
-      setText('cada-cal-status', 'Aquesta jardinera no té cap sensor real connectat.');
-      setText('cada-cal-mean','— RAW');setText('cada-cal-range','—');setText('cada-cal-last','—');
-    }
+    setText('cada-cal-status', 'Consultant les lectures de la jardinera…');
+    setText('cada-cal-mean','— RAW');setText('cada-cal-range','—');setText('cada-cal-last','—');
     setStatus('Configuració consultada correctament. Mode invitat: només lectura.');
   }
   async function loadConfig() {
@@ -125,11 +123,11 @@
   }
   async function loadTelemetry() {
     const selected = Number($('cada-zone')?.value || 1);
-    if (selected !== 1) return;
     try {
       const rows = await getPublic('telemetria_arduino',new URLSearchParams({
-        select:'humitat_raw,created_at',order:'created_at.desc',limit:'20'
+        select:'humitat_raw,created_at',jardinera:`eq.${selected}`,order:'created_at.desc',limit:'20'
       }));
+      if (Number($('cada-zone')?.value || 1) !== selected) return;
       const nums = rows.map(r=>r.humitat_raw).filter(v=>Number.isInteger(v) && v>=0 && v<=4095);
       if (!nums.length) {setText('cada-cal-status','No s’han trobat lectures reals.');return;}
       const mean = nums.reduce((a,b)=>a+b,0)/nums.length;

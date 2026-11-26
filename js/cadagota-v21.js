@@ -396,12 +396,11 @@
   // FITXES DE LES SIS PLANTES
   // ============================================
 
-  function buildPlant(i, latest) {
+  function buildPlant(i) {
     const config = configFor(i);
 
-    // Actualment nomes la planta 1 te un sensor.
-    const connected = i === 1;
-    const row = connected ? latest : null;
+    const row = state.rows.find(reading => reading.jardinera === i) || null;
+    const connected = Boolean(row);
 
     const date = row ? validDate(row.created_at) : null;
 
@@ -439,7 +438,7 @@
         'p',
         'cg-kicker',
         `JARDINERA ${String(i).padStart(2, '0')} · ${
-          connected ? 'SENSOR A0' : 'SENSOR PENDENT'
+          connected ? `SENSOR A${i - 1}` : 'SENSE LECTURES'
         }`
       ),
       node('h2', '', name),
@@ -449,7 +448,7 @@
     const label = connected
       ? row && !stale
         ? 'Lectures recents'
-        : 'Sensor A0 assignat'
+        : 'Darrera lectura antiga'
       : 'No connectada';
 
     head.append(
@@ -734,6 +733,7 @@
         const t = new Date(row.created_at).getTime();
 
         return (
+          row.jardinera === i &&
           Number.isFinite(t) &&
           t >= start &&
           t <= now &&
@@ -1089,7 +1089,7 @@
       );
     }
 
-    const config = configFor(1);
+    const config = configFor(latest.jardinera);
 
     const humidity = percent(
       latest.humitat_raw,
@@ -1117,7 +1117,7 @@
   // ============================================
 
   function renderStats() {
-    const rows = [...state.rows].sort(
+    const rows = state.rows.filter(row => row.jardinera === 1).sort(
       (a, b) =>
         new Date(a.created_at) - new Date(b.created_at)
     );
@@ -1188,10 +1188,10 @@
 
     target.replaceChildren();
 
-    const connected = [1];
+    const connected = [...new Set(state.rows.map(row => row.jardinera))].sort((a, b) => a - b);
 
     const elements = connected.map(number => {
-      const latest = state.rows[0];
+      const latest = state.rows.find(row => row.jardinera === number);
 
       return {
         number,
@@ -1242,8 +1242,7 @@
       node(
         'p',
         'cg-muted',
-        'Comparació de les plantes connectades. ' +
-        'Actualment només hi ha un sensor assignat: A0.'
+        'Comparació de les jardineres amb lectures reals.'
       )
     );
   }
@@ -1261,12 +1260,12 @@
       plants.replaceChildren();
 
       for (let i = 1; i <= 6; i++) {
-        plants.append(buildPlant(i, latest));
+        plants.append(buildPlant(i));
       }
     }
 
     renderTank(latest);
-    renderAlerts(latest);
+    renderAlerts(state.rows.find(row => row.jardinera === 1) || latest);
     renderStats();
     renderCompare();
 
@@ -1324,16 +1323,18 @@
           })
         ),
 
-        read(
+        Promise.all(Array.from({ length: 6 }, (_, index) => read(
           'telemetria_arduino',
           new URLSearchParams({
-            select:
-              'humitat_raw,diposit_ok,bomba_activa,created_at',
+            select: 'jardinera,humitat_raw,diposit_ok,bomba_activa,created_at',
+            jardinera: `eq.${index + 1}`,
             created_at: `gte.${since}`,
             order: 'created_at.desc',
             limit: '1000'
           })
-        )
+        ))).then(groups => groups.flat().sort((a, b) =>
+          Date.parse(b.created_at) - Date.parse(a.created_at)
+        ))
       ]);
 
       const [configResult, telemetryResult] = results;
