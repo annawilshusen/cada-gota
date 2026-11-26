@@ -29,11 +29,6 @@
     maximumFractionDigits: 1
   });
 
-  const datefmt = new Intl.DateTimeFormat('ca-ES', {
-    dateStyle: 'medium',
-    timeStyle: 'medium'
-  });
-
   const periodOptions = [
     ['10 min', 1 / 6],
     ['1 h', 1],
@@ -147,8 +142,8 @@
     ) || null;
   }
 
-  function indicator(title, figure, description) {
-    const box = node('div', 'cg-indicator');
+  function indicator(title, figure, description, color) {
+    const box = node('div', `cg-indicator cg-indicator--${color}`);
     box.append(
       node('span', 'cg-indicator-title', title),
       node('strong', 'cg-indicator-value', figure),
@@ -291,7 +286,8 @@
       ? (humidity === null ? 'Calibració pendent' : `${row.humitat_raw} RAW`)
       : (disabled ? 'Sensor desactivat' : 'Esperant lectures');
 
-    const relayText = relay === null ? '—' : relay ? 'ON' : 'OFF';
+    const relayText = relay === true ? 'Obert' : relay === false ? 'Tancat' : '—';
+    const relayColor = relay === true ? 'open' : relay === false ? 'closed' : 'unknown';
     const relayDescription = disabled
       ? 'Reg desactivat'
       : relay === null
@@ -299,8 +295,8 @@
         : 'Estat a la lectura';
 
     values.append(
-      indicator('Humitat del sòl', humidityText, humidityDescription),
-      indicator('Estat del relé', relayText, relayDescription)
+      indicator('Humitat del sòl', humidityText, humidityDescription, 'humidity'),
+      indicator('Estat del relé', relayText, relayDescription, relayColor)
     );
     head.append(values);
 
@@ -918,16 +914,27 @@
     renderCompare();
 
     const status = $('cg-status');
+    const clock = $('cg-reading-clock');
+    const date = latest ? validDate(latest.created_at) : null;
+
+    if (clock) {
+      clock.textContent = date ? date.toLocaleTimeString('ca-ES', {
+        hour: '2-digit', minute: '2-digit'
+      }) : '—';
+      if (date) clock.dateTime = date.toISOString();
+      else clock.removeAttribute('datetime');
+    }
 
     if (status) {
       if (state.error) {
         status.textContent =
           'Hi ha incidències en la consulta de dades.';
       } else if (latest) {
-        const date = validDate(latest.created_at);
         const age = date ? Date.now() - date.getTime() : Infinity;
-        status.textContent = `Última lectura rebuda · ${date ? datefmt.format(date) : 'hora desconeguda'}` +
-          (age > 90000 || age < -30000 ? ' · Lectura antiga o amb hora incorrecta' : '');
+        status.textContent = (date ? date.toLocaleDateString('ca-ES', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        }) : 'Data desconeguda') +
+          (age > 90000 ? ' · Lectura antiga' : age < -30000 ? ' · Hora incorrecta' : '');
       } else {
         status.textContent =
           'Sense lectures reals disponibles';

@@ -65,3 +65,15 @@
 .cg-indicator-value{display:block;font-size:1.25rem;color:#254d52}
 .cg-chart-details{margin-top:10px}
 @media(max-width:620px){.cg-plant-head{grid-template-columns:1fr;gap:10px}}
+
+.cg-intro{margin:0 0 18px;max-width:55ch}
+.cg-last-reading{display:flex;align-items:center;gap:12px;min-width:0}
+.cg-last-reading p{margin:0}
+.cg-reading-clock{display:grid;place-items:center;flex:none;width:62px;height:62px;border:2px solid #79aaa9;border-radius:50%;background:#e4efec;color:#254d52;font-weight:700;font-variant-numeric:tabular-nums}
+.cg-plant-head .cg-indicator{border:1px solid var(--cg-border);padding:8px 10px;border-radius:7px}
+.cg-plant-head .cg-indicator--humidity{background:#e9f1eb}
+.cg-plant-head .cg-indicator--open{background:#dfedf2;border-color:#a7cbd5}
+.cg-plant-head .cg-indicator--open .cg-indicator-value{color:#245d70}
+.cg-plant-head .cg-indicator--closed{background:#f5e6e1;border-color:#e0bfb3}
+.cg-plant-head .cg-indicator--closed .cg-indicator-value{color:#83483f}
+.cg-plant-head .cg-indicator--unknown{background:#efede5}

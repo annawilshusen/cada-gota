@@ -5,8 +5,12 @@ nav: panell
 ---
 <section class="content chapter cg-dashboard" id="cg-dashboard">
   <p class="intro-label">CADA GOTA · MONITORATGE REAL</p>
-  <h1 class="section-title">Les nostres plantes</h1>
-  <div class="cg-toolbar"><p id="cg-status" role="status" aria-live="polite">Connectant amb Supabase…</p><button id="cg-refresh" type="button">Actualitzar lectures</button></div>
+  <h1 class="section-title">Panell de reg</h1>
+  <p class="lead cg-intro">Consulta la humitat del sòl i l’estat del reg de cada jardinera.</p>
+  <div class="cg-toolbar"><div class="cg-last-reading" role="status" aria-live="polite">
+      <time id="cg-reading-clock" class="cg-reading-clock">—</time>
+      <div><strong>Última lectura rebuda</strong><p id="cg-status">Consultant les lectures…</p></div>
+    </div><button id="cg-refresh" type="button">Actualitzar lectures</button></div>
   <div id="cg-alerts" class="cg-alerts" aria-live="polite"></div>
   <nav class="cg-plant-nav" aria-label="Anar a una jardinera">
     {% for plant in (1..6) %}
@@ -21,5 +25,5 @@ nav: panell
   <section class="cg-compare" aria-labelledby="cg-compare-title"><p class="intro-label">ANÀLISI EXPERIMENTAL</p><h2 id="cg-compare-title">Comparació entre plantes</h2><p id="cg-compare-caption" class="cg-muted">Les plantes encara no connectades no generen dades ni línies artificials.</p><div id="cg-compare-content" class="cg-compare-content">Esperant lectures…</div></section>
   <section class="reading cg-private"><h2>Control privat</h2><p>Modifica la informació de les plantes, la calibració i els llindars des del panell d’administració. El firmware aplica la configuració que descarrega de Supabase.</p><a class="reg-private-link" href="{{ '/pages/control.html' | relative_url }}">Accedir al control privat</a></section>
 </section>
-<link rel="stylesheet" href="{{ '/css/cadagota-v21.css' | relative_url }}?v=25">
-<script src="{{ '/js/cadagota-v21.js' | relative_url }}?v=25" defer></script>
+<link rel="stylesheet" href="{{ '/css/cadagota-v21.css' | relative_url }}?v=26">
+<script src="{{ '/js/cadagota-v21.js' | relative_url }}?v=26" defer></script>
