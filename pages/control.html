@@ -108,6 +108,16 @@ nav: panell
         <p id="cada-consumption-note" class="muted"></p>
       </div>
     </section>
+    <section class="cada-settings-history" aria-labelledby="cada-reg-fisic-title">
+      <h3 id="cada-reg-fisic-title">Reg manual</h3>
+      <p class="muted">Activa la vàlvula de la jardinera seleccionada durant un màxim de 10 segons.</p>
+      <form id="cada-reg-fisic-form" class="cada-request-form">
+        <label for="cada-reg-fisic-segons">Durada (segons)</label>
+        <input id="cada-reg-fisic-segons" type="number" value="5" min="1" max="10" step="1" required>
+        <button type="submit" id="cada-reg-fisic-submit" disabled>Activar reg manual</button>
+      </form>
+      <p id="cada-reg-fisic-status" class="cada-auth-message" role="status" aria-live="polite">Consultant l’estat de l’Arduino…</p>
+    </section>
     <section class="cada-settings-simulator" aria-labelledby="cada-manual-title">
       <p class="kicker">SIMULACIÓ</p><h3 id="cada-manual-title">Sol·licitud de reg de prova</h3>
       <p class="muted">Registra una ordre fictícia a Supabase. No existeix cap mecanisme que l'executi sobre una bomba.</p>
@@ -122,7 +132,6 @@ nav: panell
       <p class="muted">Canvis de configuració i sol·licituds de prova de la jardinera seleccionada.</p>
       <div id="cada-activity" aria-live="polite"><p class="muted">Carregant l'historial…</p></div>
     </section>
-    <div class="callout"><strong>Sense control físic.</strong> Cap operació d'aquesta pàgina encén o apaga la bomba. El sistema de reg continuarà independent de la web fins a completar les proves de seguretat.</div>
     <a class="cada-auth-back" href="{{ '/pages/panell.html' | relative_url }}">Tornar al panell públic</a>
   </section>
   <noscript>Cal activar JavaScript per iniciar sessió.</noscript>
@@ -130,6 +139,6 @@ nav: panell
 <link rel="stylesheet" href="{{ '/css/control-privat.css' | relative_url }}?v=20">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script defer src="{{ '/js/cadagota-llistes.js' | relative_url }}?v=1"></script>
-<script defer src="{{ '/js/control-privat.js' | relative_url }}?v=25"></script>
+<script defer src="{{ '/js/control-privat.js' | relative_url }}?v=26"></script>
 <script defer src="{{ '/js/cadagota-control-v21.js' | relative_url }}?v=22"></script>
 <script defer src="{{ '/js/cadagota-equip.js' | relative_url }}?v=2"></script>

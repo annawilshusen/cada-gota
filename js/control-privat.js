@@ -1,6 +1,6 @@
 /**
  * CadaGota — inici de sessió i comprovació d'administradora.
- * Cap ordre de reg disponible. Permisos reals: Supabase RLS, NO aquest HTML.
+ * Supabase comprova els permisos de les ordres de reg manual.
  * La publishable key és pública. Mai no incloguis una secret key ni service_role.
  */
 (() => {
@@ -80,6 +80,61 @@
       return !error && Boolean(data);
     };
     const zoneNumber = () => Number(zoneSel.value);
+    const manualForm = document.getElementById('cada-reg-fisic-form');
+    const manualSeconds = document.getElementById('cada-reg-fisic-segons');
+    const manualSubmit = document.getElementById('cada-reg-fisic-submit');
+    const manualStatus = document.getElementById('cada-reg-fisic-status');
+    const manualLabels = {
+      pendent: 'Ordre enviada. Esperant l’Arduino.',
+      recollida: 'Ordre recollida. Esperant el resultat.',
+      completada: 'L’Arduino confirma que ha completat el reg.',
+      sense_aigua: 'Reg rebutjat. El flotador indica que falta aigua.',
+      interrompuda: 'Reg aturat. El flotador ha deixat de detectar aigua.',
+      bloquejada: 'Reg rebutjat. La jardinera està bloquejada al firmware.',
+      caducada: 'Ordre caducada.',
+      sense_confirmacio: 'L’Arduino ha recollit l’ordre. El resultat és desconegut.'
+    };
+    let manualBusy = false;
+
+    async function manualRequest(args, sending = false) {
+      if (manualBusy || privateArea.hidden) return;
+      manualBusy = true;
+      manualSubmit.disabled = true;
+      try {
+        const { data, error } = await client.rpc('reg_manual_web', args);
+        if (error || !data) throw error || new Error('Resposta buida');
+        if (privateArea.hidden) return;
+        const order = data.ordre;
+        const active = order && ['pendent', 'recollida'].includes(order.estat);
+        const availability = !data.habilitat ? 'Reg manual deshabilitat.'
+          : !data.disponible ? 'Esperant una connexió recent de l’Arduino.' : 'Reg manual disponible.';
+        const message = order
+          ? `Jardinera ${order.jardinera} · ${order.segons} s. ${manualLabels[order.estat]}`
+          : availability;
+        const displayed = order && !data.disponible ? `${availability} ${message}` : message;
+        if (manualStatus.textContent !== displayed) manualStatus.textContent = displayed;
+        manualSubmit.disabled = !data.disponible || Boolean(active);
+      } catch {
+        manualStatus.textContent = sending
+          ? 'No s’ha pogut confirmar l’enviament. S’està consultant l’estat de l’ordre.'
+          : 'No s’ha pogut consultar el reg manual.';
+      } finally {
+        manualBusy = false;
+      }
+    }
+
+    manualForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (manualSubmit.disabled || manualBusy || privateArea.hidden || !manualForm.reportValidity()) return;
+      const zone = zoneNumber();
+      const seconds = Number(manualSeconds.value);
+      if (!window.confirm(`Activar el reg de la jardinera ${zone} durant ${seconds} segons?`)) return;
+      void manualRequest({ p_jardinera: zone, p_segons: seconds }, true);
+    });
+    window.setInterval(() => {
+      if (!document.hidden) void manualRequest();
+    }, 3000);
+
     const fmtDate = v => new Intl.DateTimeFormat('ca-ES',{dateStyle:'short',timeStyle:'short'}).format(new Date(v));
     const activity = (label, date, detail) => {
       const div = document.createElement('article'); div.className='cada-activity-item';
@@ -501,6 +556,7 @@
         account.textContent = user.email || 'Compte autoritzat';
         inform('Accés verificat correctament.');
         show(privateArea, true);
+        void manualRequest();
         await loadPlantLabels();
         await Promise.all([loadSettings(),loadConsumption()]);
       } catch (e) {
