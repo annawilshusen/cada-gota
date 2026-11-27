@@ -37,10 +37,15 @@
     ['30 d', 720]
   ];
 
+  const hourMs = 3600000;
+  const historyPageSize = 1000;
+  const historyRefreshMs = 30000;
+
   const state = {
     rows: [],
     configs: [],
     hours: {},
+    history: new Map(),
     busy: false,
     updatedAt: 0,
     error: null
@@ -197,6 +202,99 @@
 
     } finally {
       clearTimeout(timer);
+    }
+  }
+
+  async function readHistoryDay(plant, from, until) {
+    const rows = [];
+    const params = new URLSearchParams({
+      select: 'humitat_raw,created_at',
+      jardinera: `eq.${plant}`,
+      created_at: `gte.${new Date(from).toISOString()}`,
+      order: 'created_at.asc,humitat_raw.asc',
+      limit: String(historyPageSize)
+    });
+    params.append('created_at', `lt.${new Date(until).toISOString()}`);
+
+    for (let offset = 0;; offset += historyPageSize) {
+      params.set('offset', String(offset));
+      const page = await read('telemetria_arduino', params);
+
+      for (const row of page) {
+        const t = Date.parse(row.created_at);
+        const raw = row.humitat_raw;
+        if (Number.isFinite(t) && Number.isInteger(raw) && raw >= 0 && raw <= 4095) {
+          rows.push({ t, raw });
+        }
+      }
+
+      if (page.length < historyPageSize) return rows;
+    }
+  }
+
+  async function readHistory(plant, start, end) {
+    const dayMs = 24 * hourMs;
+    const rows = [];
+
+    // Limita la concurrència i els desplaçaments de la paginació.
+    for (let from = start; from < end;) {
+      const batch = [];
+      while (batch.length < 3 && from < end) {
+        const until = Math.min(from + dayMs, end);
+        batch.push(readHistoryDay(plant, from, until));
+        from = until;
+      }
+      for (const day of await Promise.all(batch)) {
+        for (const point of day) rows.push(point);
+      }
+    }
+
+    return rows;
+  }
+
+  async function loadHistory(plant, hours) {
+    let history = state.history.get(plant);
+    if (!history) {
+      history = { hours: 0, rows: [], start: 0, end: 0, pending: null };
+      state.history.set(plant, history);
+    }
+
+    if (history.pending) {
+      await history.pending;
+      return loadHistory(plant, hours);
+    }
+
+    const end = Date.now();
+    const refresh = end - history.end >= historyRefreshMs;
+    if (history.hours >= hours && !refresh) return history;
+
+    const coverage = Math.max(history.hours, hours);
+    const start = end - coverage * hourMs;
+    history.pending = (async () => {
+      if (start >= history.end) {
+        history.rows = await readHistory(plant, start, end);
+      } else {
+        // Reconsulta el tram més recent per incorporar lectures que han arribat tard.
+        const recentStart = refresh ? Math.max(start, history.end - historyRefreshMs) : history.end;
+        const older = start < history.start
+          ? await readHistory(plant, start, history.start)
+          : [];
+        const newer = await readHistory(plant, recentStart, end);
+        history.rows = older.concat(
+          history.rows.filter(point => point.t >= start && point.t < recentStart),
+          newer
+        );
+      }
+      history.hours = coverage;
+      history.start = start;
+      history.end = end;
+    })();
+
+    try {
+      await history.pending;
+      return history;
+    } finally {
+      history.pending = null;
     }
   }
 
@@ -406,18 +504,39 @@
   // GRAFIQUES D'HUMITAT
   // ============================================
 
-  function renderPlantChart(i, inner) {
+  async function renderPlantChart(i, inner) {
     const target = inner.querySelector('.cg-chart-target');
 
     if (!target) return;
 
+    const hours = state.hours[i];
+    const isCurrent = () => target.isConnected && state.hours[i] === hours;
+    const cached = state.history.get(i);
+    const drawnEnd = cached?.hours >= hours ? cached.end : null;
+
+    if (drawnEnd !== null) {
+      drawPlantChart(i, target, hours, cached);
+    } else {
+      target.replaceChildren(node('p', 'cg-muted', 'Carregant les lectures…'));
+    }
+
+    try {
+      const history = await loadHistory(i, hours);
+      if (isCurrent() && history.end !== drawnEnd) drawPlantChart(i, target, hours, history);
+    } catch {
+      if (!isCurrent()) return;
+      const message = node('p', 'cg-muted', 'No s’ha pogut actualitzar l’historial.');
+      if (cached?.hours >= hours) target.append(message);
+      else target.replaceChildren(message);
+    }
+  }
+
+  function drawPlantChart(i, target, hours, history) {
     target.replaceChildren();
 
     const config = configFor(i);
-    const hours = state.hours[i];
-
-    const now = Date.now();
-    const start = now - hours * 3600000;
+    const now = history.end;
+    const start = now - hours * hourMs;
 
     const calibrated = Boolean(
       config &&
@@ -426,83 +545,38 @@
       Math.abs(config.raw_sec - config.raw_humit) >= 20
     );
 
-    const series = state.rows
-      .filter(row => {
-        const t = new Date(row.created_at).getTime();
+    const buckets = Math.min(90, Math.max(20, Math.ceil(720 / hours)));
+    const bucketWidth = (now - start) / buckets;
+    const groups = Array.from({ length: buckets }, () => ({ count: 0, time: 0, sum: 0 }));
+    let count = 0;
+    let min = Infinity;
+    let max = -Infinity;
 
-        return (
-          row.jardinera === i &&
-          Number.isFinite(t) &&
-          t >= start &&
-          t <= now &&
-          Number.isInteger(row.humitat_raw) &&
-          row.humitat_raw >= 0 &&
-          row.humitat_raw <= 4095
-        );
-      })
-      .map(row => ({
-        t: new Date(row.created_at).getTime(),
-        v: calibrated
-          ? percent(row.humitat_raw, config)
-          : row.humitat_raw
-      }))
-      .filter(point => Number.isFinite(point.v))
-      .sort((a, b) => a.t - b.t);
+    for (let index = history.rows.length - 1; index >= 0; index--) {
+      const { t, raw } = history.rows[index];
+      if (t < start) break;
 
-    if (!series.length) {
-      target.append(
-        node(
-          'p',
-          'cg-muted',
-          'No hi ha lectures reals en aquest període.'
-        )
-      );
+      const value = calibrated ? percent(raw, config) : raw;
+      const group = groups[Math.min(buckets - 1, Math.floor((t - start) / bucketWidth))];
+      group.count++;
+      group.time += t - start;
+      group.sum += value;
+      count++;
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
+
+    if (!count) {
+      target.append(node('p', 'cg-muted', 'No hi ha lectures reals en aquest període.'));
       return;
     }
 
-    const values = series.map(point => point.v);
-
-    const minV = calibrated
-      ? 0
-      : Math.max(0, Math.min(...values) - 50);
-
-    let maxV = calibrated
-      ? 100
-      : Math.min(4095, Math.max(...values) + 50);
-
-    if (maxV <= minV) {
-      maxV = minV + 1;
-    }
-
-    // Agregacio temporal per simplificar la grafica.
-
-    const buckets = Math.min(
-      90,
-      Math.max(20, Math.ceil(720 / hours))
-    );
-
-    const bucketWidth = (now - start) / buckets;
-
-    const grouped = [];
-
-    for (let k = 0; k < buckets; k++) {
-      const beginning = start + k * bucketWidth;
-      const ending = beginning + bucketWidth;
-
-      const group = series.filter(
-        d => d.t >= beginning && d.t < ending
-      );
-
-      if (group.length) {
-        grouped.push({
-          t: group[Math.floor(group.length / 2)].t,
-          v: group.reduce(
-            (sum, d) => sum + d.v,
-            0
-          ) / group.length
-        });
-      }
-    }
+    const minV = calibrated ? 0 : Math.max(0, min - 50);
+    const maxV = calibrated ? 100 : Math.min(4095, max + 50);
+    const grouped = groups.filter(group => group.count).map(group => ({
+      t: start + group.time / group.count,
+      v: group.sum / group.count
+    }));
 
     const width = 840;
     const height = 290;
@@ -530,7 +604,7 @@
       viewBox: `0 0 ${width} ${height}`,
       role: 'img',
       'aria-label':
-        `Historial de ${hours} hores, ${series.length} lectures`
+        `Historial de ${hours} hores, ${count} lectures`
     });
 
     // Linies horitzontals.
@@ -647,7 +721,7 @@
       node(
         'p',
         'cg-muted',
-        `${series.length} lectures registrades · ` +
+        `${count} lectures registrades · ` +
         `${grouped.length} intervals representats · ` +
         `${unit}. Les mitjanes són només de visualització.`
       )
@@ -954,9 +1028,7 @@
     }
 
     try {
-      const since = new Date(
-        Date.now() - 30 * 86400000
-      ).toISOString();
+      const since = new Date(Date.now() - 720 * hourMs).toISOString();
 
       // Les consultes son independents.
       // Un error de configuracio no ha d'ocultar
@@ -982,7 +1054,7 @@
             jardinera: `eq.${index + 1}`,
             created_at: `gte.${since}`,
             order: 'created_at.desc',
-            limit: '1000'
+            limit: '1'
           })
         ))).then(groups => groups.flat().sort((a, b) =>
           Date.parse(b.created_at) - Date.parse(a.created_at)
